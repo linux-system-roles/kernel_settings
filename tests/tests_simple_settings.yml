@@ -1,0 +1,31 @@
+---
+- name: set parameters for test
+  hosts: all
+  tasks:
+    - name: set vars used by this test
+      include_vars:
+        file: vars/vars_simple_settings.yml
+
+- name: apply the settings
+  hosts: all
+  roles:
+    - linux-system-roles.kernel_settings
+
+- name: verify settings
+  hosts: all
+  tasks:
+    - name: include vars from role to use for verification
+      include_vars:
+        file: roles/linux-system-roles.kernel_settings/vars/main.yml
+
+    - include_tasks: tasks/assert_kernel_settings.yml
+      vars:
+        __kernel_settings_parameters: "{{ kernel_settings_parameters }}"
+
+    - name: reboot the machine - see if settings persist after reboot
+      reboot:
+        test_command: tuned-adm active
+
+    - include_tasks: tasks/assert_kernel_settings.yml
+      vars:
+        __kernel_settings_parameters: "{{ kernel_settings_parameters }}"

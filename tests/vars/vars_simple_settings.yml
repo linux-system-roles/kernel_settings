@@ -1,0 +1,46 @@
+kernel_settings_sysctl:
+  - name: fs.epoll.max_user_watches
+    value: 785592
+  - name: fs.file-max
+    value: 379724
+  - name: no.such.param
+    state: absent
+kernel_settings_sysfs:
+  - name: /sys/kernel/debug/x86/pti_enabled
+    value: 0
+  - name: /sys/kernel/debug/x86/retp_enabled
+    value: 0
+  - name: /sys/kernel/debug/x86/ibrs_enabled
+    value: 0
+  - name: /sys/not/found
+    state: absent
+kernel_settings_systemd_cpu_affinity_state: absent
+kernel_settings_transparent_hugepages: madvise
+kernel_settings_transparent_hugepages_defrag_state: absent
+kernel_settings_bootloader_cmdline:
+  - name: spectre_v2
+    value: "off"
+  - name: nopti
+  - name: notfound
+    state: absent
+
+# this is the expected value of the bootloader cmdline file
+__kernel_settings_blcmdline_value: "spectre_v2=off nopti"
+
+# this is the expected contents of the kernel_settings profile after
+# after applying kernel_settings_parameters
+__kernel_settings_profile_file: |
+  # File managed by Ansible - DO NOT EDIT
+  [main]
+  summary = kernel settings
+  [sysctl]
+  fs.epoll.max_user_watches = 785592
+  fs.file-max = 379724
+  [vm]
+  transparent_hugepages = madvise
+  [sysfs]
+  /sys/kernel/debug/x86/ibrs_enabled = 0
+  /sys/kernel/debug/x86/pti_enabled = 0
+  /sys/kernel/debug/x86/retp_enabled = 0
+  [bootloader]
+  cmdline = {{ __kernel_settings_blcmdline_value }}

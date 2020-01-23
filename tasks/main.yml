@@ -1,0 +1,89 @@
+---
+- name: Set version specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}_{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "default.yml"
+
+- name: Ensure required packages are installed
+  package:
+    name: "{{ __kernel_settings_packages }}"
+    state: present
+
+- name: Ensure required services are enabled and started
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: "{{ __kernel_settings_services }}"
+
+- name: Ensure kernel settings profile directory exists
+  file:
+    path: "{{ __kernel_settings_profile_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Generate a configuration for kernel settings
+  template:
+    src: "{{ __kernel_settings_profile_src }}.j2"
+    dest: "{{ __kernel_settings_profile_filename }}"
+    mode: 0644
+
+- name: Apply kernel settings
+  kernel_settings:
+    sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
+    sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
+    systemd:
+      - name: "{{ 'cpu_affinity'
+                  if kernel_settings_systemd_cpu_affinity
+                  or kernel_settings_systemd_cpu_affinity_state
+                  else omit }}"
+        value: "{{ kernel_settings_systemd_cpu_affinity
+                   if kernel_settings_systemd_cpu_affinity
+                   else omit }}"
+        state: "{{ kernel_settings_systemd_cpu_affinity_state
+                   if kernel_settings_systemd_cpu_affinity_state
+                   else omit }}"
+    vm:
+      - name: "{{ 'transparent_hugepages'
+                  if kernel_settings_transparent_hugepages
+                  or kernel_settings_transparent_hugepages_state
+                  else omit }}"
+        value: "{{ kernel_settings_transparent_hugepages
+                   if kernel_settings_transparent_hugepages
+                   else omit }}"
+        state: "{{ kernel_settings_transparent_hugepages_state
+                   if kernel_settings_transparent_hugepages_state
+                   else omit }}"
+      - name: "{{ 'transparent_hugepage.defrag'
+                  if kernel_settings_transparent_hugepages_defrag
+                  or kernel_settings_transparent_hugepages_defrag_state
+                  else omit }}"
+        value: "{{ kernel_settings_transparent_hugepages_defrag
+                   if kernel_settings_transparent_hugepages_defrag
+                   else omit }}"
+        state: "{{ kernel_settings_transparent_hugepages_defrag_state
+                   if kernel_settings_transparent_hugepages_defrag_state
+                   else omit }}"
+    bootloader:
+      - name: "{{ 'cmdline'
+                  if kernel_settings_bootloader_cmdline
+                  else omit }}"
+        value: "{{ kernel_settings_bootloader_cmdline
+                   if kernel_settings_bootloader_cmdline
+                   else omit }}"
+    purge: "{{ kernel_settings_purge }}"
+  notify: __kernel_settings_handler_modified
+  when:
+    - kernel_settings_sysctl or kernel_settings_sysfs
+      or kernel_settings_systemd_cpu_affinity
+      or kernel_settings_systemd_cpu_affinity_state
+      or kernel_settings_transparent_hugepages
+      or kernel_settings_transparent_hugepages_state
+      or kernel_settings_transparent_hugepages_defrag
+      or kernel_settings_transparent_hugepages_defrag_state
+      or kernel_settings_bootloader_cmdline
+      or kernel_settings_purge
