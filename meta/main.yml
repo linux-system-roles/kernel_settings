@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  author: Richard Megginson <rmeggins@redhat.com>
+  description: Kernel settings role, implemented with tuned
+  company: Red Hat, Inc.
+  license: GPLv2+,MIT
+  min_ansible_version: 2.7
+  platforms:
+    - name: Fedora
+      versions:
+        - 30
+        - 31
+    - name: EL
+      versions:
+        - 7
+        - 8
+  galaxy_tags:
+    - centos
+    - fedora
+    - kernel
+    - tuned
+    - redhat
+    - rhel
+    - system

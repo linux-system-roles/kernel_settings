@@ -1,0 +1,3 @@
+---
+__kernel_settings_packages: ["tuned"]
+__kernel_settings_services: ["tuned"]

@@ -1,0 +1,11 @@
+---
+- name: restart kernel_settings services
+  service:
+    name: "{{ item }}"
+    state: restarted
+  loop: "{{ __kernel_settings_services }}"
+  listen: __kernel_settings_handler_modified
+
+- name: verify settings
+  include_tasks: "{{ role_path ~ '/handlers/verify_settings.yml' }}"
+  listen: __kernel_settings_handler_modified
