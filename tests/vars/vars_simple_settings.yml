@@ -17,6 +17,7 @@ kernel_settings_sysfs:
 kernel_settings_systemd_cpu_affinity_state: absent
 kernel_settings_transparent_hugepages: madvise
 kernel_settings_transparent_hugepages_defrag_state: absent
+
 kernel_settings_bootloader_cmdline:
   - name: spectre_v2
     value: "off"
@@ -27,8 +28,11 @@ kernel_settings_bootloader_cmdline:
 # this is the expected value of the bootloader cmdline file
 __kernel_settings_blcmdline_value: "spectre_v2=off nopti"
 
+# set true if the change should cause the role to set the reboot flag
+__kernel_settings_check_reboot: true
+
 # this is the expected contents of the kernel_settings profile after
-# after applying kernel_settings_parameters
+# after applying the settings above
 __kernel_settings_profile_file: |
   # File managed by Ansible - DO NOT EDIT
   [main]
@@ -42,5 +46,7 @@ __kernel_settings_profile_file: |
   /sys/kernel/debug/x86/ibrs_enabled = 0
   /sys/kernel/debug/x86/pti_enabled = 0
   /sys/kernel/debug/x86/retp_enabled = 0
+  {% if __kernel_settings_blcmdline_value | d() %}
   [bootloader]
   cmdline = {{ __kernel_settings_blcmdline_value }}
+  {% endif %}

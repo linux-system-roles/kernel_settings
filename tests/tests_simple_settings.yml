@@ -1,31 +1,45 @@
 ---
-- name: set parameters for test
+- name: test simple kernel settings
   hosts: all
   tasks:
-    - name: set vars used by this test
+    - name: set platform independent vars used by this test
       include_vars:
         file: vars/vars_simple_settings.yml
 
-- name: apply the settings
-  hosts: all
-  roles:
-    - linux-system-roles.kernel_settings
+    - name: disable bootloader cmdline testing on Fedora
+      set_fact:
+        kernel_settings_bootloader_cmdline: null
+        __kernel_settings_blcmdline_value: null
+        __kernel_settings_check_reboot: false
+      when: ansible_distribution == "Fedora"
 
-- name: verify settings
-  hosts: all
-  tasks:
+    - name: apply the settings - call the role
+      include_role:
+        name: linux-system-roles.kernel_settings
+
     - name: include vars from role to use for verification
       include_vars:
         file: roles/linux-system-roles.kernel_settings/vars/main.yml
 
-    - include_tasks: tasks/assert_kernel_settings.yml
+    - name: verify that settings were applied correctly
+      include_tasks: tasks/assert_kernel_settings.yml
       vars:
-        __kernel_settings_parameters: "{{ kernel_settings_parameters }}"
+        __kernel_settings_test_verify: false
 
+    # reboot if a reboot is needed AND we did not tell the role
+    # to reboot the machine if needed
     - name: reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
+      when:
+        - kernel_settings_reboot_required | d(false)
+        - not kernel_settings_test_reboot_ok | d(false)
 
-    - include_tasks: tasks/assert_kernel_settings.yml
+    - name: verify that settings were applied correctly after reboot
+      include_tasks: tasks/assert_kernel_settings.yml
       vars:
-        __kernel_settings_parameters: "{{ kernel_settings_parameters }}"
+        __kernel_settings_check_reboot: false
+        __kernel_settings_test_verify: true
+      when:
+        - kernel_settings_reboot_required | d(false)
+        - not kernel_settings_test_reboot_ok | d(false)

@@ -1,11 +1,18 @@
 ---
-- name: restart kernel_settings services
-  service:
-    name: "{{ item }}"
-    state: restarted
-  loop: "{{ __kernel_settings_services }}"
+- name: reboot the managed host to apply kernel_settings changes
+  reboot:
+    test_command: tuned-adm active
   listen: __kernel_settings_handler_modified
+  when:
+    - kernel_settings_reboot_required | d(false)
+    - kernel_settings_reboot_ok | d(false)
 
-- name: verify settings
-  include_tasks: "{{ role_path ~ '/handlers/verify_settings.yml' }}"
+# Since we just rebooted the machine above, a reboot is not
+# needed.
+- name: clear the kernel_settings_reboot_required flag
+  set_fact:
+    kernel_settings_reboot_required: false
   listen: __kernel_settings_handler_modified
+  when:
+    - kernel_settings_reboot_required | d(false)
+    - kernel_settings_reboot_ok | d(false)

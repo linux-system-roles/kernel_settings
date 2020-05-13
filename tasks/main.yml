@@ -78,6 +78,7 @@
                    else omit }}"
     purge: "{{ kernel_settings_purge }}"
   notify: __kernel_settings_handler_modified
+  register: __kernel_settings_register_module
   when:
     - kernel_settings_sysctl or kernel_settings_sysfs
       or kernel_settings_systemd_cpu_affinity
@@ -88,3 +89,28 @@
       or kernel_settings_transparent_hugepages_defrag_state
       or kernel_settings_bootloader_cmdline
       or kernel_settings_purge
+
+- name: tuned apply settings
+  command: >
+    tuned-adm profile '{{ __kernel_settings_register_module.active_profile }}'
+  when: __kernel_settings_register_module is changed
+
+- name: verify settings
+  include_tasks: verify_settings.yml
+  when: __kernel_settings_register_module is changed
+
+- name: notify user that reboot is needed to apply changes
+  debug:
+    msg: >
+      kernel_settings have been modified.
+      A reboot is required in order to apply the changes.
+  when:
+    - __kernel_settings_register_module.reboot_required | d(false)
+    - not kernel_settings_reboot_ok | d(false)
+
+- name: set the flag that reboot is needed to apply changes
+  set_fact:
+    kernel_settings_reboot_required: true
+  when:
+    - __kernel_settings_register_module.reboot_required | d(false)
+    - not kernel_settings_reboot_ok | d(false)
