@@ -319,7 +319,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         current_profile = tuned_app.daemon.profile
         errlist = kernel_settings.validate_and_digest(params)
         self.assertEqual(len(errlist), 0)
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             params, current_profile, False
         )
         self.assertEqual(kernel_settings.CHANGES, changestatus)
@@ -331,11 +331,13 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         self.assertEqual(vm, current_profile.units["vm"].options)
         cmdline = {"cmdline": "spectre_v2=off nopti quiet splash"}
         self.assertEqual(cmdline, dict(current_profile.units["bootloader"].options))
+        self.assertTrue(reboot_required)
         # test idempotency
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             params, current_profile, False
         )
         self.assertEqual(kernel_settings.NOCHANGES, changestatus)
+        self.assertFalse(reboot_required)
 
     def test_apply_params_and_ops_to_profile(self):
         """test applying params and operations to a profile"""
@@ -370,7 +372,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         current_profile = tuned_app.daemon.profile
         errlist = kernel_settings.validate_and_digest(params)
         self.assertEqual(len(errlist), 0)
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             params, current_profile, False
         )
         self.assertEqual(kernel_settings.CHANGES, changestatus)
@@ -381,13 +383,15 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         self.assertNotIn("vm", current_profile.units)
         cmdline = {"cmdline": "spectre_v2=off nopti someother=value"}
         self.assertEqual(cmdline, dict(current_profile.units["bootloader"].options))
+        self.assertTrue(reboot_required)
         # idempotency
         errlist = kernel_settings.validate_and_digest(paramsorig)
         self.assertEqual(len(errlist), 0)
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             paramsorig, current_profile, False
         )
         self.assertEqual(kernel_settings.NOCHANGES, changestatus)
+        self.assertFalse(reboot_required)
 
     def test_apply_params_with_purge(self):
         """test applying params to empty profile"""
@@ -412,7 +416,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         current_profile = tuned_app.daemon.profile
         errlist = kernel_settings.validate_and_digest(params)
         self.assertEqual(len(errlist), 0)
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             params, current_profile, True
         )
         self.assertEqual(kernel_settings.CHANGES, changestatus)
@@ -423,11 +427,13 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         self.assertNotIn("vm", current_profile.units)
         cmdline = {"cmdline": "spectre_v2=off nopti quiet splash"}
         self.assertEqual(cmdline, dict(current_profile.units["bootloader"].options))
+        self.assertFalse(reboot_required)
         # test idempotency
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             params, current_profile, True
         )
         self.assertEqual(kernel_settings.NOCHANGES, changestatus)
+        self.assertFalse(reboot_required)
 
     def test_write_profile(self):
         """test applying params and writing new profile"""
@@ -453,10 +459,11 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
             self.tuned_config, "kernel_settings", self.logger
         )
         current_profile = tuned_app.daemon.profile
-        changestatus = kernel_settings.apply_params_to_profile(
+        changestatus, reboot_required = kernel_settings.apply_params_to_profile(
             params, current_profile, False
         )
         self.assertEqual(kernel_settings.CHANGES, changestatus)
+        self.assertTrue(reboot_required)
         kernel_settings.write_profile(current_profile)
         fname = os.path.join(
             tuned.consts.LOAD_DIRECTORIES[-1], "kernel_settings", "tuned.conf"
