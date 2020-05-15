@@ -63,19 +63,93 @@ Where `args.json` looks like this:
 	            ]
 	        }
         ],
-        "selinux": [
-            {"name": "avc_cache_threshold", "value": 512}
-        ],
         "purge": false
     }
 }
 ```
 
-### Other tests
+### tox
 
-Use `tox -e molecule` to run the molecule based tests.
+Run `tox` by itself with no arguments to run all of the default tests.  Use
+`tox -a` to list all of the test environments.  Use `tox -e name` to run the
+tests in that particular environment.
 
-Use `tox -e qemu-py27-ansible29` or `tox -e qemu-py38-ansible29` to run the
-Ansible based tests against a local virtual machine.  These tests are in
-`tests/tests_*.yml`.  See the file `tox.ini` for other `testenv:qemu-*`
-environments you can use.
+## Local Virtual Machine based tests
+
+### Setup and running
+
+You must first install the commands
+`/usr/share/ansible/inventory/standard-inventory-qcow2` and `/usr/bin/ansible-playbook`.  On Fedora, this is
+provided by the `standard-test-roles-inventory-qemu` and `ansible` packages -
+`sudo dnf -y install standard-test-roles-inventory-qemu ansible`.
+The test playbooks are the files
+that match the pattern `tests/tests_*.yml`.  You must also have one or more
+qcow2 virtual machine images on your local disk somewhere.  For example, http://mirrors.kernel.org/fedora/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.qcow2
+
+To run a test playbook, assuming you have downloaded the virtual machine image somewhere
+on your local disk:
+```
+ANSIBLE_STDOUT_CALLBACK=debug \
+TEST_SUBJECTS=/path/to/Fedora-Cloud-Base-31-1.9.x86_64.qcow2 \
+ansible-playbook -vv \
+-i /usr/share/ansible/inventory/standard-inventory-qcow2 \
+tests/tests_simple_settings.yml 2>&1 | tee output
+```
+Use `ANSIBLE_STDOUT_CALLBACK=debug` to make the output in a more human-readable format.
+
+### How to use test playbooks
+
+Each test consists of 3 phases:
+* set the variables used by the test - the input parameters to the role, and the expected values to be verified after the role runs
+* run the role - call or import the role with the given input parameters
+* verify the role run - call the assert task files
+
+If you are creating a new test playbook `tests/tests_some_behavior.yml`, start with
+`tests/tests_simple_settings.yml` and copy it to `tests/tests_some_behavior.yml`.
+Modify it as needed.  Next, copy `tests/vars/vars_simple_settings.yml` to `tests/vars/vars_some_behavior.yml` and modify it as needed.  Then modify `tests/tests_some_behavior.yml` to make sure it includes `vars/vars_some_behavior.yml` in the section where the test
+parameters are set:
+```yaml
+- name: set parameters for test
+  hosts: all
+  tasks:
+    - name: set vars used by this test
+      include_vars:
+        file: vars/vars_some_behavior.yml
+```
+
+To specify the input parameters to the role, set the role variables in `tests/vars/vars_NAME.yml`.  These are the role variables documented in the README.md and in `defaults/main.yml` e.g. `kernel_settings_sysctl`, etc.
+
+There are two variables in `tests/vars/vars_NAME.yml` for the expected values:
+
+* `__kernel_settings_profile_file` - this is what you expect the
+  `kernel_settings/tuned.conf` to contain after the role runs.
+* `__kernel_settings_blcmdline_value` - this is what you expect the
+  `/etc/tuned/bootcmdline` value of `TUNED_BOOT_CMDLINE=` to contain after the
+  role runs.  This can be omitted if you are not testing `kernel_settings_bootloader_cmdline`
+
+### How test verification works
+
+The task file `tests/tasks/assert_kernel_settings.yml` will verify that the
+role modified the system correctly.  It assumes you have set
+`__kernel_settings_profile_file` and `__kernel_settings_blcmdline_value` (if
+testing `kernel_settings_bootloader_cmdline`).
+`tests/tasks/assert_kernel_settings.yml` will do some test setup work, then
+call `tests/tasks/assert_kernel_settings_conf_files.yml` to do most of the
+work.  It first will compare `/etc/tuned/kernel_settings/tuned.conf` to
+`__kernel_settings_profile_file`.  It does this by first writing
+`__kernel_settings_profile_file` to a temp file, then compares that temp file
+to `/etc/tuned/kernel_settings/tuned.conf` using the `python` module
+`ConfigObj`.  We can't use `diff` because we cannot guarantee the order of
+sections and values within sections.  It then makes sure that
+`/etc/tuned/active_profile` ends with the `kernel_settings` profile.  It then
+makes sure that `/etc/tuned/profile_mode` is set to `manual`.  It then checks
+the contents of `/etc/tuned/bootcmdline` to make sure they match
+`__kernel_settings_blcmdline_value`.
+
+The test tasks do not fail immediately (i.e. they do not "fail-fast", they
+"fail-last"). Instead, if a task reports a failure, the variable
+`__kernel_settings_success` will set to `true`.  The final tasks in
+`tests/tasks/assert_kernel_settings.yml` will report that the test failed. You
+can review the test output to look for `FAILED!` to see which test tasks
+failed.  Note that some failures may be ignored, so if you see a task which
+reported `FAILED!`, check the task to see if it has `ignore_errors: true` set.
