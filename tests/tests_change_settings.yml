@@ -1,0 +1,78 @@
+- hosts: all
+  tasks:
+    - name: Ensure required packages are installed
+      package:
+        name: tuned
+        state: present
+
+    - name: Ensure kernel settings profile directory exists
+      file:
+        path: /etc/tuned/kernel_settings
+        state: directory
+        mode: 0755
+
+    - name: Generate a configuration for kernel settings
+      copy:
+        src: tuned/etc/tuned/basic_settings/tuned.conf
+        dest: /etc/tuned/kernel_settings/tuned.conf
+        mode: 0644
+
+    - name: Ensure required services are enabled and started
+      service:
+        name: tuned
+        state: restarted
+        enabled: yes
+
+    - name: apply kernel_settings
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          - name: fs.file-max
+            value: 400000
+          - name: kernel.threads-max
+            state: absent
+        kernel_settings_sysfs:
+          - name: /sys/kernel/debug/x86/nmi_longest_ns
+            value: 2000000
+        kernel_settings_bootloader_cmdline:
+          - name: spectre_v2
+            value: "on"
+          - name: quiet
+            state: absent
+
+    - name: reboot the machine - see if settings persist after reboot
+      reboot:
+        test_command: tuned-adm active
+
+    - name: check after reboot for ns_longest
+      shell: 'grep 2000000 /sys/kernel/debug/x86/nmi_longest_ns'
+      
+    - name: check after reboot cmdline
+      shell: 'grep spectre_v2 /proc/cmdline'
+
+    - name: check after reboot tuned
+      shell: tuned-adm verify -i
+
+    - name: apply kernel_settings again
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          - name: fs.file-max
+            value: absent
+          - name: kernel.threads-max
+            state: absent
+        kernel_settings_bootloader_cmdline:
+          - name: spectre_v2
+            value: "off"
+          - name: quiet
+            state: absent
+
+    - name: reboot the machine - see if settings persist after reboot
+      reboot:
+        test_command: tuned-adm active
+
+    - name: check after reboot cmdline
+      shell: 'grep spectre_v2 /proc/cmdline'
+
