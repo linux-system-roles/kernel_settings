@@ -75,4 +75,3 @@
 
     - name: check after reboot cmdline
       shell: 'grep spectre_v2 /proc/cmdline'
-
