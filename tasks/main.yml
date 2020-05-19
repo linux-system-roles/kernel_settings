@@ -30,6 +30,7 @@
   template:
     src: "{{ __kernel_settings_profile_src }}.j2"
     dest: "{{ __kernel_settings_profile_filename }}"
+    force: no
     mode: 0644
 
 - name: Apply kernel settings
