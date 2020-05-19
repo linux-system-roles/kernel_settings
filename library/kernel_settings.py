@@ -218,6 +218,9 @@ new_profile:
 reboot_required:
     boolean - default is false - if true, this means a reboot of the
     managed host is required in order for the changes to take effect.
+active_profile:
+    This is the space delimited list of active profiles as reported
+    by tuned.
 """
 
 TUNED_PROFILE = os.environ.get("TEST_PROFILE", "kernel_settings")
@@ -455,12 +458,12 @@ def write_profile(current_profile):
         cfg.write(prof_f)
 
 
-def update_current_profile_and_mode(daemon):
+def update_current_profile_and_mode(daemon, profile_list):
     """ensure that the tuned current_profile applies the kernel_settings last"""
     changed = False
     profile, manual = daemon._get_startup_profile()
     # is TUNED_PROFILE in the list?
-    profile_list = profile.split()
+    profile_list.extend(profile.split())
     if TUNED_PROFILE not in profile_list:
         changed = True
         profile_list.append(TUNED_PROFILE)
@@ -778,7 +781,8 @@ def run_module():
     changestatus, reboot_required = apply_params_to_profile(
         params, current_profile, purge
     )
-    if update_current_profile_and_mode(tuned_app.daemon):
+    profile_list = []
+    if update_current_profile_and_mode(tuned_app.daemon, profile_list):
         # profile or mode changed
         if changestatus == NOCHANGES:
             changestatus = CHANGES
@@ -800,6 +804,7 @@ def run_module():
         result["msg"] = "Kernel settings are up to date."
     debug_print_profile(current_profile, module)
     result["new_profile"] = profile_to_dict(current_profile)
+    result["active_profile"] = " ".join(profile_list)
     result["reboot_required"] = reboot_required
     if reboot_required:
         result["msg"] = (
