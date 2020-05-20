@@ -210,7 +210,7 @@ kernel_settings:
 """
 
 RETURN = """
-message:
+msg:
     A short text message to say what action this module performed.
 new_profile:
     This is the tuned profile in dict format, after the changes, if any,
