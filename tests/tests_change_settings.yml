@@ -83,4 +83,4 @@
         test_command: tuned-adm active
 
     - name: check after reboot cmdline
-      command: grep spectre_v2 /proc/cmdline
+      command: grep spectre_v2=off /proc/cmdline
