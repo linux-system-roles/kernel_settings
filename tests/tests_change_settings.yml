@@ -45,14 +45,14 @@
       command: grep 65000 /sys/class/net/lo/mtu
 
     - name: check sysctl
-      command: sysctl -n fs.file-max | grep 400000
+      shell: sysctl -n fs.file-max | grep 400000
 
     - name: reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
 
     - name: check sysctl
-      command: sysctl -n fs.file-max | grep 400000
+      shell: sysctl -n fs.file-max | grep 400000
 
     - name: check sysfs
       command: grep 65000 /sys/class/net/lo/mtu
