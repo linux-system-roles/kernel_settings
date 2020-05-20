@@ -33,25 +33,34 @@
           - name: kernel.threads-max
             state: absent
         kernel_settings_sysfs:
-          - name: /sys/kernel/debug/x86/nmi_longest_ns
-            value: 2000000
+          - name: /sys/class/net/lo/mtu
+            value: 65000
         kernel_settings_bootloader_cmdline:
           - name: spectre_v2
             value: "on"
           - name: quiet
             state: absent
 
+    - name: check sysfs
+      command: grep 65000 /sys/class/net/lo/mtu
+
+    - name: check sysctl
+      command: sysctl -n fs.file-max | grep 400000
+
     - name: reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
 
-    - name: check after reboot for ns_longest
-      command: grep 2000000 /sys/kernel/debug/x86/nmi_longest_ns
-      
-    - name: check after reboot cmdline
+    - name: check sysctl
+      command: sysctl -n fs.file-max | grep 400000
+
+    - name: check sysfs
+      command: grep 65000 /sys/class/net/lo/mtu
+
+    - name: check cmdline
       command: grep spectre_v2 /proc/cmdline
 
-    - name: check after reboot tuned
+    - name: check with tuned verify
       command: tuned-adm verify -i
 
     - name: apply kernel_settings again
