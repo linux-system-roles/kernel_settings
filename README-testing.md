@@ -83,7 +83,7 @@ You must first install the commands
 provided by the `standard-test-roles-inventory-qemu` and `ansible` packages -
 `sudo dnf -y install standard-test-roles-inventory-qemu ansible`.
 The test playbooks are the files
-that match the pattern `tests/tests_*.yml`.  You must also have one or more
+that match the pattern `tests/tests*.yml`.  You must also have one or more
 qcow2 virtual machine images on your local disk somewhere.  For example, http://mirrors.kernel.org/fedora/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.qcow2
 
 To run a test playbook, assuming you have downloaded the virtual machine image somewhere
