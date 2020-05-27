@@ -153,3 +153,57 @@ The test tasks do not fail immediately (i.e. they do not "fail-fast", they
 can review the test output to look for `FAILED!` to see which test tasks
 failed.  Note that some failures may be ignored, so if you see a task which
 reported `FAILED!`, check the task to see if it has `ignore_errors: true` set.
+
+## Test FAQ
+
+#### Q: The test ends when first error is reached - what if I need to continue?
+
+Step 1 - At the beginning of your test, define a boolean variable which will
+denote if the test was successful:
+```yaml
+- name: reset success flag
+  set_fact:
+    __kernel_settings_test_success: true
+```
+
+Step 2 - Add `ignore_errors: true` and `register:
+__kernel_settings_test_register_NAME` to your test task.  The `ignore_errors:
+true` tells Ansible not to fail immediately, and the `register: some_var` will
+save the task result in the variable for use later.
+```yaml
+- name: check that settings are applied correctly
+  command: tuned-adm verify -i
+  ignore_errors: true
+  register: __kernel_settings_test_register_verify
+```
+
+Step 3 - Add a task after this one to check the register variable, and set
+your success flag to `false` upon failure.  NOTE that the check for the
+register variable is different depending on what the check did.  In the
+simplest case, if the task reports success or failure, you can use one of the
+[Ansible built-in
+tests](https://docs.ansible.com/ansible/latest/user_guide/playbooks_tests.html#task-results)
+```yaml
+- name: verify expected content
+  set_fact:
+    __kernel_settings_success: false
+  when: __kernel_settings_test_register_verify is failed
+```
+More complex checks could see if a specific string was in the stdout of the command:
+```yaml
+- name: verify expected content
+  set_fact:
+    __kernel_settings_test_success: false
+  when: __kernel_settings_test_register_verify.stdout is search('ERROR')
+```
+
+Step 4 - At the end of your test, check if your success flag is `false`, and
+report an error if so:
+```yaml
+- name: assert success
+  assert:
+    that: __kernel_settings_test_success | d(true)
+    msg: Found errors checking kernel parameters
+```
+
+Step 5 - Scan the Ansible output to look for `FAILED` tasks.
