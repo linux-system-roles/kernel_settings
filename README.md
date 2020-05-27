@@ -267,7 +267,20 @@ The settings you apply with the `kernel_settings` role may conflict with other
 settings.  For example, if you manually run the `sysctl` command, or manually
 edit `/etc/sysctl.d/` files, or if the `sysctl.d` files are installed by some
 system package, they may set the same values you are setting with the
-`kernel_settings` role.
+`kernel_settings` role.  For `sysctl` settings, the precedence goes like this:
+* `sysctl` files have highest precedence - `/etc/sysctl.conf` and
+  `/etc/sysctl.d/*` will override everything
+* `kernel_settings` settings have the next highest precedence
+* settings set manually using the `sysctl` command have the lowest precedence
+
+For `bootloader` `cmdline` settings, the settings from `kernel_settings` will
+generally take precedence over other bootloader settings.  If you set
+bootloader cmdline configuration outside of the `kernel_settings` role, e.g.
+using `grubby`, you should review your settings to make sure they do not
+conflict.
+
+For all other settings such as `sysfs`, the settings from `kernel_settings`
+have the highest precedence.
 
 ## License
 
