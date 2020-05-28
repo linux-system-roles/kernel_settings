@@ -171,16 +171,16 @@ author:
 EXAMPLES = """
 # add the sysctl vm.max_mmap_regions, and disable spectre/meltdown security
 kernel_settings:
-    sysctl:
-      - name: vm.max_mmap_regions
-        value: 262144
-    sysfs:
-      - name: /sys/kernel/debug/x86/pti_enabled
-        value: 0
-      - name: /sys/kernel/debug/x86/retp_enabled
-        value: 0
-      - name: /sys/kernel/debug/x86/ibrs_enabled
-        value: 0
+  sysctl:
+    - name: vm.max_mmap_regions
+      value: 262144
+  sysfs:
+    - name: /sys/kernel/debug/x86/pti_enabled
+      value: 0
+    - name: /sys/kernel/debug/x86/retp_enabled
+      value: 0
+    - name: /sys/kernel/debug/x86/ibrs_enabled
+      value: 0
 
 # replace the existing sysctl section with the specified section
 # delete the /sys/kernel/debug/x86/retp_enabled setting
@@ -188,25 +188,39 @@ kernel_settings:
 # add the bootloader cmdline arguments spectre_v2=off nopti
 # remove the bootloader cmdline arguments quiet splash
 kernel_settings:
-    sysctl:
-      - previous: replaced
-      - name: vm.max_mmap_regions
-        value: 262144
-    sysfs:
-      - name: /sys/kernel/debug/x86/retp_enabled
-        state: absent
-    vm:
-      state: empty
-    bootloader:
-      - name: cmdline
-        value:
-          - name: spectre_v2
-            value: off
-          - name: nopti
-          - name: quiet
-            state: absent
-          - name: splash
-            state: absent
+  sysctl:
+    - previous: replaced
+    - name: vm.max_mmap_regions
+      value: 262144
+  sysfs:
+    - name: /sys/kernel/debug/x86/retp_enabled
+      state: absent
+  vm:
+    state: empty
+  bootloader:
+    - name: cmdline
+      value:
+        - name: spectre_v2
+          value: off
+        - name: nopti
+        - name: quiet
+          state: absent
+        - name: splash
+          state: absent
+"""
+
+RETURN = """
+msg:
+    A short text message to say what action this module performed.
+new_profile:
+    This is the tuned profile in dict format, after the changes, if any,
+    have been applied.
+reboot_required:
+    boolean - default is false - if true, this means a reboot of the
+    managed host is required in order for the changes to take effect.
+active_profile:
+    This is the space delimited list of active profiles as reported
+    by tuned.
 """
 
 TUNED_PROFILE = os.environ.get("TEST_PROFILE", "kernel_settings")
@@ -370,11 +384,19 @@ def apply_item_to_profile(item, unitname, current_profile):
         ).options[name] = str(newvalue)
 
 
+def is_reboot_required(unitname):
+    """Some changes need a reboot for the changes to be applied
+       For example, bootloader cmdline changes"""
+    # for now, only bootloader cmdline changes need a reboot
+    return unitname == "bootloader"
+
+
 def apply_params_to_profile(params, current_profile, purge):
     """apply the settings from the input parameters to the current profile
     delete the unit if it is empty after applying the parameter deletions
     """
     changestatus = NOCHANGES
+    reboot_required = False
     section_to_replace = params.pop(SECTION_TO_REPLACE, {})
     need_purge = set()
     if purge:
@@ -395,6 +417,7 @@ def apply_params_to_profile(params, current_profile, purge):
                 if unit:
                     # we changed the profile
                     changestatus = CHANGES
+                reboot_required = reboot_required or is_reboot_required(unitname)
                 # we're done - no further processing necessary for this unit
                 continue
         for item in items:
@@ -405,14 +428,16 @@ def apply_params_to_profile(params, current_profile, purge):
             newoptions = current_profile.units[unitname].options
         if current_options != newoptions:
             changestatus = CHANGES
+            reboot_required = reboot_required or is_reboot_required(unitname)
     for unitname in need_purge:
         del current_profile.units[unitname]
         changestatus = CHANGES
+        reboot_required = reboot_required or is_reboot_required(unitname)
     # remove empty units
     for unitname in list(current_profile.units.keys()):
         if not current_profile.units[unitname].options:
             del current_profile.units[unitname]
-    return changestatus
+    return changestatus, reboot_required
 
 
 def write_profile(current_profile):
@@ -433,12 +458,12 @@ def write_profile(current_profile):
         cfg.write(prof_f)
 
 
-def update_current_profile_and_mode(daemon):
+def update_current_profile_and_mode(daemon, profile_list):
     """ensure that the tuned current_profile applies the kernel_settings last"""
     changed = False
     profile, manual = daemon._get_startup_profile()
     # is TUNED_PROFILE in the list?
-    profile_list = profile.split()
+    profile_list.extend(profile.split())
     if TUNED_PROFILE not in profile_list:
         changed = True
         profile_list.append(TUNED_PROFILE)
@@ -705,7 +730,7 @@ def run_module():
         # below
         module_args[plugin_name] = dict(type="raw", required=False)
 
-    result = dict(changed=False, original_message="", message="")
+    result = dict(changed=False, message="")
 
     module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
@@ -717,7 +742,7 @@ def run_module():
     # remove any non-tuned fields from params and save them locally
     # state = params.pop("state")
     purge = params.pop("purge", False)
-    paramname = params.pop("name")
+    del params["name"]
     # also remove any empty or None
     for key, val in list(params.items()):
         if not val:
@@ -749,19 +774,19 @@ def run_module():
         debug_print_profile(current_profile, module)
         errmsg = ""
 
-    # manipulate or modify the state as needed (this is going to be the
-    # part where your module will do what it needs to do)
-    result["original_message"] = paramname
-    result["message"] = "Kernel settings were updated"
+    result["msg"] = "Kernel settings were updated."
 
     # apply the given params to the profile - if there are any new items
     # the function will return True we set changed = True
-    changestatus = apply_params_to_profile(params, current_profile, purge)
-    if update_current_profile_and_mode(tuned_app.daemon):
+    changestatus, reboot_required = apply_params_to_profile(
+        params, current_profile, purge
+    )
+    profile_list = []
+    if update_current_profile_and_mode(tuned_app.daemon, profile_list):
         # profile or mode changed
         if changestatus == NOCHANGES:
             changestatus = CHANGES
-            result["message"] = "Updated active profile and/or mode"
+            result["msg"] = "Updated active profile and/or mode."
     if changestatus > NOCHANGES:
         try:
             write_profile(current_profile)
@@ -776,10 +801,15 @@ def run_module():
             module.fail_json(msg=errmsg, **result)
         result["changed"] = True
     else:
-        result["message"] = "Kernel settings are up to date"
+        result["msg"] = "Kernel settings are up to date."
     debug_print_profile(current_profile, module)
     result["new_profile"] = profile_to_dict(current_profile)
-
+    result["active_profile"] = " ".join(profile_list)
+    result["reboot_required"] = reboot_required
+    if reboot_required:
+        result["msg"] = (
+            result["msg"] + "  A system reboot is needed to apply the changes."
+        )
     module.exit_json(**result)
 
 
