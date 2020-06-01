@@ -41,6 +41,10 @@
           - name: quiet
             state: absent
 
+    - name: check with tuned verify
+      command: tuned-adm verify -i
+      ignore_errors: true
+
     - name: check sysfs after role runs
       command: grep 65000 /sys/class/net/lo/mtu
       ignore_errors: true
