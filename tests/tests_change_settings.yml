@@ -43,19 +43,15 @@
 
     - name: check with tuned verify
       command: tuned-adm verify -i
-      ignore_errors: true
 
     - name: check sysfs after role runs
       command: grep 65000 /sys/class/net/lo/mtu
-      ignore_errors: true
 
     - name: check sysctl after role runs
       shell: sysctl -n fs.file-max | grep 400000
-      ignore_errors: true
 
     - name: check sysctl after role runs
       shell: sysctl -n kernel.threads-max | grep -vq 29968
-      ignore_errors: true
 
     - name: reboot the machine - see if settings persist after reboot
       reboot:
@@ -63,27 +59,21 @@
 
     - name: check sysctl after reboot
       shell: sysctl -n fs.file-max | grep 400000
-      ignore_errors: true
 
     - name: check sysfs after reboot
       command: grep 65000 /sys/class/net/lo/mtu
-      ignore_errors: true
 
     - name: check cmdline for spectre_v2 after reboot
       command: grep spectre_v2=on /proc/cmdline
-      ignore_errors: true
 
     - name: check cmdline for quiet flag after reboot (should not present)
       command: grep -vq quiet /proc/cmdline
-      ignore_errors: true
 
     - name: check sysctl after reboot
       shell: sysctl -n kernel.threads-max | grep -vq 29968
-      ignore_errors: true
 
     - name: check with tuned verify
       command: tuned-adm verify -i
-      ignore_errors: true
 
     - name: apply role again and remove settings
       include_role:
@@ -106,8 +96,6 @@
 
     - name: check after spectre_v2 reboot
       command: grep -vq spectre_v2 /proc/cmdline
-      ignore_errors: true
 
     - name: check sysctl after reboot
       shell: sysctl -n fs.file-max | grep -vq 400000
-      ignore_errors: true
