@@ -81,7 +81,7 @@
       vars:
         kernel_settings_sysctl:
           - name: fs.file-max
-            value: absent
+            state: absent
           - name: kernel.threads-max
             state: absent
         kernel_settings_bootloader_cmdline:
