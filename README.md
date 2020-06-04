@@ -93,7 +93,24 @@ for examples.
 configuration will be completely wiped out and replaced with your given
 `kernel_settings_GROUP` settings.
 
-### Examples
+`kernel_settings_reboot_ok` - default `false` - If `true`, then if the role
+detects that something was changed that requires a reboot to take effect, the
+role will reboot the managed host.  If `false`, it is up to you to determine
+when to reboot the managed host.  The role will return the variable
+`kernel_settings_reboot_required` (see below) with a value of `true` to indicate
+that some change has occurred which needs a reboot to take effect.
+
+### Variables Exported by the Role
+
+The role will export the following variables:
+
+`kernel_settings_reboot_required` - default `false` - if `true`, this means a
+change has occurred which will require rebooting the managed host in order to
+take effect (e.g. bootloader cmdline settings).  If you want the role to
+reboot the managed host, set `kernel_settings_reboot_ok: true`, otherwise, you
+will need to handle rebooting the machine.
+
+### Examples of Settings Usage
 
 ```yaml
 kernel_settings_sysctl:

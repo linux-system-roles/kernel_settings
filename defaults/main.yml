@@ -65,3 +65,9 @@ kernel_settings_bootloader_cmdline: []
 # If purge is true, completely wipe out whatever the current settings
 # are and replace them with kernel_settings_parameters
 kernel_settings_purge: false
+
+# If true, the role is allowed to reboot the managed host if needed to apply
+# the changes.  If false, the role will emit a message telling the user that
+# some changes will require the managed host to be rebooted in order to be
+# applied, and will set kernel_settings_reboot_required: true
+kernel_settings_reboot_ok: false

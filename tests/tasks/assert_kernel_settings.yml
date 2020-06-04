@@ -1,5 +1,5 @@
 ---
-- name: Set version specific variables for test
+- name: Set variables used by assert/testing code
   include_vars: "{{ item }}"
   with_first_found:
     - "vars/tests_{{ ansible_distribution }}_\
@@ -10,10 +10,42 @@
   set_fact:
     __kernel_settings_success: true
 
+- name: check tuned-adm verify
+  command: tuned-adm verify -i
+  register: __kernel_settings_register_verify
+  ignore_errors: true
+  when: __kernel_settings_test_verify
+
+- name: check for verify errors
+  command: tail /var/log/tuned/tuned.log
+  when:
+    - __kernel_settings_register_verify is defined
+    - __kernel_settings_register_verify is failed
+
+- name: check /proc/cmdline
+  command: cat /proc/cmdline
+  when:
+    - __kernel_settings_register_verify is defined
+    - __kernel_settings_register_verify is failed
+
+- name: set error flag based on verify
+  set_fact:
+    __kernel_settings_success: false
+  when:
+    - __kernel_settings_register_verify is defined
+    - __kernel_settings_register_verify is failed
+
 - include_tasks: assert_kernel_settings_conf_files.yml
   when: __kernel_settings_profile_file is defined
 
+- name: check if kernel_settings_reboot_required is set if needed
+  set_fact:
+    __kernel_settings_success: false
+  when:
+    - __kernel_settings_check_reboot | d(false)
+    - not kernel_settings_reboot_required | d(false)
+
 - name: assert success
   assert:
-    that: __kernel_settings_success
-    msg: Found errors checking kernel parameters
+    that: __kernel_settings_success | d(false)
+    msg: Found errors checking kernel settings
