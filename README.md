@@ -7,6 +7,23 @@ and derivatives (RHEL and CentOS) and Fedora.
 
 * `tuned` homepage - https://github.com/redhat-performance/tuned
 
+Supported Distributions
+-----------------------
+* RHEL-7+, CentOS-7+
+* Fedora
+
+Limitations
+-----------
+
+### Fedora Cloud images - managing bootloader cmdline settings
+
+There is currently a problem with managing bootloader cmdline settings with
+Fedora Cloud images for Fedora 31, 32, and 33 rawhide.  We suggest you first
+update all of the packages (e.g. `dnf -y update`) and reboot the system before
+attempting to use `kernel_settings_bootloader_cmdline`.  And even then, it
+still might not work - the current Fedora 33 rawhide cloud images do not work
+even with the suggestion above.
+
 ## Requirements
 
 This role requires an operating system which has the `tuned` package and
