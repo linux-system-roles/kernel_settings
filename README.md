@@ -203,23 +203,25 @@ kernel_settings_bootloader_cmdline:
   - name: spectre_v2
     value: "off"
   - name: nopti
-  - name: quiet
+  - name: panic
+    value: 10001
   - name: splash
 ```
-will result in the values `spectre_v2=off nopti quiet splash` being added to,
-or replacing, the existing `bootloader` `cmdline` values.  If you want to
-remove whatever was there, and replace it with your specified values, use
-`previous: replaced` in the value list:
+will result in the values `spectre_v2=off nopti panic=10001 splash` being
+added to, or replacing, the existing `bootloader` `cmdline` values.  If you
+want to remove whatever was there, and replace it with your specified values,
+use `previous: replaced` in the value list:
 ```yaml
 kernel_settings_bootloader_cmdline:
   - previous: replaced
   - name: spectre_v2
     value: "off"
   - name: nopti
-  - name: quiet
+  - name: panic
+    value: 10001
   - name: splash
 ```
-then the values `spectre_v2=off nopti quiet splash` will *replace* the
+then the values `spectre_v2=off nopti panic=10001 splash` will *replace* the
 existing `cmdline` values, if any.  If you want to remove specific values, use
 `state: absent` on the settings you want to remove:
 ```yaml
@@ -229,9 +231,9 @@ kernel_settings_bootloader_cmdline:
   - name: nopti
     state: absent
 ```
-if the previous value was `spectre_v2=off nopti quiet splash`, the items
+if the previous value was `spectre_v2=off nopti panic=10001 splash`, the items
 `spectre_v2=off` and `nopti` will be removed from the list, and the final
-value will be `quiet splash`.
+value will be `panic=10001 splash`.
 
 ## Dependencies
 
@@ -262,7 +264,8 @@ The `tuned` package is required for the default provider.
       - name: spectre_v2
         value: "off"
       - name: nopti
-      - name: quiet
+      - name: panic
+        value: 10001
       - name: splash
   roles:
     - linux-system-roles.kernel_settings

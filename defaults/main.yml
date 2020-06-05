@@ -58,7 +58,8 @@ kernel_settings_transparent_hugepages_defrag_state: null
 #   - name: spectre_v2
 #     value: "off"
 #   - name: nopti
-#   - name: quiet
+#   - name: panic
+#     value: 10001
 #   - name: splash
 kernel_settings_bootloader_cmdline: []
 

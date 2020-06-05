@@ -186,7 +186,7 @@ kernel_settings:
 # delete the /sys/kernel/debug/x86/retp_enabled setting
 # completely remove the vm section
 # add the bootloader cmdline arguments spectre_v2=off nopti
-# remove the bootloader cmdline arguments quiet splash
+# remove the bootloader cmdline arguments panic splash
 kernel_settings:
   sysctl:
     - previous: replaced
@@ -203,7 +203,7 @@ kernel_settings:
         - name: spectre_v2
           value: off
         - name: nopti
-        - name: quiet
+        - name: panic
           state: absent
         - name: splash
           state: absent
