@@ -20,7 +20,7 @@ kernel_settings_transparent_hugepages_defrag_state: absent
 
 kernel_settings_bootloader_cmdline:
   - name: spectre_v2
-    value: "off"
+    value: off
   - name: nopti
   - name: notfound
     state: absent

@@ -101,6 +101,11 @@ class KernelSettingsBootloaderCmdline(unittest.TestCase):
         blcmd.add("foo", "false")
         self.assertEqual("foo=false another", str(blcmd))
 
+        blcmd = kernel_settings.BLCmdLine("")
+        blcmd.add("foo", True)
+        blcmd.add("bar", False)
+        self.assertEqual("foo=on bar=off", str(blcmd))
+
 
 class KernelSettingsInputValidation(unittest.TestCase):
     """test the code that does the input validation"""

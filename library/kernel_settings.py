@@ -336,6 +336,10 @@ class BLCmdLine(object):
         """add/replace the given key & value"""
         if key not in self.key_to_val:
             self.key_list.append(key)
+        if val is True:
+            val = "on"
+        elif val is False:
+            val = "off"
         self.key_to_val[key] = val
 
     def remove(self, key):

@@ -235,6 +235,21 @@ if the previous value was `spectre_v2=off nopti panic=10001 splash`, the items
 `spectre_v2=off` and `nopti` will be removed from the list, and the final
 value will be `panic=10001 splash`.
 
+**NOTE**: Use either string values or numeric values to avoid ambiguity or errors with boolean values.  For example, a value like `value: on` will be converted to the string value `"True"` in the stored configuration, since `on` is a YAML boolean value for `True`.  Instead, use `value: "on"` to mean the actual string `"on"`. For bootloader cmdline values, since `on` and `off` are commonly used
+for boolean values, the role will convert a YAML boolean value to `"on"` or `"off"`. For example, if you passed
+```yaml
+ kernel_settings_bootloader_cmdline:
+  - name: spectre_v2
+    value: true
+```
+the role will convert this to `spectre_v2=on`.  But better to use
+```yaml
+ kernel_settings_bootloader_cmdline:
+  - name: spectre_v2
+    value: "on"
+```
+to avoid any errors or ambiguity.
+
 ## Dependencies
 
 The `tuned` package is required for the default provider.
