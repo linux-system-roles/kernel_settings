@@ -320,7 +320,7 @@ class BLCmdLine(object):
     @classmethod
     def escapeval(cls, val):
         """make sure val is quoted as in shell"""
-        return shlex_quote(val)
+        return shlex_quote(str(val))
 
     def __str__(self):
         vallist = []
