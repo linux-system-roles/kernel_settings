@@ -15,6 +15,10 @@ Supported Distributions
 Limitations
 -----------
 
+### Default bootloader settings cannot be removed/replaced
+
+This role cannot remove or replace bootloader cmdline options added by default.  For example, on a machine that you have not run the role on, check `cat /proc/cmdline`.  This role cannot remove those parameters.  In some cases it may be able to override them - see [kernel command-line parameters](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) for more information.  This role is used primarily to manage bootloader cmdline parameters related to performance and security.  It isn't meant as a general purpose bootloader management role.  If you need to manage the default bootloader cmdline settings, use the tools provided by your distribution like the `systemd-boot`, `grub2-*` and `grubby` tools.
+
 ### Fedora Cloud images - managing bootloader cmdline settings
 
 There is currently a problem with managing bootloader cmdline settings with
