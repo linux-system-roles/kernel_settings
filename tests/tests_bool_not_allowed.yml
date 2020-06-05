@@ -1,0 +1,41 @@
+---
+- name: test boolean values not allowed
+  hosts: all
+  tasks:
+    - name: validate no boolean values for bootloader cmdline
+      block:
+        - name: try to pass a boolean value for bootloader cmdline
+          include_role:
+            name: linux-system-roles.kernel_settings
+          vars:
+            kernel_settings_bootloader_cmdline:
+              - name: somevalue
+                value: on
+
+        - name: unreachable task
+          fail:
+            msg: UNREACH
+
+      rescue:
+        - name: check for bootloader cmdline bool value error
+          assert:
+            that: ansible_failed_result.msg != 'UNREACH'
+
+    - name: validate no boolean values for sysctl values
+      block:
+        - name: try to pass a boolean value for sysctl value
+          include_role:
+            name: linux-system-roles.kernel_settings
+          vars:
+            kernel_settings_sysctl:
+              - name: somevalue
+                value: on
+
+        - name: unreachable task
+          fail:
+            msg: UNREACH
+
+      rescue:
+        - name: check for sysctl bool value error
+          assert:
+            that: ansible_failed_result.msg != 'UNREACH'

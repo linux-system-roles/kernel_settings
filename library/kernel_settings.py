@@ -250,6 +250,10 @@ ERR_ITEM_PREVIOUS = "Error: section [{}] item has invalid value for 'previous' [
 ERR_ITEM_DICT_OR_LIST = "Error: section [{}] value must be a dict or a list"
 ERR_LIST_NOT_ALLOWED = "Error: section [{}] item [{}] has unexpected list value {}"
 ERR_BLCMD_MUST_BE_LIST = "Error: section [{}] item [{}] must be a list not [{}]"
+ERR_VALUE_CANNOT_BE_BOOLEAN = (
+    "Error: section [{}] item [{}] value [{}] must not "
+    "be a boolean - try quoting the value"
+)
 
 
 def get_supported_tuned_plugin_names():
@@ -677,6 +681,8 @@ def validate_and_digest_item(sectionname, item, listallowed=True, allowempty=Fal
                     errlist.extend(tmperrlist)
     elif sectionname == "bootloader" and name == "cmdline":
         errlist.append(ERR_BLCMD_MUST_BE_LIST.format(sectionname, name, value))
+    elif isinstance(value, bool):
+        errlist.append(ERR_VALUE_CANNOT_BE_BOOLEAN.format(sectionname, name, value))
     return errlist
 
 

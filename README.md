@@ -21,7 +21,11 @@ The values for the various `kernel_settings_GROUP` parameters are a
   `replaced`.
 * `value` - Usually Required - The value for the setting.  `value` is omitted
   when using `state` or `replaced`.  Bootloader cmdline settings do not
-  require a `value`.
+  require a `value`.  Values must not be [YAML bool
+  type](https://yaml.org/type/bool.html). One situation where this might be a
+  problem is using `value: on` or other YAML `bool` typed value.  You must
+  quote these values, or otherwise pass them as a value of `str` type e.g.
+  `value: "on"`.
 * `state` - Optional - possible values:
   ** `absent` - to remove a setting with name `name` from a group - `name`
   must be provided
