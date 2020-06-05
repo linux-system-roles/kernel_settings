@@ -63,6 +63,9 @@
     - name: check cmdline for spectre_v2 after reboot
       command: grep spectre_v2=on /proc/cmdline
 
+    - name: show cmdline
+      command: cat /proc/cmdline
+
     - name: check cmdline for quiet flag after reboot (should not present)
       command: grep -Lvq quiet /proc/cmdline
 
