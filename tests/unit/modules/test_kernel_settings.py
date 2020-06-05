@@ -307,7 +307,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
                     "value": [
                         {"name": "spectre_v2", "value": "off"},
                         {"name": "nopti"},
-                        {"name": "quiet"},
+                        {"name": "panic", "value": 10001},
                         {"name": "splash"},
                     ],
                 }
@@ -329,7 +329,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         self.assertEqual(sysfs, dict(current_profile.units["sysfs"].options))
         vm = {"transparent_hugepages": "never"}
         self.assertEqual(vm, current_profile.units["vm"].options)
-        cmdline = {"cmdline": "spectre_v2=off nopti quiet splash"}
+        cmdline = {"cmdline": "spectre_v2=off nopti panic=10001 splash"}
         self.assertEqual(cmdline, dict(current_profile.units["bootloader"].options))
         self.assertTrue(reboot_required)
         # test idempotency
@@ -359,7 +359,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
                         {"name": "someother", "value": "value"},
                         {"name": "spectre_v2", "value": "off"},
                         {"name": "nopti"},
-                        {"name": "quiet", "state": "absent"},
+                        {"name": "panic", "state": "absent"},
                         {"name": "splash", "state": "absent"},
                     ],
                 }
@@ -404,7 +404,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
                     "value": [
                         {"name": "spectre_v2", "value": "off"},
                         {"name": "nopti"},
-                        {"name": "quiet"},
+                        {"name": "panic", "value": 10001},
                         {"name": "splash"},
                     ],
                 }
@@ -425,7 +425,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         sysfs = {"/sys/kernel/debug/x86/pti_enabled": "0"}
         self.assertEqual(sysfs, dict(current_profile.units["sysfs"].options))
         self.assertNotIn("vm", current_profile.units)
-        cmdline = {"cmdline": "spectre_v2=off nopti quiet splash"}
+        cmdline = {"cmdline": "spectre_v2=off nopti panic=10001 splash"}
         self.assertEqual(cmdline, dict(current_profile.units["bootloader"].options))
         self.assertFalse(reboot_required)
         # test idempotency
@@ -447,7 +447,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
                     "value": [
                         {"name": "spectre_v2", "value": "off"},
                         {"name": "nopti"},
-                        {"name": "quiet"},
+                        {"name": "panic", "value": 10001},
                         {"name": "splash"},
                     ],
                 }
@@ -479,7 +479,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
             "[vm]",
             "transparent_hugepages = never",
             "[bootloader]",
-            "cmdline = spectre_v2=off nopti quiet splash",
+            "cmdline = spectre_v2=off nopti panic=10001 splash",
         ]
         expected = ConfigObj(expected_lines)
         actual = None

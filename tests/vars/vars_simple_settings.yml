@@ -24,9 +24,11 @@ kernel_settings_bootloader_cmdline:
   - name: nopti
   - name: notfound
     state: absent
+  - name: panic
+    value: 10001
 
 # this is the expected value of the bootloader cmdline file
-__kernel_settings_blcmdline_value: "spectre_v2=off nopti"
+__kernel_settings_blcmdline_value: "spectre_v2=off nopti panic=10001"
 
 # set true if the change should cause the role to set the reboot flag
 __kernel_settings_check_reboot: true
