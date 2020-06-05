@@ -41,9 +41,6 @@
           - name: quiet
             state: absent
 
-    - name: check with tuned verify
-      command: tuned-adm verify -i
-
     - name: check sysfs after role runs
       command: grep 65000 /sys/class/net/lo/mtu
 
@@ -51,7 +48,7 @@
       shell: sysctl -n fs.file-max | grep 400000
 
     - name: check sysctl after role runs
-      shell: sysctl -n kernel.threads-max | grep -vq 29968
+      shell: sysctl -n kernel.threads-max | grep -Lvq 29968
 
     - name: reboot the machine - see if settings persist after reboot
       reboot:
@@ -67,10 +64,10 @@
       command: grep spectre_v2=on /proc/cmdline
 
     - name: check cmdline for quiet flag after reboot (should not present)
-      command: grep -vq quiet /proc/cmdline
+      command: grep -Lvq quiet /proc/cmdline
 
     - name: check sysctl after reboot
-      shell: sysctl -n kernel.threads-max | grep -vq 29968
+      shell: sysctl -n kernel.threads-max | grep -Lvq 29968
 
     - name: check with tuned verify
       command: tuned-adm verify -i
@@ -95,7 +92,7 @@
         test_command: tuned-adm active
 
     - name: check after spectre_v2 reboot
-      command: grep -vq spectre_v2 /proc/cmdline
+      command: grep -Lvq spectre_v2 /proc/cmdline
 
     - name: check sysctl after reboot
-      shell: sysctl -n fs.file-max | grep -vq 400000
+      shell: sysctl -n fs.file-max | grep -Lvq 400000
