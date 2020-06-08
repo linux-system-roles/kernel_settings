@@ -38,8 +38,6 @@
         kernel_settings_bootloader_cmdline:
           - name: spectre_v2
             value: "on"
-          - name: quiet
-            state: absent
 
     - name: check sysfs after role runs
       command: grep 65000 /sys/class/net/lo/mtu
@@ -66,9 +64,6 @@
     - name: show cmdline
       command: cat /proc/cmdline
 
-    - name: check cmdline for quiet flag after reboot (should not present)
-      command: grep -Lvq quiet /proc/cmdline
-
     - name: check sysctl after reboot
       shell: sysctl -n kernel.threads-max | grep -Lvq 29968
 
@@ -86,8 +81,6 @@
             state: absent
         kernel_settings_bootloader_cmdline:
           - name: spectre_v2
-            state: absent
-          - name: quiet
             state: absent
 
     - name: reboot the machine - see if settings persist after reboot
