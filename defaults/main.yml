@@ -50,19 +50,6 @@ kernel_settings_transparent_hugepages_defrag: null
 # kernel_settings_transparent_hugepages_defrag
 kernel_settings_transparent_hugepages_defrag_state: null
 
-# This is a list of the settings to apply to the bootloader cmdline. Each list
-# item is a `dict` with allowed key names of `name`, `value`, `state`, and
-# `previous`. The settings are specified with a `name`, a `value`, and an
-# optional `state` or `previous` which controls the behavior.  For example:
-# kernel_settings_bootloader_cmdline:
-#   - name: spectre_v2
-#     value: "off"
-#   - name: nopti
-#   - name: panic
-#     value: 10001
-#   - name: splash
-kernel_settings_bootloader_cmdline: []
-
 # If purge is true, completely wipe out whatever the current settings
 # are and replace them with kernel_settings_parameters
 kernel_settings_purge: false
