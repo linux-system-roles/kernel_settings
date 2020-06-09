@@ -1,9 +1,9 @@
 # Kernel Settings Role
 
 This role is used to modify kernel settings.  For example, on Linux, settings
-in `/proc/sys` (using `sysctl`), `/sys/fs`, bootloader command line, and some
-other settings.  It uses `tuned` for its default provider on Enterprise Linux
-and derivatives (RHEL and CentOS) and Fedora.
+in `/proc/sys` (using `sysctl`), `/sys/fs`, and some other settings.  It uses
+`tuned` for its default provider on Enterprise Linux and derivatives (RHEL and
+CentOS) and Fedora.
 
 * `tuned` homepage - https://github.com/redhat-performance/tuned
 
@@ -77,18 +77,6 @@ values may be different depending on your OS.
 remove the setting `kernel_settings_transparent_hugepages_defrag`, which will
 be reverted back to the system default value upon reboot.
 
-`kernel_settings_bootloader_cmdline` - A `list` of settings to be applied to
-the bootloader command line.  The settings are given in the format described
-above.  Note that the settings are *additive* - by default, each setting is
-added to the existing settings, or replaces the setting of the same name if it
-already exists.  Note that bootloader cmdline settings can be specified with
-just a `name` and no `value`.  If you want to remove a specific setting, use
-`state: absent` instead of giving a `value`. If you want to remove the
-existing cmdline and replace it with the given settings, specify
-`previous: replaced` as one of the values in the list.  If you want to remove
-the cmdline, use `state: empty` as the only value for the parameter. See below
-for examples.
-
 `kernel_settings_purge` - default `false` - If `true`, then the existing
 configuration will be completely wiped out and replaced with your given
 `kernel_settings_GROUP` settings.
@@ -106,7 +94,7 @@ The role will export the following variables:
 
 `kernel_settings_reboot_required` - default `false` - if `true`, this means a
 change has occurred which will require rebooting the managed host in order to
-take effect (e.g. bootloader cmdline settings).  If you want the role to
+take effect.  If you want the role to
 reboot the managed host, set `kernel_settings_reboot_ok: true`, otherwise, you
 will need to handle rebooting the machine.
 
@@ -127,10 +115,6 @@ kernel_settings_sysfs:
     value: 0
 kernel_settings_transparent_hugepages: madvise
 kernel_settings_transparent_hugepages_defrag: defer
-kernel_settings_bootloader_cmdline:
-  - name: spectre_v2
-    value: "off"
-  - name: nopti
 ```
 *NOTE* that the `list` valued settings are **additive**.  That is, they are
 applied **in addition to** any current settings.  For example, if you already
@@ -195,46 +179,6 @@ kernel_settings_sysctl:
 ```
 This will have the effect of removing all of the `sysctl` settings.
 
-The `bootloader` `cmdline` value is a list of values, and you can add or
-remove specific values in the list.  By default, it will replace existing
-values and add missing values.  Using:
-```yaml
-kernel_settings_bootloader_cmdline:
-  - name: spectre_v2
-    value: "off"
-  - name: nopti
-  - name: panic
-    value: 10001
-  - name: splash
-```
-will result in the values `spectre_v2=off nopti panic=10001 splash` being
-added to, or replacing, the existing `bootloader` `cmdline` values.  If you
-want to remove whatever was there, and replace it with your specified values,
-use `previous: replaced` in the value list:
-```yaml
-kernel_settings_bootloader_cmdline:
-  - previous: replaced
-  - name: spectre_v2
-    value: "off"
-  - name: nopti
-  - name: panic
-    value: 10001
-  - name: splash
-```
-then the values `spectre_v2=off nopti panic=10001 splash` will *replace* the
-existing `cmdline` values, if any.  If you want to remove specific values, use
-`state: absent` on the settings you want to remove:
-```yaml
-kernel_settings_bootloader_cmdline:
-  - name: spectre_v2
-    state: absent
-  - name: nopti
-    state: absent
-```
-if the previous value was `spectre_v2=off nopti panic=10001 splash`, the items
-`spectre_v2=off` and `nopti` will be removed from the list, and the final
-value will be `panic=10001 splash`.
-
 ## Dependencies
 
 The `tuned` package is required for the default provider.
@@ -260,13 +204,6 @@ The `tuned` package is required for the default provider.
         value: 0
     kernel_settings_transparent_hugepages: madvise
     kernel_settings_transparent_hugepages_defrag: defer
-    kernel_settings_bootloader_cmdline:
-      - name: spectre_v2
-        value: "off"
-      - name: nopti
-      - name: panic
-        value: 10001
-      - name: splash
   roles:
     - linux-system-roles.kernel_settings
 ```
@@ -292,12 +229,6 @@ system package, they may set the same values you are setting with the
   `/etc/sysctl.d/*` will override everything
 * `kernel_settings` settings have the next highest precedence
 * settings set manually using the `sysctl` command have the lowest precedence
-
-For `bootloader` `cmdline` settings, the settings from `kernel_settings` will
-generally take precedence over other bootloader settings.  If you set
-bootloader cmdline configuration outside of the `kernel_settings` role, e.g.
-using `grubby`, you should review your settings to make sure they do not
-conflict.
 
 For all other settings such as `sysfs`, the settings from `kernel_settings`
 have the highest precedence.

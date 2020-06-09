@@ -71,10 +71,10 @@
                    else omit }}"
     bootloader:
       - name: "{{ 'cmdline'
-                  if kernel_settings_bootloader_cmdline
+                  if kernel_settings_bootloader_cmdline | d({})
                   else omit }}"
         value: "{{ kernel_settings_bootloader_cmdline
-                   if kernel_settings_bootloader_cmdline
+                   if kernel_settings_bootloader_cmdline | d({})
                    else omit }}"
     purge: "{{ kernel_settings_purge }}"
   notify: __kernel_settings_handler_modified
@@ -87,7 +87,7 @@
       or kernel_settings_transparent_hugepages_state
       or kernel_settings_transparent_hugepages_defrag
       or kernel_settings_transparent_hugepages_defrag_state
-      or kernel_settings_bootloader_cmdline
+      or kernel_settings_bootloader_cmdline | d({})
       or kernel_settings_purge
 
 - name: tuned apply settings
