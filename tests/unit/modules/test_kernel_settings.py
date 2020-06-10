@@ -194,6 +194,16 @@ class KernelSettingsInputValidation(unittest.TestCase):
                 "be a list not [not a list]"
             ),
         )
+        item = {"name": "somename", "value": True}
+        errlist = kernel_settings.validate_and_digest_item("sysctl", item)
+        self.assertEqual(len(errlist), 1)
+        self.assertEqual(
+            errlist[0],
+            (
+                "Error: section [sysctl] item [somename] value [True] "
+                "must not be a boolean - try quoting the value"
+            ),
+        )
 
     def test_validate_and_digest(self):
         """do various tests of validate_and_digest"""
