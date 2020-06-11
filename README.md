@@ -20,20 +20,18 @@ The values for the various `kernel_settings_GROUP` parameters are a
   under `/sys` for the `sysfs` group.  `name` is omitted when using
   `replaced`.
 * `value` - Usually Required - The value for the setting.  `value` is omitted
-  when using `state` or `replaced`.  Bootloader cmdline settings do not
-  require a `value`.  Values must not be [YAML bool
+  when using `state` or `previous`.  Values must not be [YAML bool
   type](https://yaml.org/type/bool.html). One situation where this might be a
   problem is using `value: on` or other YAML `bool` typed value.  You must
   quote these values, or otherwise pass them as a value of `str` type e.g.
   `value: "on"`.
-* `state` - Optional - possible values:
-  ** `absent` - to remove a setting with name `name` from a group - `name`
-  must be provided
-  ** `empty` - to completely remove a group, specify the value of a group as a
-  `dict` instead of a `list` with the following value: `{"state":"empty"}`
+* `state` - Optional - the value `absent` means to remove a setting with name `name` from a group - `name` must be provided
 * `previous` - Optional - the only value is `replaced` - this is used to
   specify that the previous values in a group should be replaced with the
   given values.
+
+In addition, the value of a `kernel_settings_GROUP` may be specified
+not as a `list`, but as the `dict` value `{"state":"empty"}`.  This means to remove all of the settings for a group.  See below for examples
 
 See below for examples.
 
@@ -44,7 +42,7 @@ or replaces the setting of the same name if it already exists. If you want to
 remove a specific setting, use `state: absent` instead of giving a `value`. If
 you want to remove all of the existing `sysctl` settings and replace them with
 the given settings, specify `previous: replaced` as one of the values in the
-list.  If you want to remove all of the `sysctl` settings, use `state: empty`
+list.  If you want to remove all of the `sysctl` settings, use the `dict` value `{"state": "empty"}`, instead of a `list`,
 as the only value for the parameter. See below for examples.
 
 `kernel_settings_sysfs` - A `list` of settings to be applied to `/sys`. The
@@ -54,7 +52,7 @@ replaces the setting of the same name if it already exists. If you want to
 remove a specific setting, use `state: absent` instead of giving a `value`. If
 you want to remove all of the existing `sysfs` settings and replace them with
 the given settings, specify `previous: replaced` as one of the values in the
-list.  If you want to remove all of the `sysfs` settings, use `state: empty`
+list.  If you want to remove all of the `sysfs` settings, use the `dict` value `{"state": "empty"}`, instead of a `list`,
 as the only value for the parameter. See below for examples.
 
 `kernel_settings_systemd_cpu_affinity` - A space delimited list of cpu numbers.
@@ -164,7 +162,7 @@ kernel_settings_sysctl:
     value: 50000
 ```
 This will have the effect of removing all of the existing settings for
-`sysctl`, and adding the specified settings.
+`kernel_settings_sysctl`, and adding the specified settings.
 If you want to remove a single setting, specify `state: absent` in the
 individual setting, instead of a `value`:
 ```yaml
@@ -174,14 +172,14 @@ kernel_settings_sysctl:
   - name: vm.max_map_count
     state: absent
 ```
-This will remove the `vm.max_map_count` setting from the `sysctl` section.
-If you want to remove an entire section, specify `state: empty` as a `dict`
+This will remove the `vm.max_map_count` setting from the `kernel_settings_sysctl` settings.
+If you want to remove all of the settings from a group, specify `state: empty` as a `dict`
 instead of a `list`:
 ```yaml
 kernel_settings_sysctl:
   state: empty
 ```
-This will have the effect of removing all of the `sysctl` settings.
+This will have the effect of removing all of the `kernel_settings_sysctl` settings.
 
 ## Dependencies
 
@@ -215,9 +213,9 @@ The `tuned` package is required for the default provider.
 ## Warnings
 
 The `kernel_settings` role will cause other `sysctl` settings to be applied
-when using the `tuned` implementation, which is the default. For example, if
+when using the `tuned` implementation, which is the default. This can happen when
 you manually edit `/etc/sysctl.d/` files, or if the `sysctl.d` files are
-installed by some system package.  On Fedora, installing the `libreswan`
+installed by some system package.  For example, on Fedora, installing the `libreswan`
 package provides `/etc/sysctl.d/50-libreswan.conf`.  Using the
 `kernel_settings` role will cause this file to be reloaded and reapplied.  If
 this behavior is not desired, you will need to edit the `tuned` configuration
@@ -231,10 +229,10 @@ system package, they may set the same values you are setting with the
 `kernel_settings` role.  For `sysctl` settings, the precedence goes like this:
 * `sysctl` files have highest precedence - `/etc/sysctl.conf` and
   `/etc/sysctl.d/*` will override everything
-* `kernel_settings` settings have the next highest precedence
+* `kernel_settings` role settings have the next highest precedence
 * settings set manually using the `sysctl` command have the lowest precedence
 
-For all other settings such as `sysfs`, the settings from `kernel_settings`
+For all other settings such as `sysfs`, the settings from `kernel_settings` role
 have the highest precedence.
 
 ## License
