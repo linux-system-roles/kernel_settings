@@ -80,3 +80,35 @@
 
     - name: check sysctl after reboot
       shell: sysctl -n fs.file-max | grep -Lvq 400000
+
+    - name: apply kernel_settings for removing
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          - name: fs.file-max
+            value: 400001
+        kernel_settings_sysfs:
+          - name: /sys/class/net/lo/mtu
+            value: 60666
+
+    - name: check sysctl
+      shell: sysctl -n fs.file-max | grep -q 400001
+
+    - name: check sysfs after role runs
+      command: grep 60666 /sys/class/net/lo/mtu
+
+    - name: apply kernel_settings for removing section
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          state: empty
+        kernel_settings_sysfs:
+          state: empty
+
+    - name: check sysctl
+      shell: sysctl -n fs.file-max | grep -Lvq 400001
+
+    - name: check sysfs after role runs
+      command: grep -Lqv 60666 /sys/class/net/lo/mtu
