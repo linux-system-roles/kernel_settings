@@ -35,9 +35,6 @@
         kernel_settings_sysfs:
           - name: /sys/class/net/lo/mtu
             value: 65000
-        kernel_settings_bootloader_cmdline:
-          - name: spectre_v2
-            value: "on"
 
     - name: check sysfs after role runs
       command: grep 65000 /sys/class/net/lo/mtu
@@ -58,9 +55,6 @@
     - name: check sysfs after reboot
       command: grep 65000 /sys/class/net/lo/mtu
 
-    - name: check cmdline for spectre_v2 after reboot
-      command: grep spectre_v2=on /proc/cmdline
-
     - name: show cmdline
       command: cat /proc/cmdline
 
@@ -79,16 +73,10 @@
             state: absent
           - name: kernel.threads-max
             state: absent
-        kernel_settings_bootloader_cmdline:
-          - name: spectre_v2
-            state: absent
 
     - name: reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
-
-    - name: check after spectre_v2 reboot
-      command: grep -Lvq spectre_v2 /proc/cmdline
 
     - name: check sysctl after reboot
       shell: sysctl -n fs.file-max | grep -Lvq 400000
