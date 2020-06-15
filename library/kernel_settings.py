@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright: (c) 2020, Rich Megginson <rmeggins@redhat.com>
-# SPDX-License-Identifier: GPLv2+
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 """ Manage kernel settings using tuned via a wrapper """
 
