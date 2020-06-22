@@ -1,0 +1,114 @@
+- hosts: all
+  tasks:
+    - name: Ensure required packages are installed
+      package:
+        name: tuned
+        state: present
+
+    - name: Ensure kernel settings profile directory exists
+      file:
+        path: /etc/tuned/kernel_settings
+        state: directory
+        mode: 0755
+
+    - name: Generate a configuration for kernel settings
+      copy:
+        src: tuned/etc/tuned/change_settings/tuned.conf
+        dest: /etc/tuned/kernel_settings/tuned.conf
+        mode: 0644
+
+    - name: Ensure required services are enabled and started
+      service:
+        name: tuned
+        state: restarted
+        enabled: yes
+
+    - name: apply kernel_settings
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          - name: fs.file-max
+            value: 400000
+          - name: kernel.threads-max
+            state: absent
+        kernel_settings_sysfs:
+          - name: /sys/class/net/lo/mtu
+            value: 65000
+
+    - name: check sysfs after role runs
+      command: grep -x 65000 /sys/class/net/lo/mtu
+
+    - name: check sysctl after role runs
+      shell: sysctl -n fs.file-max | grep -x 400000
+
+    - name: check sysctl after role runs
+      shell: sysctl -n kernel.threads-max | grep -Lxvq 29968
+
+    - name: reboot the machine - see if settings persist after reboot
+      reboot:
+        test_command: tuned-adm active
+
+    - name: check sysctl after reboot
+      shell: sysctl -n fs.file-max | grep -x 400000
+
+    - name: check sysfs after reboot
+      command: grep -x 65000 /sys/class/net/lo/mtu
+
+    - name: show cmdline
+      command: cat /proc/cmdline
+
+    - name: check sysctl after reboot
+      shell: sysctl -n kernel.threads-max | grep -Lxvq 29968
+
+    - name: check with tuned verify
+      command: tuned-adm verify -i
+
+    - name: apply role again and remove settings
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          - name: fs.file-max
+            state: absent
+          - name: kernel.threads-max
+            state: absent
+
+    - name: reboot the machine - see if settings persist after reboot
+      reboot:
+        test_command: tuned-adm active
+
+    - name: check sysctl after reboot
+      shell: sysctl -n fs.file-max | grep -Lxvq 400000
+
+    - name: apply kernel_settings for removing
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          - name: fs.file-max
+            value: 400001
+        kernel_settings_sysfs:
+          - name: /sys/class/net/lo/mtu
+            value: 60666
+
+    - name: check sysctl
+      shell: sysctl -n fs.file-max | grep -qx 400001
+
+    - name: check sysfs after role runs
+      command: grep -x 60666 /sys/class/net/lo/mtu
+
+    - name: apply kernel_settings for removing section
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl:
+          state: empty
+        kernel_settings_sysfs:
+          state: empty
+
+    - name: check sysctl
+      shell: sysctl -n fs.file-max | grep -Lvxq 400001
+
+    - name: check sysfs after role runs
+      command: grep -Lxqv 60666 /sys/class/net/lo/mtu
