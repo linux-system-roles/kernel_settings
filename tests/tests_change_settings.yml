@@ -13,7 +13,7 @@
 
     - name: Generate a configuration for kernel settings
       copy:
-        src: tuned/etc/tuned/basic_settings/tuned_change.conf
+        src: tuned/etc/tuned/change_settings/tuned.conf
         dest: /etc/tuned/kernel_settings/tuned.conf
         mode: 0644
 
