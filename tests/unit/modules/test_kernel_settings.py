@@ -499,5 +499,67 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         self.assertEqual(expected.initial_comment, actual.initial_comment)
 
 
+class KernelSettingsRemoveIfEmpty(unittest.TestCase):
+    """test remove_if_empty"""
+
+    def test_remove_if_empty(self):
+        """test remove_if_empty"""
+        params = {}
+        self.assertTrue(kernel_settings.remove_if_empty(params))
+        self.assertEqual({}, params)
+        params = {"key1": "", "key2": [], "key3": {}, "key4": None}
+        self.assertTrue(kernel_settings.remove_if_empty(params))
+        self.assertEqual({}, params)
+        params = ["", [], {}, None]
+        self.assertTrue(kernel_settings.remove_if_empty(params))
+        self.assertEqual([], params)
+        params = {"key1": "", "key2": [], "key3": {}, "key4": None, "key5": 0}
+        self.assertFalse(kernel_settings.remove_if_empty(params))
+        self.assertEqual({"key5": 0}, params)
+        params = [1, "", 2, [], 3, {}, 4, None, 5]
+        self.assertFalse(kernel_settings.remove_if_empty(params))
+        self.assertEqual([1, 2, 3, 4, 5], params)
+        params = 0
+        self.assertFalse(kernel_settings.remove_if_empty(params))
+        self.assertEqual(0, params)
+        params = {"key1": [{"key2": [{"key3": 3}]}]}
+        self.assertFalse(kernel_settings.remove_if_empty(params))
+        self.assertEqual({"key1": [{"key2": [{"key3": 3}]}]}, params)
+        params = {"key1": [{"key2": [{"key3": 3}, {"key4": ""}]}]}
+        self.assertFalse(kernel_settings.remove_if_empty(params))
+        self.assertEqual({"key1": [{"key2": [{"key3": 3}]}]}, params)
+        params = {
+            "key11": None,
+            "key1": [
+                "",
+                {"key2": [{"key3": []}, {"key4": ""}, {"key5": None}, {"key6": {}}]},
+            ],
+        }
+        self.assertTrue(kernel_settings.remove_if_empty(params))
+        self.assertEqual({}, params)
+        params = [
+            None,
+            {"key11": None},
+            {
+                "key1": [
+                    "",
+                    {
+                        "key2": [
+                            {"key3": []},
+                            {"key4": ""},
+                            {"key5": None},
+                            {"key6": {}},
+                        ]
+                    },
+                ]
+            },
+            [],
+            {},
+            "",
+        ]
+        self.assertTrue(kernel_settings.remove_if_empty(params))
+        self.assertEqual([], params)
+
+
 if __name__ == "__main__":
     unittest.main()
