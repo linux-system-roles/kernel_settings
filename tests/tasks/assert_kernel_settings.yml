@@ -1,10 +1,14 @@
 ---
-- name: Set variables used by assert/testing code
-  include_vars: "{{ item }}"
-  with_first_found:
-    - "vars/tests_{{ ansible_distribution }}_\
-      {{ ansible_distribution_major_version }}.yml"
-    - "vars/tests_default.yml"
+- name: Set version specific variables
+  include_vars: "{{ lookup('first_found', ffparams) }}"
+  vars:
+    ffparams:
+      files:
+        - "tests_{{ ansible_distribution }}_\
+          {{ ansible_distribution_major_version }}.yml"
+        - "tests_default.yml"
+      paths:
+        - vars
 
 - name: reset settings success flag
   set_fact:
