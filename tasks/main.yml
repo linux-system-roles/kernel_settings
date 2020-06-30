@@ -47,41 +47,34 @@
       - name: "{{ 'cpu_affinity'
                   if kernel_settings_systemd_cpu_affinity
                   or kernel_settings_systemd_cpu_affinity_state
-                  else omit }}"
-        value: "{{ kernel_settings_systemd_cpu_affinity
-                   if kernel_settings_systemd_cpu_affinity
-                   else omit }}"
-        state: "{{ kernel_settings_systemd_cpu_affinity_state
-                   if kernel_settings_systemd_cpu_affinity_state
-                   else omit }}"
+                  else none }}"
+        value: "{{ kernel_settings_systemd_cpu_affinity |
+                   d(none, true) }}"
+        state: "{{ kernel_settings_systemd_cpu_affinity_state |
+                   d(none, true) }}"
     vm:
       - name: "{{ 'transparent_hugepages'
                   if kernel_settings_transparent_hugepages
                   or kernel_settings_transparent_hugepages_state
-                  else omit }}"
-        value: "{{ kernel_settings_transparent_hugepages
-                   if kernel_settings_transparent_hugepages
-                   else omit }}"
-        state: "{{ kernel_settings_transparent_hugepages_state
-                   if kernel_settings_transparent_hugepages_state
-                   else omit }}"
+                  else none }}"
+        value: "{{ kernel_settings_transparent_hugepages |
+                   d(none, true) }}"
+        state: "{{ kernel_settings_transparent_hugepages_state |
+                   d(none, true) }}"
       - name: "{{ 'transparent_hugepage.defrag'
                   if kernel_settings_transparent_hugepages_defrag
                   or kernel_settings_transparent_hugepages_defrag_state
-                  else omit }}"
-        value: "{{ kernel_settings_transparent_hugepages_defrag
-                   if kernel_settings_transparent_hugepages_defrag
-                   else omit }}"
-        state: "{{ kernel_settings_transparent_hugepages_defrag_state
-                   if kernel_settings_transparent_hugepages_defrag_state
-                   else omit }}"
+                  else none }}"
+        value: "{{ kernel_settings_transparent_hugepages_defrag |
+                   d(none, true) }}"
+        state: "{{ kernel_settings_transparent_hugepages_defrag_state |
+                   d(none, true) }}"
     bootloader:
       - name: "{{ 'cmdline'
                   if kernel_settings_bootloader_cmdline | d({})
-                  else omit }}"
-        value: "{{ kernel_settings_bootloader_cmdline
-                   if kernel_settings_bootloader_cmdline | d({})
-                   else omit }}"
+                  else none }}"
+        value: "{{ kernel_settings_bootloader_cmdline |
+                   d([]) }}"
     purge: "{{ kernel_settings_purge }}"
   notify: __kernel_settings_handler_modified
   register: __kernel_settings_register_module

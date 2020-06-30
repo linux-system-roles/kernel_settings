@@ -723,6 +723,24 @@ def validate_and_digest(params):
     return errlist
 
 
+def remove_if_empty(params):
+    """recursively remove empty items from params
+       return true if params results in being empty,
+       false otherwise"""
+    if isinstance(params, list):
+        removed = 0
+        for idx in range(0, len(params)):
+            realidx = idx - removed
+            if remove_if_empty(params[realidx]):
+                del params[realidx]
+                removed = removed + 1
+    elif isinstance(params, dict):
+        for key, val in list(params.items()):
+            if remove_if_empty(val):
+                del params[key]
+    return params == [] or params == {} or params == "" or params is None
+
+
 def run_module():
     """ The entry point of the module. """
 
@@ -750,9 +768,7 @@ def run_module():
     purge = params.pop("purge", False)
     del params["name"]
     # also remove any empty or None
-    for key, val in list(params.items()):
-        if not val:
-            del params[key]
+    _ = remove_if_empty(params)
     errlist = validate_and_digest(params)
     if errlist:
         errmsg = "Invalid format for input parameters"
