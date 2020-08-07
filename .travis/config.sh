@@ -1,3 +1,4 @@
+#!/bin/bash
 # SPDX-License-Identifier: MIT
 #
 # Use this file to specify custom configuration for a project. Generally, this
@@ -15,25 +16,30 @@
 #   * .travis/runcoveralls.sh:
 #
 #       - LSR_PUBLISH_COVERAGE
+#       - LSR_TESTSDIR
+#       - function lsr_runcoveralls_hook
 #
 # Environment variables that not start with LSR_* but have influence on CI
 # process:
 #
-#   * run_pylint.py:
+#   * .travis/runpylint.sh:
 #
 #       - RUN_PYLINT_INCLUDE
 #       - RUN_PYLINT_EXCLUDE
 #       - RUN_PYLINT_DISABLED
+#       - RUN_PYLINT_SETUP_MODULE_UTILS
 #
 #   * .travis/runblack.sh:
 #
 #       - RUN_BLACK_INCLUDE
 #       - RUN_BLACK_EXCLUDE
 #       - RUN_BLACK_DISABLED
+#       - RUN_BLACK_EXTRA_ARGS
 #
 #   * .travis/runflake8.sh:
 #
 #       - RUN_FLAKE8_DISABLED
+#       - RUN_FLAKE8_EXTRA_ARGS
 #
 #   * .travis/runsyspycmd.sh:
 #
@@ -42,6 +48,11 @@
 #   * .travis/runpytest.sh:
 #
 #       - RUN_PYTEST_SETUP_MODULE_UTILS
+#
+#   * .travis/runshellcheck.sh:
+#
+#       - RUN_SHELLCHECK_DISABLED
+#       - RUN_SHELLCHECK_EXTRA_ARGS
 type -f lsr_get_python_version > /dev/null 2>&1 || . ${SCRIPTDIR}/utils.sh
 
 RUN_PYLINT_SETUP_MODULE_UTILS=true
