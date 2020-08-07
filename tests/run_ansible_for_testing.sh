@@ -2,6 +2,6 @@
 
 set -euxo pipefail
 
-ANSIBLE_DIR=$1 ; shift
-source $ANSIBLE_DIR/hacking/env-setup
+ANSIBLE_DIR="$1" ; shift
+source "$ANSIBLE_DIR/hacking/env-setup"
 "$@"

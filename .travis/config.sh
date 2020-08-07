@@ -53,12 +53,18 @@
 #
 #       - RUN_SHELLCHECK_DISABLED
 #       - RUN_SHELLCHECK_EXTRA_ARGS
-type -f lsr_get_python_version > /dev/null 2>&1 || . ${SCRIPTDIR}/utils.sh
+type -f lsr_get_python_version > /dev/null 2>&1 || . "${SCRIPTDIR}/utils.sh"
 
+# https://github.com/koalaman/shellcheck/wiki/SC2034
+# shellcheck disable=SC2034
 RUN_PYLINT_SETUP_MODULE_UTILS=true
+# https://github.com/koalaman/shellcheck/wiki/SC2034
+# shellcheck disable=SC2034
 RUN_PYTEST_SETUP_MODULE_UTILS=true
 
 # these are extra packages needed to install and run tuned on the travis machine
+# https://github.com/koalaman/shellcheck/wiki/SC2034
+# shellcheck disable=SC2034
 LSR_EXTRA_PACKAGES="${LSR_EXTRA_PACKAGES:-} libdbus-1-dev libgirepository1.0-dev python3-dev \
   libssl-dev libcairo2-dev"
 
@@ -72,26 +78,25 @@ function ks_lsr_get_site_packages_dir() {
 function ks_lsr_install_tuned() {
   local pyver=$1
   local tunedver
-  local req
   case $pyver in
   2.*) tunedver=2.11.0;;
   3.*) tunedver=2.13.0;;
-  *) echo unknown python version $pyver for $1; exit 1;;
+  *) echo unknown python version "$pyver" for "$1"; exit 1;;
   esac
   # these are required in order to install pip packages from source
   pip install --upgrade pip setuptools wheel
   # extra requirements for tuned
-  pip install -r $TOPDIR/tuned_requirements.txt
-  bash $TOPDIR/tests/install_tuned_for_testing.sh $(ks_lsr_get_site_packages_dir) $tunedver
+  pip install -r "$TOPDIR/tuned_requirements.txt"
+  bash "$TOPDIR/tests/install_tuned_for_testing.sh" "$(ks_lsr_get_site_packages_dir)" "$tunedver"
 }
 
 # install tuned only where needed
-KS_LSR_PYVER=$(lsr_get_python_version $(type -p python))
-if lsr_compare_versions $KS_LSR_PYVER -lt 2.7 ; then
+KS_LSR_PYVER=$(lsr_get_python_version "$(type -p python)")
+if lsr_compare_versions "$KS_LSR_PYVER" -lt 2.7 ; then
   # tuned is not supported on python 2.6 when installing the dependencies
   # from pypi - for some of the dependencies, such as PyGObject, there are
   # no versions which are available on pypi that work on python 2.6
-  lsr_info kernel_settings tests not supported on python $KS_LSR_PYVER - skipping
+  lsr_info kernel_settings tests not supported on python "$KS_LSR_PYVER" - skipping
   exit 0
 fi
 KS_LSR_NEED_TUNED=0
@@ -101,6 +106,6 @@ case "$0" in
 */runflake8.sh) KS_LSR_NEED_TUNED=1 ;;
 */runpylint.sh) KS_LSR_NEED_TUNED=1 ;;
 esac
-if [ $KS_LSR_NEED_TUNED = 1 ] ; then
-  ks_lsr_install_tuned $KS_LSR_PYVER
+if [ "$KS_LSR_NEED_TUNED" = 1 ] ; then
+  ks_lsr_install_tuned "$KS_LSR_PYVER"
 fi
