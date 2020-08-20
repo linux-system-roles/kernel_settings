@@ -29,26 +29,14 @@ kernel_settings_sysfs: []
 # See systemd-system.conf man page - CPUAffinity
 kernel_settings_systemd_cpu_affinity: null
 
-# set to `absent` to remove the setting
-# kernel_settings_systemd_cpu_affinity
-kernel_settings_systemd_cpu_affinity_state: null
-
 # One of the following values: `always` `madvise` `never`. This is the memory
 # subsystem transparent hugepages value.
 kernel_settings_transparent_hugepages: null
-
-# set to `absent` to remove the setting
-# kernel_settings_transparent_hugepages
-kernel_settings_transparent_hugepages_state: null
 
 # One of these values: `always` `defer` `defer+madvise` `madvise` `never`.
 # This is the memory subsystem transparent hugepages fragmentation handling
 # value.  The actual supported values may be different depending on your OS.
 kernel_settings_transparent_hugepages_defrag: null
-
-# set to `absent` to remove the setting
-# kernel_settings_transparent_hugepages_defrag
-kernel_settings_transparent_hugepages_defrag_state: null
 
 # If purge is true, completely wipe out whatever the current settings
 # are and replace them with kernel_settings_parameters
