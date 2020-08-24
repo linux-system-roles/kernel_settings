@@ -14,9 +14,11 @@ kernel_settings_sysfs:
     value: 0
   - name: /sys/not/found
     state: absent
-kernel_settings_systemd_cpu_affinity_state: absent
+kernel_settings_systemd_cpu_affinity:
+  state: absent
 kernel_settings_transparent_hugepages: madvise
-kernel_settings_transparent_hugepages_defrag_state: absent
+kernel_settings_transparent_hugepages_defrag:
+  state: absent
 
 kernel_settings_bootloader_cmdline:
   - name: spectre_v2

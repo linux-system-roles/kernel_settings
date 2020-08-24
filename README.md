@@ -14,7 +14,7 @@ service (for the default `tuned` provider).
 
 ## Role Variables
 
-The values for the various `kernel_settings_GROUP` parameters are a
+The values for some of the various `kernel_settings_GROUP` parameters are a
 `list` of `dict` objects.  Each `dict` has the following keys:
 * `name` - Usually Required - The name the setting, or the name of a file
   under `/sys` for the `sysfs` group.  `name` is omitted when using
@@ -25,25 +25,22 @@ The values for the various `kernel_settings_GROUP` parameters are a
   problem is using `value: on` or other YAML `bool` typed value.  You must
   quote these values, or otherwise pass them as a value of `str` type e.g.
   `value: "on"`.
-* `state` - Optional - the value `absent` means to remove a setting with name `name` from a group - `name` must be provided
+* `state` - Optional - the value `absent` means to remove a setting with name
+  `name` from a group - `name` must be provided
 * `previous` - Optional - the only value is `replaced` - this is used to
   specify that the previous values in a group should be replaced with the
   given values.
 
-In addition, the value of a `kernel_settings_GROUP` may be specified
-not as a `list`, but as the `dict` value `{"state":"empty"}`.  This means to remove all of the settings for a group.  See below for examples
-
-See below for examples.
-
 `kernel_settings_sysctl` - A `list` of settings to be applied using `sysctl`.
 The settings are given in the format described above.  Note that the settings
-are *additive* - by default, each setting is added to the existing settings,
-or replaces the setting of the same name if it already exists. If you want to
+are *additive* - by default, each setting is added to the existing settings, or
+replaces the setting of the same name if it already exists. If you want to
 remove a specific setting, use `state: absent` instead of giving a `value`. If
 you want to remove all of the existing `sysctl` settings and replace them with
 the given settings, specify `previous: replaced` as one of the values in the
-list.  If you want to remove all of the `sysctl` settings, use the `dict` value `{"state": "empty"}`, instead of a `list`,
-as the only value for the parameter. See below for examples.
+list.  If you want to remove all of the `sysctl` settings, use the `dict` value
+`{"state": "empty"}`, instead of a `list`, as the only value for the parameter.
+See below for examples.
 
 `kernel_settings_sysfs` - A `list` of settings to be applied to `/sys`. The
 settings are given in the format described above.  Note that the settings are
@@ -52,32 +49,28 @@ replaces the setting of the same name if it already exists. If you want to
 remove a specific setting, use `state: absent` instead of giving a `value`. If
 you want to remove all of the existing `sysfs` settings and replace them with
 the given settings, specify `previous: replaced` as one of the values in the
-list.  If you want to remove all of the `sysfs` settings, use the `dict` value `{"state": "empty"}`, instead of a `list`,
-as the only value for the parameter. See below for examples.
+list.  If you want to remove all of the `sysfs` settings, use the `dict` value
+`{"state": "empty"}`, instead of a `list`, as the only value for the parameter.
+See below for examples.
 
-`kernel_settings_systemd_cpu_affinity` - A space delimited list of cpu numbers.
-See https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=
+`kernel_settings_systemd_cpu_affinity` - To set the value, specify a `string` in
+the format specified by
+https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=
+If you want to remove the setting, use the `dict` value `{"state": "absent"}`,
+instead of a `string`, as the value for the parameter.
 
-`kernel_settings_systemd_cpu_affinity_state` - Set this to `absent` to remove
-the setting `kernel_settings_systemd_cpu_affinity`, which will be reverted
-back to the system default value upon reboot.
+`kernel_settings_transparent_hugepages` - To set the value, specify one of the
+following `string` values: `always` `madvise` `never`. This is the memory
+subsystem transparent hugepages value.  If you want to remove the setting, use
+the `dict` value `{"state": "absent"}`, instead of a `string`, as the value for
+the parameter.
 
-`kernel_settings_transparent_hugepages` - One of the following values:
-`always` `madvise` `never`. This is the memory subsystem transparent hugepages
-value.
-
-`kernel_settings_transparent_hugepages_state` - Set this to `absent` to remove
-the setting `kernel_settings_transparent_hugepages`, which will be reverted
-back to the system default value upon reboot.
-
-`kernel_settings_transparent_hugepages_defrag` - One of these values: `always`
-`defer` `defer+madvise` `madvise` `never`. This is the memory subsystem
-transparent hugepages fragmentation handling value.  The actual supported
-values may be different depending on your OS.
-
-`kernel_settings_transparent_hugepages_defrag_state` - Set this to `absent` to
-remove the setting `kernel_settings_transparent_hugepages_defrag`, which will
-be reverted back to the system default value upon reboot.
+`kernel_settings_transparent_hugepages_defrag` - To set the value, specify one
+of the following `string` values: `always` `defer` `defer+madvise` `madvise`
+`never`. This is the memory subsystem transparent hugepages fragmentation
+handling value.  The actual supported values may be different depending on your
+OS.  If you want to remove the setting, use the `dict` value
+`{"state": "absent"}`, instead of a `string`, as the value for the parameter.
 
 `kernel_settings_purge` - default `false` - If `true`, then the existing
 configuration will be completely wiped out and replaced with your given
@@ -115,6 +108,7 @@ kernel_settings_sysfs:
     value: 0
   - name: /sys/kernel/debug/x86/ibrs_enabled
     value: 0
+kernel_settings_systemd_cpu_affinity: "1,3,5,7"
 kernel_settings_transparent_hugepages: madvise
 kernel_settings_transparent_hugepages_defrag: defer
 ```
@@ -172,14 +166,28 @@ kernel_settings_sysctl:
   - name: vm.max_map_count
     state: absent
 ```
-This will remove the `vm.max_map_count` setting from the `kernel_settings_sysctl` settings.
-If you want to remove all of the settings from a group, specify `state: empty` as a `dict`
-instead of a `list`:
+This will remove the `vm.max_map_count` setting from the
+`kernel_settings_sysctl` settings. If you want to remove all of the settings
+from a group, specify `state: empty` as a `dict` instead of a `list`:
 ```yaml
 kernel_settings_sysctl:
   state: empty
 ```
-This will have the effect of removing all of the `kernel_settings_sysctl` settings.
+This will have the effect of removing all of the `kernel_settings_sysctl`
+settings.
+
+Use `{"state":"absent"}` to remove a scalar valued parameter.  For example, to
+remove all of `kernel_settings_systemd_cpu_affinity`,
+`kernel_settings_transparent_hugepages`, and
+`kernel_settings_transparent_hugepages_defrag` settings, use this:
+```yaml
+kernel_settings_systemd_cpu_affinity:
+  state: absent
+kernel_settings_transparent_hugepages:
+  state: absent
+kernel_settings_transparent_hugepages_defrag:
+  state: absent
+```
 
 ## Dependencies
 
@@ -204,6 +212,7 @@ The `tuned` package is required for the default provider.
         value: 0
       - name: /sys/kernel/debug/x86/ibrs_enabled
         value: 0
+    kernel_settings_systemd_cpu_affinity: "1,3,5,7"
     kernel_settings_transparent_hugepages: madvise
     kernel_settings_transparent_hugepages_defrag: defer
   roles:
@@ -212,15 +221,14 @@ The `tuned` package is required for the default provider.
 
 ## Warnings
 
-The `kernel_settings` role will cause other `sysctl` settings to be applied
-when using the `tuned` implementation, which is the default. This can happen when
-you manually edit `/etc/sysctl.d/` files, or if the `sysctl.d` files are
-installed by some system package.  For example, on Fedora, installing the `libreswan`
-package provides `/etc/sysctl.d/50-libreswan.conf`.  Using the
-`kernel_settings` role will cause this file to be reloaded and reapplied.  If
-this behavior is not desired, you will need to edit the `tuned` configuration
-on the managed hosts in `/etc/tuned/tuned-main.conf` and set
-`reapply_sysctl=0`.
+The `kernel_settings` role will cause other `sysctl` settings to be applied when
+using the `tuned` implementation, which is the default. This can happen when you
+manually edit `/etc/sysctl.d/` files, or if the `sysctl.d` files are installed
+by some system package.  For example, on Fedora, installing the `libreswan`
+package provides `/etc/sysctl.d/50-libreswan.conf`.  Using the `kernel_settings`
+role will cause this file to be reloaded and reapplied.  If this behavior is not
+desired, you will need to edit the `tuned` configuration on the managed hosts in
+`/etc/tuned/tuned-main.conf` and set `reapply_sysctl=0`.
 
 The settings you apply with the `kernel_settings` role may conflict with other
 settings.  For example, if you manually run the `sysctl` command, or manually

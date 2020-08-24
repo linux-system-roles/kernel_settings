@@ -4,3 +4,5 @@ __kernel_settings_profile_src: kernel_settings
 __kernel_settings_profile_dir: "/etc/tuned/kernel_settings"
 __kernel_settings_profile_filename: >-
   {{ __kernel_settings_profile_dir }}/tuned.conf
+__kernel_settings_state_absent:
+  state: absent
