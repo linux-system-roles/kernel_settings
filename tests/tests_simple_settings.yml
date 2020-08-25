@@ -17,9 +17,13 @@
       include_role:
         name: linux-system-roles.kernel_settings
 
-    - name: include vars from role to use for verification
-      include_vars:
-        file: roles/linux-system-roles.kernel_settings/vars/main.yml
+    # NOTE: This is only to include the vars from vars/main.yml - the
+    # when: false will skip all of the tasks in the role except the
+    # implicit tasks to load the vars and defaults
+    - name: import the role to include vars to use for verification
+      import_role:
+        name: linux-system-roles.kernel_settings
+      when: false
 
     - name: verify that settings were applied correctly
       include_tasks: tasks/assert_kernel_settings.yml
