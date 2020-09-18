@@ -390,7 +390,7 @@ def apply_item_to_profile(item, unitname, current_profile):
 
 def is_reboot_required(unitname):
     """Some changes need a reboot for the changes to be applied
-       For example, bootloader cmdline changes"""
+    For example, bootloader cmdline changes"""
     # for now, only bootloader cmdline changes need a reboot
     return unitname == "bootloader"
 
@@ -725,8 +725,8 @@ def validate_and_digest(params):
 
 def remove_if_empty(params):
     """recursively remove empty items from params
-       return true if params results in being empty,
-       false otherwise"""
+    return true if params results in being empty,
+    false otherwise"""
     if isinstance(params, list):
         removed = 0
         for idx in range(0, len(params)):
