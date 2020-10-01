@@ -91,6 +91,7 @@ function ks_lsr_install_tuned() {
     bash "$TOPDIR/tests/install_tuned_for_testing.sh" "$(ks_lsr_get_site_packages_dir)" "$tunedver"
   elif [ -x "$TOPDIR/tests/kernel_settings/install_tuned_for_testing.sh" ]; then
     bash "$TOPDIR/tests/kernel_settings/install_tuned_for_testing.sh" "$(ks_lsr_get_site_packages_dir)" "$tunedver"
+  fi
 }
 
 # install tuned only where needed
