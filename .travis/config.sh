@@ -87,7 +87,11 @@ function ks_lsr_install_tuned() {
   pip install --upgrade pip setuptools wheel
   # extra requirements for tuned
   pip install -r "$TOPDIR/tuned_requirements.txt"
-  bash "$TOPDIR/tests/install_tuned_for_testing.sh" "$(ks_lsr_get_site_packages_dir)" "$tunedver"
+  if [ -f "$TOPDIR/tests/install_tuned_for_testing.sh" ]; then
+    bash "$TOPDIR/tests/install_tuned_for_testing.sh" "$(ks_lsr_get_site_packages_dir)" "$tunedver"
+  elif [ -f "$TOPDIR/tests/kernel_settings/install_tuned_for_testing.sh" ]; then
+    bash "$TOPDIR/tests/kernel_settings/install_tuned_for_testing.sh" "$(ks_lsr_get_site_packages_dir)" "$tunedver"
+  fi
 }
 
 # install tuned only where needed
