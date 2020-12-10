@@ -1,4 +1,5 @@
 # Kernel Settings Role
+![CI Testing](https://github.com/linux-system-roles/kernel_settings/workflows/tox/badge.svg)
 
 This role is used to modify kernel settings.  For example, on Linux, settings
 in `/proc/sys` (using `sysctl`), `/sys/fs`, and some other settings.  It uses
