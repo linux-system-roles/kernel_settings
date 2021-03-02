@@ -6,6 +6,175 @@
 #
 """ Manage kernel settings using tuned via a wrapper """
 
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
+
+DOCUMENTATION = """
+---
+module: kernel_settings
+
+short_description: Manage kernel settings using tuned via a wrapper
+
+version_added: "2.8"
+
+description:
+    - |
+      Manage kernel settings using tuned via a wrapper.  The options correspond
+      to names of units or plugins in tuned.  For example, the option C(sysctl)
+      corresponds to the C(sysctl) unit or plugin in tuned.  Setting parameters
+      works mostly like it does with tuned, except that this module uses Ansible
+      YAML format instead of the tuned INI-style profile file format.  This module
+      creates a special tuned profile C(kernel_settings) which will be applied by
+      tuned before any other profiles, allowing the user to configure tuned to
+      override settings made by this module.  You should be aware of this if you
+      plan to use tuned in addition to using this module.
+    - HORIZONTALLINE
+    - |
+      NOTE: the options list may be incomplete - the actual options are generated
+      dynamically from tuned, for the current options supported by the version
+      of tuned, which are the tuned supported plugins.  Only the most common
+      options are listed.  See the tuned documentation for the full list and
+      more information.
+    - HORIZONTALLINE
+    - |
+      Each option takes a list or dict of settings.  Each setting is a C(dict).
+      The C(dict) must have one of the keys C(name), C(value), C(state), or C(previous).
+      C(state) is used to remove settings or sections of settings.  C(previous) is
+      used to replace all of values in a section with the given values.  The only case
+      where an option takes a dict is when you want to remove a section completely -
+      then value for the section is the dict C({"state":"empty"}).
+      If you specify multiple settings with the same name in a section, the last one
+      will be used.
+options:
+    sysctl:
+        description:
+            - |
+              list of sysctl settings to apply - this works mostly
+              like the C(sysctl) module except that C(/etc/sysctl.conf) and files
+              under C(/etc/sysctl.d) are not used.
+        required: false
+    sysfs:
+        description:
+            - key/value pairs of sysfs settings to apply
+        required: false
+    bootloader:
+        description:
+            - the C(cmdline) option can be used to set, add, or delete
+              kernel command line options.  See EXAMPLES for some examples
+              of how to use this option.
+              Note that this uses the tuned implementation, which adds these
+              options to whatever the default bootloader command line arguments
+              tuned is historically used to add/delete performance related
+              kernel command line arguments e.g. C(spectre_v2=off).  If you need
+              more general purpose bootloader configuration, you should use
+              a bootloader module/role.
+        type: raw
+    purge:
+        description:
+            - Remove the current kernel_settings, whatever they are, and force
+              the given settings to be the current and only settings
+        type: bool
+        default: false
+
+author:
+    - Rich Megginson (@richm)
+"""
+
+EXAMPLES = """
+# Add or replace the sysctl `fs.file-max` parameter with the value 65535.  The
+# existing settings are not touched.
+- name: Add or replace the sysctl `fs.file-max` parameter with the value 65535.
+  kernel_settings:
+    sysctl:
+      - name: fs.file-max
+        value: 65535
+
+- name: remove the entire sysctl section
+  kernel_settings:
+    sysctl:
+      state: empty
+
+- name: remove the entire sysctl section and replace with the given values
+  kernel_settings:
+    sysctl:
+      - previous: replaced
+      - name: fs.file-max
+        value: 65535
+
+- name: add the sysctl vm.max_mmap_regions, and disable spectre/meltdown security
+  kernel_settings:
+  sysctl:
+    - name: vm.max_mmap_regions
+      value: 262144
+  sysfs:
+    - name: /sys/kernel/debug/x86/pti_enabled
+      value: 0
+    - name: /sys/kernel/debug/x86/retp_enabled
+      value: 0
+    - name: /sys/kernel/debug/x86/ibrs_enabled
+      value: 0
+
+# replace the existing sysctl section with the specified section
+# delete the /sys/kernel/debug/x86/retp_enabled setting
+# completely remove the vm section
+# add the bootloader cmdline arguments spectre_v2=off nopti
+# remove the bootloader cmdline arguments panic splash
+- name: more settings
+  kernel_settings:
+    sysctl:
+      - previous: replaced
+      - name: vm.max_mmap_regions
+        value: 262144
+    sysfs:
+      - name: /sys/kernel/debug/x86/retp_enabled
+        state: absent
+    vm:
+      state: empty
+    bootloader:
+      - name: cmdline
+        value:
+          - name: spectre_v2
+            value: off
+          - name: nopti
+          - name: panic
+            state: absent
+          - name: splash
+            state: absent
+"""
+
+RETURN = """
+msg:
+  description: |
+    A short text message to say what action this module performed.
+  returned: always
+  type: str
+new_profile:
+  description: |
+    This is the tuned profile in dict format, after the changes, if any,
+    have been applied.
+  returned: always
+  type: dict
+reboot_required:
+  description: |
+    default C(false) - if true, this means a reboot of the managed host is
+    required in order for the changes to take effect.
+  returned: always
+  type: bool
+active_profile:
+  description: |
+    This is the space delimited list of active profiles as reported
+    by tuned.
+  returned: always
+  type: str
+"""
+
 import os
 import logging
 import re
@@ -15,9 +184,18 @@ import shlex
 import contextlib
 import atexit  # for testing
 import copy
-import configobj
-import six
-from six.moves import shlex_quote
+
+try:
+    import configobj
+
+    HAS_CONFIGOBJ = True
+except ImportError:
+    HAS_CONFIGOBJ = False
+import ansible.module_utils.six as ansible_six
+
+# This is a bit of a mystery - bug in pylint?
+# pylint: disable=import-error
+import ansible.module_utils.six.moves as ansible_six_moves
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -63,9 +241,17 @@ def save_and_restore_logging_methods():
 
 
 caught_import_error = None
+HAS_TUNED = False
 try:
     with save_and_restore_logging_methods():
         import tuned.logs
+    HAS_TUNED = True
+except ImportError as ierr:
+    # tuned package might not be available in check mode - so just
+    # note that this is missing, and do not report in check mode
+    caught_import_error = ierr
+
+if HAS_TUNED:
     tuned.logs.root_logger = TunedLogWrapper(__name__)
     tuned.logs.get = lambda: tuned.logs.root_logger
 
@@ -73,185 +259,39 @@ try:
     import tuned.utils.global_config
     import tuned.daemon
     from tuned.exceptions import TunedException
-except ImportError as ierr:
-    # tuned package might not be available in check mode - so just
-    # note that this is missing, and do not report in check mode
-    caught_import_error = ierr
 
-ANSIBLE_METADATA = {
-    "metadata_version": "1.1",
-    "status": ["preview"],
-    "supported_by": "community",
-}
-
-DOCUMENTATION = """
----
-module: kernel_settings
-
-short_description: Manage kernel settings using tuned via a wrapper
-
-version_added: "2.8"
-
-description:
-    - Manage kernel settings using tuned via a wrapper.  The options correspond
-      to names of units or plugins in tuned.  For example, the option `sysctl`
-      corresponds to the `sysctl` unit or plugin in tuned.  Setting parameters
-      works mostly like it does with tuned, except that this module uses Ansible
-      YAML format instead of the tuned INI-style profile file format.  This module
-      creates a special tuned profile `kernel_settings` which will be applied by
-      tuned before any other profiles, allowing the user to configure tuned to
-      override settings made by this module.  You should be aware of this if you
-      plan to use tuned in addition to using this module.
-      NOTE: the options list may be incomplete - the actual options are generated
-      dynamically from tuned, for the current options supported by the version
-      of tuned, which are the tuned supported plugins.  Only the most common
-      options are listed.  See the tuned documentation for the full list and
-      more information.
-      Each option takes a list or dict of settings.  Each setting is a `dict`.
-      The `dict` must have one of the keys `name`, `value`, `state`, or `previous`.
-      `state` is used to remove settings or sections of settings.  `previous` is
-      used to replace all of values in a section with the given values.  The only case
-      where an option takes a dict is when you want to remove a section completely -
-      then value for the section is the dict `{"state":"empty"}`.  Example:
-      sysctl:
-        - name: fs.file-max
-          value: 65535
-      Add or replace the sysctl `fs.file-max` parameter with the value 65535.  The
-      existing settings are not touched.
-      Example:
-      sysctl:
-        state: empty
-      This means the existing sysctl section will be deleted.
-      Example:
-      sysctl:
-        - previous: replaced
-        - name: fs.file-max
-          value: 65535
-      This means the existing sysctl section will be cleared and replaced with the
-      given settings.
-      If you specify multiple settings with the same name in a section, the last one
-      will be used.
-options:
-    sysctl:
-        description:
-            - list of sysctl settings to apply - this works mostly
-              like the `sysctl` module except that `/etc/sysctl.conf` and files
-              under `/etc/sysctl.d` are not used.
-              e.g.
-              sysctl:
-                - name: fs.file-max
-                  value: 65535
-                - name: vm.max_mmap_regions
-                  state: absent
-        required: false
-    sysfs:
-        description:
-            - key/value pairs of sysfs settings to apply
-        required: false
-    bootloader:
-        description:
-            - the `cmdline` option can be used to set, add, or delete
-              kernel command line options.  See EXAMPLES for some examples
-              of how to use this option.
-              Note that this uses the tuned implementation, which adds these
-              options to whatever the default bootloader command line arguments
-              tuned is historically used to add/delete performance related
-              kernel command line arguments e.g. `spectre_v2=off`.  If you need
-              more general purpose bootloader configuration, you should use
-              a bootloader module/role.
-    purge:
-        description:
-            - Remove the current kernel_settings, whatever they are, and force
-              the given settings to be the current and only settings
-
-author:
-    - Rich Megginson (rmeggins@redhat.com)
-"""
-
-EXAMPLES = """
-# add the sysctl vm.max_mmap_regions, and disable spectre/meltdown security
-kernel_settings:
-  sysctl:
-    - name: vm.max_mmap_regions
-      value: 262144
-  sysfs:
-    - name: /sys/kernel/debug/x86/pti_enabled
-      value: 0
-    - name: /sys/kernel/debug/x86/retp_enabled
-      value: 0
-    - name: /sys/kernel/debug/x86/ibrs_enabled
-      value: 0
-
-# replace the existing sysctl section with the specified section
-# delete the /sys/kernel/debug/x86/retp_enabled setting
-# completely remove the vm section
-# add the bootloader cmdline arguments spectre_v2=off nopti
-# remove the bootloader cmdline arguments panic splash
-kernel_settings:
-  sysctl:
-    - previous: replaced
-    - name: vm.max_mmap_regions
-      value: 262144
-  sysfs:
-    - name: /sys/kernel/debug/x86/retp_enabled
-      state: absent
-  vm:
-    state: empty
-  bootloader:
-    - name: cmdline
-      value:
-        - name: spectre_v2
-          value: off
-        - name: nopti
-        - name: panic
-          state: absent
-        - name: splash
-          state: absent
-"""
-
-RETURN = """
-msg:
-    A short text message to say what action this module performed.
-new_profile:
-    This is the tuned profile in dict format, after the changes, if any,
-    have been applied.
-reboot_required:
-    boolean - default is false - if true, this means a reboot of the
-    managed host is required in order for the changes to take effect.
-active_profile:
-    This is the space delimited list of active profiles as reported
-    by tuned.
-"""
 
 TUNED_PROFILE = os.environ.get("TEST_PROFILE", "kernel_settings")
 NOCHANGES = 0
 CHANGES = 1
 REMOVE_SECTION_VALUE = {"state": "empty"}
 SECTION_TO_REPLACE = "__section_to_replace"
-ERR_SECTION_MISSING_NAME = "Error: section [{}] item is missing 'name': {}"
-ERR_NAME_NOT_VALID = "Error: section [{}] item name [{}] is not a valid string"
+ERR_SECTION_MISSING_NAME = "Error: section [{0}] item is missing 'name': {1}"
+ERR_NAME_NOT_VALID = "Error: section [{0}] item name [{1}] is not a valid string"
 ERR_NO_VALUE_OR_STATE = (
-    "Error: section [{}] item name [{}] must have either a 'value' or 'state'"
+    "Error: section [{0}] item name [{1}] must have either a 'value' or 'state'"
 )
 ERR_BOTH_VALUE_AND_STATE = (
-    "Error: section [{}] item name [{}] must have only one of 'value' or 'state'"
+    "Error: section [{0}] item name [{1}] must have only one of 'value' or 'state'"
 )
 ERR_STATE_ABSENT = (
-    "Error: section [{}] item name [{}] state value must be 'absent' not [{}]"
+    "Error: section [{0}] item name [{1}] state value must be 'absent' not [{2}]"
 )
-ERR_UNEXPECTED_VALUES = "Error: section [{}] item [{}] has unexpected values {}"
-ERR_VALUE_ITEM_NOT_DICT = "Error: section [{}] item name [{}] value [{}] is not a dict"
+ERR_UNEXPECTED_VALUES = "Error: section [{0}] item [{1}] has unexpected values {2}"
+ERR_VALUE_ITEM_NOT_DICT = (
+    "Error: section [{0}] item name [{1}] value [{2}] is not a dict"
+)
 ERR_VALUE_ITEM_PREVIOUS = (
-    "Error: section [{}] item name [{}] has invalid value for 'previous' [{}]"
+    "Error: section [{0}] item name [{1}] has invalid value for 'previous' [{2}]"
 )
-ERR_REMOVE_SECTION_VALUE = "Error: to remove the section [{}] specify the value {}"
-ERR_ITEM_NOT_DICT = "Error: section [{}] item value [{}] is not a dict"
-ERR_ITEM_PREVIOUS = "Error: section [{}] item has invalid value for 'previous' [{}]"
-ERR_ITEM_DICT_OR_LIST = "Error: section [{}] value must be a dict or a list"
-ERR_LIST_NOT_ALLOWED = "Error: section [{}] item [{}] has unexpected list value {}"
-ERR_BLCMD_MUST_BE_LIST = "Error: section [{}] item [{}] must be a list not [{}]"
+ERR_REMOVE_SECTION_VALUE = "Error: to remove the section [{0}] specify the value {1}"
+ERR_ITEM_NOT_DICT = "Error: section [{0}] item value [{1}] is not a dict"
+ERR_ITEM_PREVIOUS = "Error: section [{0}] item has invalid value for 'previous' [{1}]"
+ERR_ITEM_DICT_OR_LIST = "Error: section [{0}] value must be a dict or a list"
+ERR_LIST_NOT_ALLOWED = "Error: section [{0}] item [{1}] has unexpected list value {2}"
+ERR_BLCMD_MUST_BE_LIST = "Error: section [{0}] item [{1}] must be a list not [{2}]"
 ERR_VALUE_CANNOT_BE_BOOLEAN = (
-    "Error: section [{}] item [{}] value [{}] must not "
+    "Error: section [{0}] item [{1}] value [{2}] must not "
     "be a boolean - try quoting the value"
 )
 
@@ -285,7 +325,7 @@ def profile_to_dict(profile):
 
 def debug_print_profile(profile, amodule):
     """for debugging - print profile as INI"""
-    amodule.debug("profile {}".format(profile.name))
+    amodule.debug("profile {0}".format(profile.name))
     amodule.debug(str(profile_to_dict(profile)))
 
 
@@ -318,20 +358,21 @@ class BLCmdLine(object):
     @classmethod
     def splititem(cls, item):
         """split item in form key=somevalue into key and somevalue"""
+        # pylint: disable=blacklisted-name
         key, _, val = item.partition("=")
         return key, val
 
     @classmethod
     def escapeval(cls, val):
         """make sure val is quoted as in shell"""
-        return shlex_quote(str(val))
+        return ansible_six_moves.shlex_quote(str(val))
 
     def __str__(self):
         vallist = []
         for key in self.key_list:
             val = self.key_to_val[key]
             if val:
-                vallist.append("{}={}".format(key, self.escapeval(val)))
+                vallist.append("{0}={1}".format(key, self.escapeval(val)))
             else:
                 vallist.append(key)
         return " ".join(vallist)
@@ -610,18 +651,18 @@ def get_tuned_config():
 def load_current_profile(tuned_config, tuned_profile, logger):
     """load the current profile"""
     tuned_app = None
-    errmsg = "Error loading tuned profile [{}]".format(TUNED_PROFILE)
+    errmsg = "Error loading tuned profile [{0}]".format(TUNED_PROFILE)
     try:
         tuned_app = tuned.daemon.Application(tuned_profile, tuned_config)
     except TunedException as tex:
-        logger.debug("caught TunedException [{}]".format(tex))
-        errmsg = errmsg + ": {}".format(tex)
+        logger.debug("caught TunedException [{0}]".format(tex))
+        errmsg = errmsg + ": {0}".format(tex)
         tuned_app = None
     except IOError as ioe:
         # for testing this case, need to create a profile with a bad permissions e.g.
         # mkdir ioerror_profile; touch ioerror_profile/tuned.conf; chmod 0000 !$
-        logger.debug("caught IOError [{}]".format(ioe))
-        errmsg = errmsg + ": {}".format(ioe)
+        logger.debug("caught IOError [{0}]".format(ioe))
+        errmsg = errmsg + ": {0}".format(ioe)
         tuned_app = None
     if (
         tuned_app is None
@@ -646,7 +687,7 @@ def validate_and_digest_item(sectionname, item, listallowed=True, allowempty=Fal
     errlist = []
     if name is None:
         errlist.append(ERR_SECTION_MISSING_NAME.format(sectionname, item))
-    elif not isinstance(name, six.string_types):
+    elif not isinstance(name, ansible_six.string_types):
         errlist.append(ERR_NAME_NOT_VALID.format(sectionname, name))
     elif (value is None and not allowempty) and state is None:
         errlist.append(ERR_NO_VALUE_OR_STATE.format(sectionname, name))
@@ -745,7 +786,6 @@ def run_module():
     """ The entry point of the module. """
 
     module_args = dict(
-        name=dict(type="str", required=False),
         purge=dict(type="bool", required=False, default=False),
     )
     tuned_plugin_names = get_supported_tuned_plugin_names()
@@ -760,14 +800,15 @@ def run_module():
 
     if not module.check_mode:
         if os.environ.get("TESTING", "false") == "true":
+            # pylint: disable=blacklisted-name
             _ = setup_for_testing()
 
     params = module.params
     # remove any non-tuned fields from params and save them locally
     # state = params.pop("state")
     purge = params.pop("purge", False)
-    del params["name"]
     # also remove any empty or None
+    # pylint: disable=blacklisted-name
     _ = remove_if_empty(params)
     errlist = validate_and_digest(params)
     if errlist:
@@ -814,12 +855,12 @@ def run_module():
             write_profile(current_profile)
             # notify tuned to reload/reapply profile
         except TunedException as tex:
-            module.debug("caught TunedException [{}]".format(tex))
-            errmsg = "Unable to apply tuned settings: {}".format(tex)
+            module.debug("caught TunedException [{0}]".format(tex))
+            errmsg = "Unable to apply tuned settings: {0}".format(tex)
             module.fail_json(msg=errmsg, **result)
         except IOError as ioe:
-            module.debug("caught IOError [{}]".format(ioe))
-            errmsg = "Unable to apply tuned settings: {}".format(ioe)
+            module.debug("caught IOError [{0}]".format(ioe))
+            errmsg = "Unable to apply tuned settings: {0}".format(ioe)
             module.fail_json(msg=errmsg, **result)
         result["changed"] = True
     else:
@@ -842,5 +883,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# vim:set ts=4 sw=4 et:
