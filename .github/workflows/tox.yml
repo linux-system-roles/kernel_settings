@@ -32,12 +32,18 @@ jobs:
       - name: Run tox tests
         run: |
           set -euxo pipefail
+          tox_lsr_path=$(pip show tox-lsr 2> /dev/null | awk '/^Location: / {print $2}')
+          source "$tox_lsr_path/tox_lsr/test_scripts/utils.sh"
+          toxenvs_for_sys=""
+          if lsr_venv_python_matches_system_python; then
+            toxenvs_for_sys=",ansible-lint,collection,ansible-test"
+          fi
           toxpyver=$(echo "${{ matrix.pyver }}" | tr -d .)
           toxenvs="py${toxpyver}"
           case "$toxpyver" in
-          27) toxenvs="${toxenvs},coveralls,flake8,pylint,custom" ;;
-          36) toxenvs="${toxenvs},coveralls,black,yamllint,ansible-lint,shellcheck,custom,collection,ansible-test" ;;
-          37) toxenvs="${toxenvs},coveralls,custom" ;;
-          38) toxenvs="${toxenvs},coveralls,custom" ;;
+          27) toxenvs="${toxenvs},coveralls,flake8,pylint,custom${toxenvs_for_sys}" ;;
+          36) toxenvs="${toxenvs},coveralls,black,yamllint,shellcheck,custom${toxenvs_for_sys}" ;;
+          37) toxenvs="${toxenvs},coveralls,custom${toxenvs_for_sys}" ;;
+          38) toxenvs="${toxenvs},coveralls,custom${toxenvs_for_sys}" ;;
           esac
           TOXENV="$toxenvs" lsr_ci_runtox
