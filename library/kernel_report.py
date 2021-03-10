@@ -37,7 +37,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(**result)
 
-    procfs_output = sp.run(['sh', 'utils/procsysfswalk.sh'], stdout=sp.PIPE).stdout.decode("utf-8")[:-2]
+    procfs_output = sp.run(['sh', 'utils/sysctlwalk.sh'], stdout=sp.PIPE).stdout.decode("utf-8")[:-2]
     facts_as_dict = dict()
 
     for substring in procfs_output.split('\n'):
