@@ -6,20 +6,33 @@
 #
 """ Generate kernel settings facts for a system """
 
+import os
 import subprocess as sp
 from ansible.module_utils.basic import AnsibleModule
 
-def add_dict_level(dct, lvls, val):
-    """
-    Function that recursively adds levels to a dictionary. Takes an existing dictionary, a list of nested levels,
-    and a value to be assigned to the deepest level.
-    """
-    key = lvls[0].rstrip()
-    if len(lvls) == 1:
-        dct[key] = val.lstrip()
-    else:
-        dct[key] = add_dict_level(dct[key] if key in dct else {}, lvls[1:], val)
-    return dct
+UNSTABLE_SYSCTL_FIELDS = ('kernel.hostname', 'kernel.domainname', 'dev', 'kernel.ns_last_pid', 'net.netfilter.nf_conntrack_events')
+SYSCTL_DIR = '/proc/sys'
+
+def file_get_contents(filename):
+    with open(filename) as f:
+        return f.read().rstrip()
+
+def sysctl_walk():
+    result = []
+    for dirpath, dirs, files in os.walk(SYSCTL_DIR):
+        if files:
+            for file in files:
+                setting_path = dirpath + "/" + file
+                if(int(oct(os.stat(setting_path).st_mode)[-3:]) >= 600):
+                    formatted_setting = str(setting_path[10:]).replace("/",".")
+                    if formatted_setting not in UNSTABLE_SYSCTL_FIELDS:
+                        try:
+                            val = file_get_contents(setting_path)
+                            result.append({'name': formatted_setting, "value": val})
+                        except OSError as e:
+                            # read errors occur on some of the 'stable_secret' files
+                            pass
+    return result
 
 def run_module():
     module_args = dict()
@@ -37,14 +50,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(**result)
 
-    sysctl_output = sp.run(['sh', 'utils/sysctlwalk.sh'], stdout=sp.PIPE).stdout.decode("utf-8")[:-2]
-    facts_as_dict = dict()
-
-    for substring in sysctl_output.split('\n'):
-        keyval = substring.split('=')
-        facts_as_dict = add_dict_level(facts_as_dict, keyval[0].split('/')[1:], keyval[1])
-
-    result['ansible_facts'] = facts_as_dict
+    result['ansible_facts'] = {"sysctl":sysctl_walk()}
 
     module.exit_json(**result)
 
