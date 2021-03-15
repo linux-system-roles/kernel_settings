@@ -15,5 +15,7 @@
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
-          kernel_settings_sysctl: "{{ hostvars['template_machine'].template_settings.ansible_facts.sysctl }}"
+        kernel_settings_sysctl: >-
+          {{ hostvars['template_machine'].
+          template_settings.ansible_facts.sysctl }}
       when: inventory_hostname == 'target_machine'
