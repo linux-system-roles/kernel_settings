@@ -27,12 +27,13 @@ def settings_walk(dir, unstable):
         if files:
             for file in files:
                 setting_path = dirpath + "/" + file
-                if(int(oct(os.stat(setting_path).st_mode)[-3:]) >= 600):
+                if(int(oct(os.stat(setting_path).st_mode)[-3:]) >= 644):
                     formatted_setting = str(setting_path[len(dir)+1:]).replace("/",".")
                     if re.match(combined_unstable,formatted_setting) is None:
                         try:
                             val = file_get_contents(setting_path)
-                            result.append({'name': formatted_setting, "value": val})
+                            if val:
+                                result.append({'name': formatted_setting, "value": val})
                         except OSError as e:
                             # read errors occur on some of the 'stable_secret' files
                             pass
@@ -54,6 +55,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(**result)
 
+    # result['ansible_facts'] = {"sysctl":settings_walk(SYSCTL_DIR, UNSTABLE_SYSCTL_FIELDS)}
     result['ansible_facts'] = {"sysctl":settings_walk(SYSCTL_DIR, UNSTABLE_SYSCTL_FIELDS), "sysfs":settings_walk(SYSFS_DIR, UNSTABLE_SYSFS_FIELDS)}
 
     module.exit_json(**result)
