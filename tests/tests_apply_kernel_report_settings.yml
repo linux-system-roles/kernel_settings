@@ -8,7 +8,7 @@
     - name: get and store config values from template machine
       kernel_report:
       register: template_settings
-      when: inventory_hostname == 'template_machine'
+      when: ansible_distribution == 'CentOS'
       no_log: true
 
     - name: apply kernel_settings to target machine(s)
@@ -16,6 +16,8 @@
         name: linux-system-roles.kernel_settings
       vars:
         kernel_settings_sysctl: >-
-          {{ hostvars['template_machine'].
-          template_settings.ansible_facts.sysctl }}
-      when: inventory_hostname == 'target_machine'
+          {{ hostvars[item].template_settings.ansible_facts.sysctl }}
+      loop: "{{ groups['all'] }}"
+      when: 
+        - hostvars[item].ansible_distribution == 'CentOS'
+        - ansible_distribution == 'Fedora'
