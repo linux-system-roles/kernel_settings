@@ -9,6 +9,7 @@
   copy:
     dest: "{{ __kernel_settings_register_profile_conf_tempfile.path }}"
     content: "{{ __kernel_settings_profile_file }}"
+    mode: "0600"
 
 - name: ensure python command exists for tests below
   package:
