@@ -1,5 +1,3 @@
-tests/kernel_settings/unit/modules/test_kernel_settings.py future-import-boilerplate!skip
-tests/kernel_settings/unit/modules/test_kernel_settings.py metaclass-boilerplate!skip
 tests/kernel_settings/install_ansible_for_testing.sh shebang!skip
 tests/kernel_settings/install_tuned_for_testing.sh shebang!skip
 tests/kernel_settings/run_ansible_for_testing.sh shebang!skip
