@@ -11,7 +11,7 @@ import re
 import subprocess as sp
 from ansible.module_utils.basic import AnsibleModule
 
-UNSTABLE_SYSCTL_FIELDS = ['kernel\.hostname', 'kernel\.domainname', 'dev', 'kernel\.ns_last_pid', 'net\.netfilter\.nf_conntrack_events']
+UNSTABLE_SYSCTL_FIELDS = ['kernel\.hostname', 'kernel\.domainname', 'dev', 'kernel\.ns_last_pid', 'net\.netfilter\.nf_conntrack_events', 'vm\.drop_caches']
 UNSTABLE_SYSFS_FIELDS = ['kernel\.debug', 'devices']
 SYSCTL_DIR = '/proc/sys'
 SYSFS_DIR = '/sys'
