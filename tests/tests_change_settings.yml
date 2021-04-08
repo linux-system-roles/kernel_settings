@@ -47,8 +47,6 @@
         kernel_settings_audio_timeout: 10
         kernel_settings_audio_reset_controller: 1
         kernel_settings_scsi_host_alpm: "min_power"
-        kernel_settings_eeepc_she_powersave: 2
-        kernel_settings_eeepc_she_normal: 1
         kernel_settings_video_radeon_powersave: "auto"
         kernel_settings_usb_autosuspend: 1
 

@@ -130,21 +130,6 @@
                    __kernel_settings_state_absent else none }}"
         state: "{{ 'absent' if kernel_settings_scsi_host_alpm ==
                     __kernel_settings_state_absent else none }}"
-    eeepc_she:
-      - name: "{{ 'she_powersave' if kernel_settings_eeepc_she_powersave
-                  else none }}"
-        value: "{{ kernel_settings_eeepc_she_powersave
-                   if kernel_settings_eeepc_she_powersave !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_eeepc_she_powersave ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'she_normal' if kernel_settings_eeepc_she_normal
-                  else none }}"
-        value: "{{ kernel_settings_eeepc_she_normal
-                   if kernel_settings_eeepc_she_normal !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_eeepc_she_normal ==
-                    __kernel_settings_state_absent else none }}"
     video:
       - name: "{{ 'radeon_powersave' if kernel_settings_video_radeon_powersave
                   else none }}"

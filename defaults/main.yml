@@ -40,9 +40,9 @@ kernel_settings_transparent_hugepages_defrag: null
 
 # cpu settings
 kernel_settings_cpu_governor: null
+kernel_settings_sampling_down_factor: null
 kernel_settings_cpu_min_perf_pct: null
 kernel_settings_cpu_max_perf_pct: null
-kernel_settings_sampling_down_factor: null
 kernel_settings_no_turbo: null
 
 # disk settings
@@ -62,10 +62,6 @@ kernel_settings_audio_reset_controller: null
 
 # scsi_host settings
 kernel_settings_scsi_host_alpm: null
-
-# eeepc_she settings
-kernel_settings_eeepc_she_powersave: null
-kernel_settings_eeepc_she_normal: null
 
 # video settings
 kernel_settings_video_radeon_powersave: null
