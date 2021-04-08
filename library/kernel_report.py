@@ -50,7 +50,7 @@ def get_sysfs_fields():
     for block in blocks:
         num_blocks += 1
         if 'kernel_settings_disk_elevator' not in result:
-            result["kernel_settings_disk_elevator"] = re.findall(r'\[(\w+)\]', safe_file_get_contents("%s/queue/scheduler" % block.sys_path))
+            result["kernel_settings_disk_elevator"] = re.findall(r'\[(\w+)\]', safe_file_get_contents("%s/queue/scheduler" % block.sys_path))[0]
             result["kernel_settings_disk_read_ahead_kb"] = int(safe_file_get_contents("%s/queue/read_ahead_kb" % block.sys_path))
             result["kernel_settings_disk_scheduler_quantum"] = safe_file_get_contents("%s/queue/iosched/quantum" % block.sys_path)
     
@@ -107,9 +107,20 @@ def get_sysfs_fields():
     for usb in usbs:
         num_usbs += 1
         if "kernel_settings_usb_autosuspend" not in result:
-            result["kernel_settings_usb_autosuspend"] = safe_file_get_contents("%s/power/autosuspend" % usb.sys_path)
+            result["kernel_settings_usb_autosuspend"] = int(safe_file_get_contents("%s/power/autosuspend" % usb.sys_path))
 
     print("get_sysfs_fields: found %d usbs associated to the template machine" % num_usbs)
+
+    other_sysfs = []
+    ksm_dict = {"name": "/sys/kernel/mm/ksm/run"}
+    ksm_dict["value"] = safe_file_get_contents("/sys/kernel/mm/ksm/run")
+    other_sysfs.append(ksm_dict)
+
+    ktimer_dict = {"name": "/sys/kernel/ktimer_lockless_check"}
+    ktimer_dict["value"] = safe_file_get_contents("/sys/kernel/ktimer_lockless_check")
+    other_sysfs.append(ktimer_dict)
+
+    result["kernel_settings_sysfs"] = other_sysfs
 
     return result
 
