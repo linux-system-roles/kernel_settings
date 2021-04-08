@@ -10,10 +10,54 @@ import re
 import pyudev
 from ansible.module_utils.basic import AnsibleModule
 
-UNSTABLE_SYSCTL_FIELDS = ['kernel\.hostname', 'kernel\.domainname', 'dev', 'kernel\.ns_last_pid', 'net\.netfilter\.nf_conntrack_events', 'vm\.drop_caches']
-UNSTABLE_SYSFS_FIELDS = ['kernel\.debug', 'devices']
-SYSCTL_DIR = '/proc/sys'
-SYSFS_DIR = '/sys'
+SYSCTL_FIELDS = ['fs.aio-max-nr', 
+                'fs.file-max', 
+                'fs.inotify.max_user_watches', 
+                'kernel.hung_task_timeout_secs',
+                'kernel.nmi_watchdog',
+                'kernel.numa_balancing',
+                'kernel.panic_on_oops',
+                'kernel.pid_max',
+                'kernel.printk',
+                'kernel.sched_autogroup_enabled',
+                'kernel.sched_latency_ns',
+                'kernel.sched_migration_cost_ns',
+                'kernel.sched_min_granularity_ns',
+                'kernel.sched_rt_runtime_us',
+                'kernel.sched_wakeup_granularity_ns',
+                'kernel.sem',
+                'kernel.shmall',
+                'kernel.shmmax',
+                'kernel.shmmni',
+                'kernel.timer_migration',
+                'net.core.busy_poll',
+                'net.core.busy_read',
+                'net.core.rmem_default',
+                'net.core.rmem_max',
+                'net.core.wmem_default',
+                'net.core.wmem_max',
+                'net.ipv4.ip_local_port_range',
+                'net.ipv4.tcp_fastopen',
+                'net.ipv4.tcp_rmem',
+                'net.ipv4.tcp_timestamps',
+                'net.ipv4.tcp_window_scaling',
+                'net.ipv4.tcp_wmem',
+                'net.ipv4.udp_mem',
+                'net.netfilter.nf_conntrack_max',
+                'vm.dirty_background_bytes',
+                'vm.dirty_background_ratio',
+                'vm.dirty_bytes',
+                'vm.dirty_expire_centisecs',
+                'vm.dirty_ratio',
+                'vm.dirty_writeback_centisecs',
+                'vm.hugepages_treat_as_movable',
+                'vm.laptop_mode',
+                'vm.max_map_count',
+                'vm.min_free_kbytes',
+                'vm.stat_interval',
+                'vm.swappiness',
+                'vm.zone_reclaim_mode']
+
 
 def safe_file_get_contents(filename):
     try:
@@ -21,6 +65,14 @@ def safe_file_get_contents(filename):
             return f.read().rstrip()
     except FileNotFoundError as e:
         print('safe_file_get_contents: suppressed exception FileNotFoundError with content \'%s\'' %  e)
+
+def get_sysctl_fields():
+    sysctl = []
+    for setting in SYSCTL_FIELDS:
+        temp_dict = {"name": setting}
+        temp_dict["value"] = safe_file_get_contents("/proc/sys/%s" % setting.replace(".","/"))
+        sysctl.append(temp_dict)
+    return {"kernel_settings_sysctl": sysctl}
 
 def get_sysfs_fields():
     result = {}
@@ -140,7 +192,7 @@ def run_module():
     if module.check_mode:
         module.exit_json(**result)
 
-    result['ansible_facts'] = get_sysfs_fields()
+    result['ansible_facts'] = {**get_sysfs_fields(), **get_sysctl_fields()}
 
     module.exit_json(**result)
 
