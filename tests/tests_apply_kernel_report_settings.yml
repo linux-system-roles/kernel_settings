@@ -5,19 +5,50 @@
       when: false
 
   tasks:
+    - name: Set version specific variables
+      include_vars: "{{ lookup('first_found', ffparams) }}"
+      vars:
+        ffparams:
+          files:
+            - "tests_{{ ansible_distribution }}_\
+              {{ ansible_distribution_major_version }}.yml"
+            - "tests_default.yml"
+          paths:
+            - vars
+
+    - name: Ensure pyudev package is installed
+      package:
+        name: "{{ __kernel_settings_test_pyudev_pkg }}"
+        state: present
+
     - name: get and store config values from template machine
       kernel_report:
       register: template_settings
-      when: ansible_distribution == 'CentOS'
-      no_log: true
+      when: ansible_distribution == 'Fedora'
+
+    - name: create file with device specific settings
+      template: 
+        src: "/home/mprovenc/linux-system-roles/kernel_settings/templates/kernel_report_device_specific.j2"
+        dest: "./device_specific_settings.txt"
+      delegate_to: localhost
+      loop: "{{ groups['all'] }}"
+      when:
+        - hostvars[item].ansible_distribution == 'Fedora'
 
     - name: apply kernel_settings to target machine(s)
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
-        kernel_settings_sysctl: >-
-          {{ hostvars[item].template_settings.ansible_facts.sysctl }}
+        kernel_settings_transparent_hugepages: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_transparent_hugepages }}"
+        kernel_settings_transparent_hugepages_defrag: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_transparent_hugepages_defrag }}"
+        kernel_settings_cpu_min_perf_pct: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_cpu_min_perf_pct }}"
+        kernel_settings_cpu_max_perf_pct: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_cpu_max_perf_pct }}"
+        kernel_settings_cpu_no_turbo: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_cpu_no_turbo }}"
+        kernel_settings_avc_cache_threshold: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_avc_cache_threshold }}"
+        kernel_settings_nf_conntrack_hashsize: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_nf_conntrack_hashsize }}"
+        kernel_settings_sysfs: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_sysfs }}"
+        kernel_settings_sysctl: "{{ hostvars[item].template_settings.ansible_facts.kernel_settings_sysctl }}"
       loop: "{{ groups['all'] }}"
       when: 
-        - hostvars[item].ansible_distribution == 'CentOS'
-        - ansible_distribution == 'Fedora'
+        - hostvars[item].ansible_distribution == 'Fedora'
+        - ansible_distribution == 'CentOS'

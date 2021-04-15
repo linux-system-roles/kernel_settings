@@ -1,2 +1,3 @@
 __kernel_settings_test_python_pkgs: ['python', 'python-configobj']
 __kernel_settings_test_python_cmd: python
+__kernel_settings_test_pyudev_pkg: 'python-pyudev'

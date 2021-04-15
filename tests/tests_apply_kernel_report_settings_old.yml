@@ -1,0 +1,22 @@
+- hosts: all
+
+  roles:
+    - role: linux-system-roles.kernel_settings
+      when: false
+
+  tasks:
+    - name: get and store config values from template machine
+      kernel_report:
+      register: template_settings
+      when: ansible_distribution == 'CentOS'
+
+    - name: apply kernel_settings to target machine(s)
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_sysctl: >-
+          {{ hostvars[item].template_settings.ansible_facts.sysctl }}
+      loop: "{{ groups['all'] }}"
+      when: 
+        - hostvars[item].ansible_distribution == 'CentOS'
+        - ansible_distribution == 'Fedora'
