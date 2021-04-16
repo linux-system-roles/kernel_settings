@@ -101,8 +101,8 @@ def get_sysfs_fields():
     kernel_settings_device_specific["kernel_settings_sampling_down_factor"] = []
     for cpu in cpus:
         num_cpus += 1
-        kernel_settings_device_specific["kernel_settings_cpu_governor"].append({'device':cpu.sys_path, 'value':safe_file_get_contents('%s/cpufreq/scaling_governor' % cpu.sys_path)})
-        kernel_settings_device_specific["kernel_settings_sampling_down_factor"].append({'device':cpu.sys_path, 'value':safe_file_get_contents('/sys/devices/system/cpu/cpufreq/%s/sampling_down_factor' % kernel_settings_device_specific['kernel_settings_cpu_governor'][-1])})
+        kernel_settings_device_specific["kernel_settings_cpu_governor"].append({'device':cpu.sys_name, 'value':safe_file_get_contents('%s/cpufreq/scaling_governor' % cpu.sys_path)})
+        kernel_settings_device_specific["kernel_settings_sampling_down_factor"].append({'device':cpu.sys_name, 'value':safe_file_get_contents('/sys/devices/system/cpu/cpufreq/%s/sampling_down_factor' % kernel_settings_device_specific['kernel_settings_cpu_governor'][-1])})
     
     print("get_sysfs_fields: found %d cpus associated to the template machine" % num_cpus)
 
@@ -120,9 +120,9 @@ def get_sysfs_fields():
         if schedulers:
             settings = re.findall(r'\[(\w+)\]', schedulers)
             if settings:
-                kernel_settings_device_specific["kernel_settings_disk_elevator"].append({'device':block.sys_path, 'value':settings[0]})
-            kernel_settings_device_specific["kernel_settings_disk_read_ahead_kb"].append({'device':block.sys_path, 'value':safe_file_get_contents("%s/queue/read_ahead_kb" % block.sys_path)})
-            kernel_settings_device_specific["kernel_settings_disk_scheduler_quantum"].append({'device':block.sys_path, 'value':safe_file_get_contents("%s/queue/iosched/quantum" % block.sys_path)})
+                kernel_settings_device_specific["kernel_settings_disk_elevator"].append({'device':block.sys_name, 'value':settings[0]})
+            kernel_settings_device_specific["kernel_settings_disk_read_ahead_kb"].append({'device':block.sys_name, 'value':safe_file_get_contents("%s/queue/read_ahead_kb" % block.sys_path)})
+            kernel_settings_device_specific["kernel_settings_disk_scheduler_quantum"].append({'device':block.sys_name, 'value':safe_file_get_contents("%s/queue/iosched/quantum" % block.sys_path)})
     
     print("get_sysfs_fields: found %d blocks associated to the template machine" % num_blocks)
     
@@ -137,8 +137,8 @@ def get_sysfs_fields():
         module_name = sound_card.parent.driver
         if module_name in ["snd_hda_intel", "snd_ac97_codec"]:
             num_sound_cards += 1
-            kernel_settings_device_specific["kernel_settings_audio_timeout"].append({'device':sound_card.sys_path, 'value':safe_file_get_contents("/sys/module/%s/parameters/power_save" % module_name)})
-            kernel_settings_device_specific["kernel_settings_audio_reset_controller"].append({'device':sound_card.sys_path, 'value':safe_file_get_contents("/sys/module/%s/parameters/power_save_controller" % module_name)})
+            kernel_settings_device_specific["kernel_settings_audio_timeout"].append({'device':sound_card.sys_name, 'value':safe_file_get_contents("/sys/module/%s/parameters/power_save" % module_name)})
+            kernel_settings_device_specific["kernel_settings_audio_reset_controller"].append({'device':sound_card.sys_name, 'value':safe_file_get_contents("/sys/module/%s/parameters/power_save_controller" % module_name)})
 
     print("get_sysfs_fields: found %d sound modules associated to the template machine" % num_sound_cards)
 
@@ -150,7 +150,7 @@ def get_sysfs_fields():
 
     for scsi in scsis:
         num_scsis += 1
-        kernel_settings_device_specific["kernel_settings_scsi_host_alpm"].append({'device':scsi.sys_path, 'value':safe_file_get_contents("%s/link_power_management_policy" % scsi.sys_path)}) 
+        kernel_settings_device_specific["kernel_settings_scsi_host_alpm"].append({'device':scsi.sys_name, 'value':safe_file_get_contents("%s/link_power_management_policy" % scsi.sys_path)}) 
 
     print("get_sysfs_fields: found %d scsis associated to the template machine" % num_scsis)
 
@@ -164,11 +164,11 @@ def get_sysfs_fields():
         num_gcards += 1
         method = safe_file_get_contents("%s/device/power_method" % gcard.sys_path)
         if method == "profile":
-            kernel_settings_device_specific["kernel_settings_video_radeon_powersave"].append({'device':gcard.sys_path, 'value':safe_file_get_contents("%s/device/power_profile" % gcard.sys_path)}) 
+            kernel_settings_device_specific["kernel_settings_video_radeon_powersave"].append({'device':gcard.sys_name, 'value':safe_file_get_contents("%s/device/power_profile" % gcard.sys_path)}) 
         elif method == "dynpm":
-            kernel_settings_device_specific["kernel_settings_video_radeon_powersave"].append({'device':gcard.sys_path, 'value':'dynpm'})
+            kernel_settings_device_specific["kernel_settings_video_radeon_powersave"].append({'device':gcard.sys_name, 'value':'dynpm'})
         elif method == "dpm":
-            kernel_settings_device_specific["kernel_settings_video_radeon_powersave"].append({'device':gcard.sys_path, 'value':"dpm-%s" % safe_file_get_contents("%s/device/power_dpm_state" % gcard.sys_path)})
+            kernel_settings_device_specific["kernel_settings_video_radeon_powersave"].append({'device':gcard.sys_name, 'value':"dpm-%s" % safe_file_get_contents("%s/device/power_dpm_state" % gcard.sys_path)})
 
     print("get_sysfs_fields: found %d gcards associated to the template machine" % num_gcards)
 
@@ -180,7 +180,7 @@ def get_sysfs_fields():
 
     for usb in usbs:
         num_usbs += 1
-        kernel_settings_device_specific["kernel_settings_usb_autosuspend"].append({'device':usb.sys_path,'value':safe_file_get_contents("%s/power/autosuspend" % usb.sys_path)})
+        kernel_settings_device_specific["kernel_settings_usb_autosuspend"].append({'device':usb.sys_name,'value':safe_file_get_contents("%s/power/autosuspend" % usb.sys_path)})
 
     result["kernel_settings_device_specific"] = kernel_settings_device_specific
 
