@@ -72,7 +72,11 @@ def get_sysctl_fields():
         temp_dict = {"name": setting}
         temp_dict["value"] = safe_file_get_contents("/proc/sys/%s" % setting.replace(".","/"))
         if temp_dict["value"]:
-            sysctl.append(temp_dict)
+            if (setting == "vm.dirty_background_bytes" or setting == "vm.dirty_background_ratio" or setting == "vm.dirty_ratio" or setting == "vm.dirty_bytes") and temp_dict["value"] == "0":
+                continue
+            else:
+                sysctl.append(temp_dict)
+
     return {"kernel_settings_sysctl": sysctl}
 
 def get_sysfs_fields():
