@@ -38,36 +38,13 @@ kernel_settings_transparent_hugepages: null
 # value.  The actual supported values may be different depending on your OS.
 kernel_settings_transparent_hugepages_defrag: null
 
-# cpu settings
-kernel_settings_cpu_governor: null
-kernel_settings_sampling_down_factor: null
-kernel_settings_cpu_min_perf_pct: null
-kernel_settings_cpu_max_perf_pct: null
-kernel_settings_no_turbo: null
-
-# disk settings
-kernel_settings_disk_elevator: null
-kernel_settings_disk_read_ahead_kb: null
-kernel_settings_disk_scheduler_quantum: null
-
-# selinux settings
-kernel_settings_avc_cache_threshold: null
-
-# net settings
-kernel_settings_nf_conntrack_hashsize: null
-
-# audio settings
-kernel_settings_audio_timeout: null
-kernel_settings_audio_reset_controller: null
-
-# scsi_host settings
-kernel_settings_scsi_host_alpm: null
-
-# video settings
-kernel_settings_video_radeon_powersave: null
-
-# usb settings
-kernel_settings_usb_autosuspend: null
+kernel_settings_cpu: []
+kernel_settings_disk: []
+kernel_settings_net: []
+kernel_settings_audio: []
+kernel_settings_scsi_host: []
+kernel_settings_video: []
+kernel_settings_usb: []
 
 # If purge is true, completely wipe out whatever the current settings
 # are and replace them with kernel_settings_parameters

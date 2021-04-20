@@ -82,16 +82,35 @@ def get_sysctl_fields():
 def get_sysfs_fields():
     result = {}
 
-    # these are the settings not specific to any particular device
-    result["kernel_settings_transparent_hugepages"] = re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/enabled'))[0]
-    result["kernel_settings_transparent_hugepages_defrag"] = re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/defrag'))[0]
-    result["kernel_settings_cpu_min_perf_pct"] = safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/min_perf_pct")
-    result["kernel_settings_cpu_max_perf_pct"] = safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/max_perf_pct")
-    result["kernel_settings_cpu_no_turbo"] = safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/no_turbo")
-    result["kernel_settings_avc_cache_threshold"] = safe_file_get_contents("/sys/fs/selinux/avc/cache_threshold")
-    result["kernel_settings_nf_conntrack_hashsize"] = safe_file_get_contents("/sys/module/nf_conntrack/parameters/hashsize")
-
     kernel_settings_device_specific = {}
+
+    # these are the settings not specific to any particular device
+    kernel_settings_other = {}
+
+    kernel_settings_cpu = {"settings": []}
+    kernel_settings_net = {"settings": []}
+    kernel_settings_selinux = {"settings": []}
+
+    if safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/min_perf_pct"):
+        kernel_settings_cpu["settings"].append({'name': 'min_perf_pct', 'value': safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/min_perf_pct")})
+    if safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/max_perf_pct"):
+        kernel_settings_cpu["settings"].append({'name': 'max_perf_pct', 'value': safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/max_perf_pct")})
+    if safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/no_turbo"):
+        kernel_settings_cpu["settings"].append({'name': 'no_turbo', 'value': safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/no_turbo")})
+    if safe_file_get_contents("/sys/module/nf_conntrack/parameters/hashsize"):
+        kernel_settings_net["settings"].append({'name': 'nf_conntrack_hashsize', 'value': safe_file_get_contents("/sys/module/nf_conntrack/parameters/hashsize")})
+    if safe_file_get_contents("/sys/fs/selinux/avc/cache_threshold"):
+        kernel_settings_selinux["settings"].append({'name': 'avc_cache_threshold', 'value': safe_file_get_contents("/sys/fs/selinux/avc/cache_threshold")})
+
+    kernel_settings_other["kernel_settings_cpu"] = kernel_settings_cpu
+    kernel_settings_other["kernel_settings_net"] = kernel_settings_net
+    kernel_settings_other["kernel_settings_selinux"] = kernel_settings_selinux
+
+    result["kernel_settings_other"] = kernel_settings_other
+
+    # TODO
+    # result["kernel_settings_transparent_hugepages"] = re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/enabled'))[0]
+    # result["kernel_settings_transparent_hugepages_defrag"] = re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/defrag'))[0]
 
     # will collect a list of cpus associated to the template machine, but only use settings from the first one
     cpus = pyudev.Context().list_devices(subsystem="cpu")

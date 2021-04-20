@@ -41,111 +41,14 @@
 
 - name: Apply kernel settings
   kernel_settings:
-    cpu:
-      - name: "{{ 'governor' if kernel_settings_cpu_governor
-                  else none }}"
-        value: "{{ kernel_settings_cpu_governor
-                   if kernel_settings_cpu_governor !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_cpu_governor ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'min_perf_pct' if kernel_settings_cpu_min_perf_pct
-                  else none }}"
-        value: "{{ kernel_settings_cpu_min_perf_pct
-                   if kernel_settings_cpu_min_perf_pct !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_cpu_min_perf_pct ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'max_perf_pct' if kernel_settings_cpu_max_perf_pct
-                  else none }}"
-        value: "{{ kernel_settings_cpu_max_perf_pct
-                   if kernel_settings_cpu_max_perf_pct !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_cpu_max_perf_pct ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'sampling_down_factor' if kernel_settings_sampling_down_factor
-                  else none }}"
-        value: "{{ kernel_settings_sampling_down_factor
-                   if kernel_settings_sampling_down_factor !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_sampling_down_factor ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'no_turbo' if kernel_settings_no_turbo
-                  else none }}"
-        value: "{{ kernel_settings_no_turbo
-                   if kernel_settings_no_turbo !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_no_turbo ==
-                    __kernel_settings_state_absent else none }}"
-    disk:
-      - name: "{{ 'elevator' if kernel_settings_disk_elevator
-                  else none }}"
-        value: "{{ kernel_settings_disk_elevator
-                   if kernel_settings_disk_elevator !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_disk_elevator ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'readahead' if kernel_settings_disk_read_ahead_kb
-                  else none }}"
-        value: "{{ kernel_settings_disk_read_ahead_kb
-                   if kernel_settings_disk_read_ahead_kb !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_disk_read_ahead_kb ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'scheduler_quantum' if kernel_settings_disk_scheduler_quantum
-                  else none }}"
-        value: "{{ kernel_settings_disk_scheduler_quantum
-                   if kernel_settings_disk_scheduler_quantum !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_disk_scheduler_quantum ==
-                    __kernel_settings_state_absent else none }}"
-    net:
-      - name: "{{ 'nf_conntrack_hashsize' if kernel_settings_nf_conntrack_hashsize
-                  else none }}"
-        value: "{{ kernel_settings_nf_conntrack_hashsize
-                   if kernel_settings_nf_conntrack_hashsize !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_nf_conntrack_hashsize ==
-                    __kernel_settings_state_absent else none }}"
-    audio:
-      - name: "{{ 'timeout' if kernel_settings_audio_timeout
-                  else none }}"
-        value: "{{ kernel_settings_audio_timeout
-                   if kernel_settings_audio_timeout !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_audio_timeout ==
-                    __kernel_settings_state_absent else none }}"
-      - name: "{{ 'reset_controller' if kernel_settings_audio_reset_controller
-                  else none }}"
-        value: "{{ kernel_settings_audio_reset_controller
-                   if kernel_settings_audio_reset_controller !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_audio_reset_controller ==
-                    __kernel_settings_state_absent else none }}"
-    scsi_host:
-      - name: "{{ 'alpm' if kernel_settings_scsi_host_alpm
-                  else none }}"
-        value: "{{ kernel_settings_scsi_host_alpm
-                   if kernel_settings_scsi_host_alpm !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_scsi_host_alpm ==
-                    __kernel_settings_state_absent else none }}"
-    video:
-      - name: "{{ 'radeon_powersave' if kernel_settings_video_radeon_powersave
-                  else none }}"
-        value: "{{ kernel_settings_video_radeon_powersave
-                   if kernel_settings_video_radeon_powersave !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_video_radeon_powersave ==
-                    __kernel_settings_state_absent else none }}"
-    usb:
-      - name: "{{ 'autosuspend' if kernel_settings_usb_autosuspend
-                  else none }}"
-        value: "{{ kernel_settings_usb_autosuspend
-                   if kernel_settings_usb_autosuspend !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_usb_autosuspend ==
-                    __kernel_settings_state_absent else none }}"
+    cpu: "{{ kernel_settings_cpu.settings | union([{'name': 'devices', 'value': kernel_settings_cpu.devices | d('*', true)}]) if kernel_settings_cpu else omit }}"
+    disk: "{{ kernel_settings_disk.settings | union([{'name': 'devices', 'value': kernel_settings_disk.devices | d('*', true)}]) if kernel_settings_disk else omit }}"
+    net: "{{ kernel_settings_net.settings | union([{'name': 'devices', 'value': kernel_settings_net.devices | d('*', true)}]) if kernel_settings_net else omit }}"
+    audio: "{{ kernel_settings_audio.settings | union([{'name': 'devices', 'value': kernel_settings_audio.devices | d('*', true)}]) if kernel_settings_audio else omit }}"
+    scsi_host: "{{ kernel_settings_scsi_host.settings | union([{'name': 'devices', 'value': kernel_settings_scsi_host.devices | d('*', true)}]) if kernel_settings_scsi_host else omit }}"
+    video: "{{ kernel_settings_video.settings | union([{'name': 'devices', 'value': kernel_settings_video.devices | d('*', true)}]) if kernel_settings_video else omit }}"
+    usb: "{{ kernel_settings_usb.settings | union([{'name': 'devices', 'value': kernel_settings_usb.devices | d('*', true)}]) if kernel_settings_usb else omit }}"
+    selinux: "{{ kernel_settings_selinux.settings | union([{'name': 'devices', 'value': kernel_settings_selinux.devices | d('*', true)}]) if kernel_settings_selinux else omit }}"
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
     sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
     systemd:
