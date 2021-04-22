@@ -44,10 +44,10 @@
     - name: update sysctl values on the template machine
       become: true
       sysctl:
-            name: fs.file-max
-            value: 100000
-            state: present
-            reload: yes
+        name: fs.file-max
+        value: 100000
+        state: present
+        reload: yes
 
     - name: get and store config values from template machine
       kernel_report:
@@ -55,8 +55,9 @@
       when: host_role == 'template'
 
     - name: create file with device specific settings
-      template: 
-        src: "/home/mprovenc/linux-system-roles/kernel_settings/templates/kernel_report_device_specific.j2"
+      template:
+        src: "/home/mprovenc/linux-system-roles/kernel_settings/\
+              templates/kernel_report_device_specific.j2"
         dest: "./device_specific_settings.txt"
       delegate_to: localhost
       when: host_role == 'template'
@@ -75,10 +76,26 @@
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
-        kernel_settings_cpu: "{{ hostvars[template_hostname].template_settings.ansible_facts.kernel_settings_other.kernel_settings_cpu }}"
-        kernel_settings_net: "{{ hostvars[template_hostname].template_settings.ansible_facts.kernel_settings_other.kernel_settings_net }}"
-        kernel_settings_selinux: "{{ hostvars[template_hostname].template_settings.ansible_facts.kernel_settings_other.kernel_settings_selinux }}"
-        kernel_settings_vm: "{{ hostvars[template_hostname].template_settings.ansible_facts.kernel_settings_other.kernel_settings_vm }}"
-        kernel_settings_sysfs: "{{ hostvars[template_hostname].template_settings.ansible_facts.kernel_settings_sysfs }}"
-        kernel_settings_sysctl: "{{ hostvars[template_hostname].template_settings.ansible_facts.kernel_settings_sysctl }}"
+        kernel_settings_cpu: "{{ hostvars[template_hostname].\
+                                 template_settings.ansible_facts.\
+                                 kernel_settings_other.\
+                                 kernel_settings_cpu }}"
+        kernel_settings_net: "{{ hostvars[template_hostname].\
+                                 template_settings.ansible_facts.\
+                                 kernel_settings_other.\
+                                 kernel_settings_net }}"
+        kernel_settings_selinux: "{{ hostvars[template_hostname].\
+                                     template_settings.ansible_facts.\
+                                     kernel_settings_other.\
+                                     kernel_settings_selinux }}"
+        kernel_settings_vm: "{{ hostvars[template_hostname].\
+                                template_settings.ansible_facts.\
+                                kernel_settings_other.\
+                                kernel_settings_vm }}"
+        kernel_settings_sysfs: "{{ hostvars[template_hostname].\
+                                   template_settings.ansible_facts.\
+                                   kernel_settings_sysfs }}"
+        kernel_settings_sysctl: "{{ hostvars[template_hostname].\
+                                    template_settings.ansible_facts.\
+                                    kernel_settings_sysctl }}"
       when: host_role == 'target'

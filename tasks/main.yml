@@ -41,15 +41,42 @@
 
 - name: Apply kernel settings
   kernel_settings:
-    cpu: "{{ kernel_settings_cpu.settings | union([{'name': 'devices', 'value': kernel_settings_cpu.devices | d('*', true)}]) if kernel_settings_cpu else omit }}"
-    disk: "{{ kernel_settings_disk.settings | union([{'name': 'devices', 'value': kernel_settings_disk.devices | d('*', true)}]) if kernel_settings_disk else omit }}"
-    net: "{{ kernel_settings_net.settings | union([{'name': 'devices', 'value': kernel_settings_net.devices | d('*', true)}]) if kernel_settings_net else omit }}"
-    audio: "{{ kernel_settings_audio.settings | union([{'name': 'devices', 'value': kernel_settings_audio.devices | d('*', true)}]) if kernel_settings_audio else omit }}"
-    scsi_host: "{{ kernel_settings_scsi_host.settings | union([{'name': 'devices', 'value': kernel_settings_scsi_host.devices | d('*', true)}]) if kernel_settings_scsi_host else omit }}"
-    video: "{{ kernel_settings_video.settings | union([{'name': 'devices', 'value': kernel_settings_video.devices | d('*', true)}]) if kernel_settings_video else omit }}"
-    usb: "{{ kernel_settings_usb.settings | union([{'name': 'devices', 'value': kernel_settings_usb.devices | d('*', true)}]) if kernel_settings_usb else omit }}"
-    selinux: "{{ kernel_settings_selinux.settings | union([{'name': 'devices', 'value': kernel_settings_selinux.devices | d('*', true)}]) if kernel_settings_selinux else omit }}"
-    vm: "{{ kernel_settings_vm.settings | union([{'name': 'devices', 'value': kernel_settings_vm.devices | d('*', true)}]) if kernel_settings_vm else omit }}"
+    cpu: "{{ kernel_settings_cpu.settings |
+             union([{'name': 'devices',\
+             'value': kernel_settings_cpu.devices |
+             d('*', true)}]) if kernel_settings_cpu else omit }}"
+    disk: "{{ kernel_settings_disk.settings |
+              union([{'name': 'devices',\
+              'value': kernel_settings_disk.devices |
+              d('*', true)}]) if kernel_settings_disk else omit }}"
+    net: "{{ kernel_settings_net.settings |
+             union([{'name': 'devices',\
+             'value': kernel_settings_net.devices |
+             d('*', true)}]) if kernel_settings_net else omit }}"
+    audio: "{{ kernel_settings_audio.settings |
+               union([{'name': 'devices',\
+               'value': kernel_settings_audio.devices |
+               d('*', true)}]) if kernel_settings_audio else omit }}"
+    scsi_host: "{{ kernel_settings_scsi_host.settings |
+                   union([{'name': 'devices',\
+                   'value': kernel_settings_scsi_host.devices |
+                   d('*', true)}]) if kernel_settings_scsi_host else omit }}"
+    video: "{{ kernel_settings_video.settings |
+               union([{'name': 'devices',\
+               'value': kernel_settings_video.devices |
+               d('*', true)}]) if kernel_settings_video else omit }}"
+    usb: "{{ kernel_settings_usb.settings |
+             union([{'name': 'devices',\
+             'value': kernel_settings_usb.devices |
+             d('*', true)}]) if kernel_settings_usb else omit }}"
+    selinux: "{{ kernel_settings_selinux.settings |
+                 union([{'name': 'devices',\
+                 'value': kernel_settings_selinux.devices |
+                 d('*', true)}]) if kernel_settings_selinux else omit }}"
+    vm: "{{ kernel_settings_vm.settings |
+            union([{'name': 'devices',\
+            'value': kernel_settings_vm.devices |
+            d('*', true)}]) if kernel_settings_vm else omit }}"
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
     sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
     systemd:
