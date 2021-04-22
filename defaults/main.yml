@@ -46,6 +46,7 @@ kernel_settings_scsi_host: []
 kernel_settings_video: []
 kernel_settings_usb: []
 kernel_settings_selinux: []
+kernel_settings_vm: []
 
 # If purge is true, completely wipe out whatever the current settings
 # are and replace them with kernel_settings_parameters

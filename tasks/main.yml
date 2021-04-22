@@ -49,6 +49,7 @@
     video: "{{ kernel_settings_video.settings | union([{'name': 'devices', 'value': kernel_settings_video.devices | d('*', true)}]) if kernel_settings_video else omit }}"
     usb: "{{ kernel_settings_usb.settings | union([{'name': 'devices', 'value': kernel_settings_usb.devices | d('*', true)}]) if kernel_settings_usb else omit }}"
     selinux: "{{ kernel_settings_selinux.settings | union([{'name': 'devices', 'value': kernel_settings_selinux.devices | d('*', true)}]) if kernel_settings_selinux else omit }}"
+    vm: "{{ kernel_settings_vm.settings | union([{'name': 'devices', 'value': kernel_settings_vm.devices | d('*', true)}]) if kernel_settings_vm else omit }}"
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
     sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
     systemd:
@@ -59,23 +60,6 @@
                    __kernel_settings_state_absent
                    else none }}"
         state: "{{ 'absent' if kernel_settings_systemd_cpu_affinity ==
-                   __kernel_settings_state_absent else none }}"
-    vm:
-      - name: "{{ 'transparent_hugepages'
-                  if kernel_settings_transparent_hugepages
-                  else none }}"
-        value: "{{ kernel_settings_transparent_hugepages
-                   if kernel_settings_transparent_hugepages !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_transparent_hugepages ==
-                   __kernel_settings_state_absent else none }}"
-      - name: "{{ 'transparent_hugepage.defrag'
-                  if kernel_settings_transparent_hugepages_defrag
-                  else none }}"
-        value: "{{ kernel_settings_transparent_hugepages_defrag
-                   if kernel_settings_transparent_hugepages_defrag !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_transparent_hugepages_defrag ==
                    __kernel_settings_state_absent else none }}"
     bootloader:
       - name: "{{ 'cmdline'

@@ -90,6 +90,7 @@ def get_sysfs_fields():
     kernel_settings_cpu = {"settings": []}
     kernel_settings_net = {"settings": []}
     kernel_settings_selinux = {"settings": []}
+    kernel_settings_vm = {"settings": []}
 
     if safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/min_perf_pct"):
         kernel_settings_cpu["settings"].append({'name': 'min_perf_pct', 'value': safe_file_get_contents("/sys/devices/system/cpu/intel_pstate/min_perf_pct")})
@@ -101,16 +102,17 @@ def get_sysfs_fields():
         kernel_settings_net["settings"].append({'name': 'nf_conntrack_hashsize', 'value': safe_file_get_contents("/sys/module/nf_conntrack/parameters/hashsize")})
     if safe_file_get_contents("/sys/fs/selinux/avc/cache_threshold"):
         kernel_settings_selinux["settings"].append({'name': 'avc_cache_threshold', 'value': safe_file_get_contents("/sys/fs/selinux/avc/cache_threshold")})
+    if safe_file_get_contents("/sys/kernel/mm/transparent_hugepage/enabled"):
+        kernel_settings_vm["settings"].append({'name':'transparent_hugepage', 'value': re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/enabled'))[0]})
+    if safe_file_get_contents("/sys/kernel/mm/transparent_hugepage/defrag"):
+        kernel_settings_vm["settings"].append({'name':'transparent_hugepage.defrag', 'value': re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/defrag'))[0]})
 
     kernel_settings_other["kernel_settings_cpu"] = kernel_settings_cpu
     kernel_settings_other["kernel_settings_net"] = kernel_settings_net
     kernel_settings_other["kernel_settings_selinux"] = kernel_settings_selinux
+    kernel_settings_other["kernel_settings_vm"] = kernel_settings_vm
 
     result["kernel_settings_other"] = kernel_settings_other
-
-    # TODO
-    # result["kernel_settings_transparent_hugepages"] = re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/enabled'))[0]
-    # result["kernel_settings_transparent_hugepages_defrag"] = re.findall(r'\[(\w+)\]', safe_file_get_contents('/sys/kernel/mm/transparent_hugepage/defrag'))[0]
 
     # will collect a list of cpus associated to the template machine, but only use settings from the first one
     cpus = pyudev.Context().list_devices(subsystem="cpu")
