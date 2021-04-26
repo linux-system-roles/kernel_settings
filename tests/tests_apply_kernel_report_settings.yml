@@ -44,10 +44,11 @@
     - name: update sysctl values on the template machine
       become: true
       sysctl:
-        name: fs.file-max
-        value: 100000
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
         state: present
         reload: yes
+      loop: "{{ __kernel_settings_test_sysctl }}"
 
     - name: get and store config values from template machine
       kernel_report:
