@@ -31,10 +31,6 @@
         index_var: my_idx
       run_once: true
 
-    - name: debug the host role
-      debug:
-        msg: "{{ host_role }}"
-
     - name: Ensure pyudev package is installed on template machine
       package:
         name: "{{ __kernel_settings_test_pyudev_pkg }}"
@@ -49,6 +45,7 @@
         state: present
         reload: yes
       loop: "{{ __kernel_settings_test_sysctl }}"
+      when: host_role == "template"
 
     - name: get and store config values from template machine
       kernel_report:
