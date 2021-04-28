@@ -6,6 +6,134 @@
 #
 """ Generate kernel settings facts for a system """
 
+from __future__ import (absolute_import, division, print_function)
+
+__metaclass__ = type
+
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
+
+DOCUMENTATION = """
+---
+module: kernel_report
+
+short_description: Report kernel settings from a template machine
+
+version_added: "2.9"
+
+description:
+    - |
+      Report kernel settings from a template machine and adds them to
+      ansible_facts. The current use case for this module is to be able to 
+      apply kernel settings from a template machine to any number of targets;
+      particularly when admins may not be aware of which kernel settings they
+      have tweaked on the template machine and only know that they would like
+      to apply the kernel state to other machines.  This module selectively
+      loops through sysctl and sysfs kernel settings to generate a "report" on
+      the kernel state of the template machine.  The settings that it loops 
+      through correspond to commonly changed fields in various tuned profiles.
+      Some of these commonly changed settings are device-specific, meaning that
+      they are tied to particular devices on the template machine, such as 
+      cpus, usb interfaces, and graphics cards. These device-specific settings
+      include their corresponding device somewhere in the path name, thus 
+      making it difficult and unreliable to apply directly to a target. To 
+      address this issue, such settings are placed into a separate dictionary 
+      called kernel_settings_device_specific. The dictionaries entitled 
+      kernel_settings_sysfs and kernel_settings_sysctl contain settings which
+      can be applied directly their corresponding sysfs and sysctl tuned 
+      plugins. The dictionary kernel_settings_other and its children contain
+      those kernel_settings which correspond to other tuned plugins such as
+      selinux, cpu, and vm.
+    - HORIZONTALLINE
+    - |
+      Note that if a particular kernel setting file does not exist on the template 
+      system, that setting will not be included in the output of the report.
+
+author:
+    - Mary Provencher (@mprovenc)
+"""
+
+EXAMPLES = """
+# register settings from a template machine
+- name: get and store config values from template machine
+    kernel_report:
+    register: template_settings
+"""
+
+RETURN = """
+# An example return.
+ansible_facts:
+    description: Facts to add to ansible_facts.
+    returned: always
+    type: dict
+    contains:
+        kernel_settings_device_specific:
+            description: Device-specific kernel settings.
+            type: dict
+            returned: always
+            sample:
+                kernel_settings_cpu_governor:
+                    - device: 'cpu0'
+                      value: null
+                kernel_settings_disk_elevator:
+                    - device: 'sr0'
+                      value: 'bfq'
+                kernel_settings_disk_read_ahead_kb:
+                    - device: 'sr0'
+                      value: '128'
+                    - device: 'vda'
+                      value: '128'
+                kernel_settings_disk_scheduler_quantum:
+                    - device: 'sr0'
+                      value: null
+                kernel_settings_sampling_down_factor:
+                    - device: 'cpu0'
+                      value: null
+                kernel_settings_scsi_host_alpm:
+                    - device: 'host0'
+                      value: null
+        kernel_settings_other:
+            description: Kernel settings for various tuned plugins.
+            type: dict
+            returned: always
+            sample:
+                kernel_settings_cpu:
+                    settings:
+                kernel_settings_net:
+                    settings:
+                kernel_settings_selinux:
+                    settings:
+                        - name: 'avc_cache_threshold'
+                          value:'512'
+                kernel_settings_vm:
+                    settings:
+                        - name: 'transparent_hugepage'
+                          value: 'madvise'
+                        - name: 'transparent_hugepage.defrag'
+                          value: 'madvise'
+        kernel_settings_sysctl:
+            description: Sysctl kernel settings.
+            type: dict
+            returned: always
+            sample:
+                - name: 'fs.aio-max-nr'
+                    value: '70000'
+                - name: 'fs.file-max'
+                    value: '100000'
+                - name: 'vm.dirty_ratio'
+                    value: '20'
+        kernel_settings_sysfs:
+            description: Sysfs settings that don't correspond to a particular tuned plugin
+            type: dict
+            returned: always
+            sample:
+                - name: '/sys/kernel/mm/ksm/run'
+                  value: '0'
+"""
+
 import re
 import pyudev
 from ansible.module_utils.basic import AnsibleModule
