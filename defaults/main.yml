@@ -25,6 +25,126 @@ kernel_settings_sysctl: []
 #     value: 0
 kernel_settings_sysfs: []
 
+# This is a `dict` of the settings that fall under tuned's cpu plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and`value`. For example:
+# kernel_settings_cpu:
+#   devices:
+#     - cpu0
+#       cpu1
+#   settings:
+#     - name: governor
+#       value: powersave
+#     - name: min_perf_pct
+#       value: 20
+kernel_settings_cpu: null
+
+# This is a `dict` of the settings that fall under tuned's disk plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_disk:
+#   devices:
+#   settings:
+#     - name: elevator
+#       value: bfq
+#     - name: read_ahead_kb
+#       value: 256
+#     - name: scheduler_quantum
+#       value: 64
+kernel_settings_disk: null
+
+# This is a `dict` of the settings that fall under tuned's net plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_net:
+#   devices:
+#   settings:
+#     - name: nf_conntrack_hashsize
+#       value: 1048576
+kernel_settings_net: null
+
+# This is a `dict` of the settings that fall under tuned's audio plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_audio:
+#   devices:
+#   settings:
+#     - name: timeout
+#       value: 10
+#     - name: reset_controller
+#       value: 1
+kernel_settings_audio: null
+
+# This is a `dict` of the settings that fall under tuned's scsi_host plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_scsi_host:
+#   devices:
+#   settings:
+#     - name: alpm
+#       value: "min_power"
+kernel_settings_scsi_host: null
+
+# This is a `dict` of the settings that fall under tuned's video plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_video:
+#   devices:
+#   settings:
+#     - name: radeon_powersave
+#       value: "auto"
+kernel_settings_video: null
+
+# This is a `dict` of the settings that fall under tuned's usb plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_usb:
+#   devices:
+#   settings:
+#     - name: autosuspend
+#       value: 1
+kernel_settings_usb: null
+
+# This is a `dict` of the settings that fall under tuned's selinux plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_selinux:
+#   devices:s
+#   settings:
+#     - name: avc_cache_threshold
+#       value: 180
+kernel_settings_selinux: null
+
+# This is a `dict` of the settings that fall under tuned's vm plugin. The 
+# first item in the dict will be `devices`, which specifies the devices (if
+# any) to apply the settings to. The default is to apply to all devices. The 
+# second item in the dict will be `settings`, which consists of a list of 
+# `dict` items with allowed key names of `name` and `value`. For example:
+# kernel_settings_vm:
+#   devices:
+#   settings:
+#     - name: tranmadvise
+#     - name: tsparent_hugepages
+#       value: ransparent_hugepages.defrag
+#       value: madvise
+kernel_settings_vm: null
+
 # A space delimited list of cpu numbers.
 # See systemd-system.conf man page - CPUAffinity
 kernel_settings_systemd_cpu_affinity: null
@@ -37,16 +157,6 @@ kernel_settings_transparent_hugepages: null
 # This is the memory subsystem transparent hugepages fragmentation handling
 # value.  The actual supported values may be different depending on your OS.
 kernel_settings_transparent_hugepages_defrag: null
-
-kernel_settings_cpu: []
-kernel_settings_disk: []
-kernel_settings_net: []
-kernel_settings_audio: []
-kernel_settings_scsi_host: []
-kernel_settings_video: []
-kernel_settings_usb: []
-kernel_settings_selinux: []
-kernel_settings_vm: []
 
 # If purge is true, completely wipe out whatever the current settings
 # are and replace them with kernel_settings_parameters
