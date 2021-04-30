@@ -41,42 +41,47 @@
 
 - name: Apply kernel settings
   kernel_settings:
-    cpu: "{{ kernel_settings_cpu.settings |
-             union([{'name': 'devices',\
-             'value': kernel_settings_cpu.devices |
-             d('*', true)}]) if kernel_settings_cpu else omit }}"
-    disk: "{{ kernel_settings_disk.settings |
-              union([{'name': 'devices',\
+    cpu: "{{ kernel_settings_cpu is defined |
+             ternary(kernel_settings_cpu.settings | d([]) |
+             union([{'name': 'devices', 'value': kernel_settings_cpu.devices |
+             d('*', true)}]) | d({}), omit) }}"
+    disk: "{{ kernel_settings_disk is defined |
+              ternary(kernel_settings_disk.settings | d([]) |
+              union([{'name': 'devices', \
               'value': kernel_settings_disk.devices |
-              d('*', true)}]) if kernel_settings_disk else omit }}"
-    net: "{{ kernel_settings_net.settings |
-             union([{'name': 'devices',\
-             'value': kernel_settings_net.devices |
-             d('*', true)}]) if kernel_settings_net else omit }}"
-    audio: "{{ kernel_settings_audio.settings |
-               union([{'name': 'devices',\
+              d('*', true)}]) | d({}), omit) }}"
+    net: "{{ kernel_settings_net is defined |
+             ternary(kernel_settings_net.settings | d([]) |
+             union([{'name': 'devices', 'value': kernel_settings_net.devices |
+             d('*', true)}]) | d({}), omit) }}"
+    audio: "{{ kernel_settings_audio is defined |
+               ternary(kernel_settings_audio.settings | d([]) |
+               union([{'name': 'devices', \
                'value': kernel_settings_audio.devices |
-               d('*', true)}]) if kernel_settings_audio else omit }}"
-    scsi_host: "{{ kernel_settings_scsi_host.settings |
-                   union([{'name': 'devices',\
+               d('*', true)}]) | d({}), omit) }}"
+    scsi_host: "{{ kernel_settings_scsi_host is defined |
+                   ternary(kernel_settings_scsi_host.settings | d([]) |
+                   union([{'name': 'devices', \
                    'value': kernel_settings_scsi_host.devices |
-                   d('*', true)}]) if kernel_settings_scsi_host else omit }}"
-    video: "{{ kernel_settings_video.settings |
-               union([{'name': 'devices',\
+                   d('*', true)}]) | d({}), omit) }}"
+    video: "{{ kernel_settings_video is defined |
+               ternary(kernel_settings_video.settings | d([]) |
+               union([{'name': 'devices', \
                'value': kernel_settings_video.devices |
-               d('*', true)}]) if kernel_settings_video else omit }}"
-    usb: "{{ kernel_settings_usb.settings |
-             union([{'name': 'devices',\
-             'value': kernel_settings_usb.devices |
-             d('*', true)}]) if kernel_settings_usb else omit }}"
-    selinux: "{{ kernel_settings_selinux.settings |
-                 union([{'name': 'devices',\
+               d('*', true)}]) | d({}), omit) }}"
+    usb: "{{ kernel_settings_usb is defined |
+             ternary(kernel_settings_usb.settings | d([]) |
+             union([{'name': 'devices', 'value': kernel_settings_usb.devices |
+             d('*', true)}]) | d({}), omit) }}"
+    selinux: "{{ kernel_settings_selinux is defined |
+                 ternary(kernel_settings_selinux.settings | d([]) |
+                 union([{'name': 'devices', \
                  'value': kernel_settings_selinux.devices |
-                 d('*', true)}]) if kernel_settings_selinux else omit }}"
-    vm: "{{ kernel_settings_vm.settings |
-            union([{'name': 'devices',\
-            'value': kernel_settings_vm.devices |
-            d('*', true)}]) if kernel_settings_vm else omit }}"
+                 d('*', true)}]) | d({}), omit) }}"
+    vm: "{{ kernel_settings_vm is defined |
+            ternary(kernel_settings_vm.settings | d([]) |
+            union([{'name': 'devices', 'value': kernel_settings_vm.devices |
+            d('*', true)}]) | d({}), omit) }}"
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
     sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
     systemd:

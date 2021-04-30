@@ -74,22 +74,39 @@
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
-        kernel_settings_cpu: "{{ hostvars[template_hostname].\
+        kernel_settings_cpu: "{{ (hostvars[template_hostname].\
                                  template_settings.ansible_facts.\
-                                 kernel_settings_other.\
-                                 kernel_settings_cpu }}"
-        kernel_settings_net: "{{ hostvars[template_hostname].\
+                                 kernel_settings_other.kernel_settings_cpu)
+                                 if 'kernel_settings_cpu' in
+                                 hostvars[template_hostname].\
+                                 template_settings.\
+                                 ansible_facts.kernel_settings_other
+                                 else omit }}"
+        kernel_settings_net: "{{ (hostvars[template_hostname].\
                                  template_settings.ansible_facts.\
-                                 kernel_settings_other.\
-                                 kernel_settings_net }}"
-        kernel_settings_selinux: "{{ hostvars[template_hostname].\
-                                     template_settings.ansible_facts.\
-                                     kernel_settings_other.\
-                                     kernel_settings_selinux }}"
-        kernel_settings_vm: "{{ hostvars[template_hostname].\
+                                 kernel_settings_other.kernel_settings_net)
+                                 if 'kernel_settings_net' in
+                                 hostvars[template_hostname].\
+                                 template_settings.\
+                                 ansible_facts.kernel_settings_other
+                                 else omit }}"
+        kernel_settings_selinux: "{{ (hostvars[template_hostname].\
+                                      template_settings.ansible_facts.\
+                                      kernel_settings_other.\
+                                      kernel_settings_selinux)
+                                      if 'kernel_settings_selinux' in
+                                      hostvars[template_hostname].\
+                                      template_settings.\
+                                      ansible_facts.kernel_settings_other
+                                      else omit }}"
+        kernel_settings_vm: "{{ (hostvars[template_hostname].\
                                 template_settings.ansible_facts.\
-                                kernel_settings_other.\
-                                kernel_settings_vm }}"
+                                kernel_settings_other.kernel_settings_vm)
+                                if 'kernel_settings_vm' in
+                                hostvars[template_hostname].\
+                                template_settings.\
+                                ansible_facts.kernel_settings_other
+                                else omit }}"
         kernel_settings_sysfs: "{{ hostvars[template_hostname].\
                                    template_settings.ansible_facts.\
                                    kernel_settings_sysfs }}"
