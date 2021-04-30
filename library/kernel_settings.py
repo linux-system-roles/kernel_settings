@@ -25,6 +25,7 @@ short_description: Manage kernel settings using tuned via a wrapper
 version_added: "2.8"
 
 description:
+    - "WARNING: Do not use this module directly! It is only for role internal use."
     - |
       Manage kernel settings using tuned via a wrapper.  The options correspond
       to names of units or plugins in tuned.  For example, the option C(sysctl)

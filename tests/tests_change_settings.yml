@@ -87,31 +87,47 @@
 
     - name: check sysfs after role runs
       command: grep -x 65000 /sys/class/net/lo/mtu
+      changed_when: false
 
     - name: check sysctl after role runs
-      shell: sysctl -n fs.file-max | grep -x 400000
+      shell: |-
+        set -euo pipefail
+        sysctl -n fs.file-max | grep -x 400000
+      changed_when: false
 
     - name: check sysctl after role runs
-      shell: sysctl -n kernel.threads-max | grep -Lxvq 29968
+      shell: |-
+        set -euo pipefail
+        sysctl -n kernel.threads-max | grep -Lxvq 29968
+      changed_when: false
 
     - name: reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
 
     - name: check sysctl after reboot
-      shell: sysctl -n fs.file-max | grep -x 400000
+      shell: |-
+        set -euo pipefail
+        sysctl -n fs.file-max | grep -x 400000
+      changed_when: false
 
     - name: check sysfs after reboot
       command: grep -x 65000 /sys/class/net/lo/mtu
+      changed_when: false
 
     - name: show cmdline
       command: cat /proc/cmdline
+      changed_when: false
 
     - name: check sysctl after reboot
-      shell: sysctl -n kernel.threads-max | grep -Lxvq 29968
+      shell: |-
+        set -euo pipefail
+        sysctl -n kernel.threads-max | grep -Lxvq 29968
+      changed_when: false
 
     - name: check with tuned verify
       command: tuned-adm verify -i
+      changed_when: false
 
     - name: apply role again and remove settings
       include_role:
@@ -128,7 +144,10 @@
         test_command: tuned-adm active
 
     - name: check sysctl after reboot
-      shell: sysctl -n fs.file-max | grep -Lxvq 400000
+      shell: |-
+        set -euo pipefail
+        sysctl -n fs.file-max | grep -Lxvq 400000
+      changed_when: false
 
     - name: apply kernel_settings for removing
       include_role:
@@ -142,10 +161,14 @@
             value: 60666
 
     - name: check sysctl
-      shell: sysctl -n fs.file-max | grep -qx 400001
+      shell: |-
+        set -euo pipefail
+        sysctl -n fs.file-max | grep -qx 400001
+      changed_when: false
 
     - name: check sysfs after role runs
       command: grep -x 60666 /sys/class/net/lo/mtu
+      changed_when: false
 
     - name: apply kernel_settings for removing section
       include_role:
@@ -157,7 +180,11 @@
           state: empty
 
     - name: check sysctl
-      shell: sysctl -n fs.file-max | grep -Lvxq 400001
+      shell: |-
+        set -euo pipefail
+        sysctl -n fs.file-max | grep -Lvxq 400001
+      changed_when: false
 
     - name: check sysfs after role runs
       command: grep -Lxqv 60666 /sys/class/net/lo/mtu
+      changed_when: false

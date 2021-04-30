@@ -17,7 +17,7 @@ function ks_lsr_install_tuned() {
   local tunedver
   case $pyver in
     2.*) tunedver=2.11.0;;
-    3.*) tunedver=2.13.0;;
+    3.*) tunedver=2.15.0;;
     *) echo unknown python version "$pyver"; exit 1;;
   esac
   # these are required in order to install pip packages from source
