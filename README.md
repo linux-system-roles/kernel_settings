@@ -1,6 +1,8 @@
 # Kernel Settings Role
 ![CI Testing](https://github.com/linux-system-roles/kernel_settings/workflows/tox/badge.svg)
 
+Testing Bug 1944599 - kernel_settings: Found errors checking kernel settings
+
 This role is used to modify kernel settings.  For example, on Linux, settings
 in `/proc/sys` (using `sysctl`), `/sys/fs`, and some other settings.  It uses
 `tuned` for its default provider on Enterprise Linux and derivatives (RHEL and
