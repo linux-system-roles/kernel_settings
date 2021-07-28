@@ -784,7 +784,7 @@ def remove_if_empty(params):
 
 
 def run_module():
-    """ The entry point of the module. """
+    """The entry point of the module."""
 
     module_args = dict(
         purge=dict(type="bool", required=False, default=False),
@@ -878,7 +878,7 @@ def run_module():
 
 
 def main():
-    """ The main function! """
+    """The main function!"""
     run_module()
 
 
