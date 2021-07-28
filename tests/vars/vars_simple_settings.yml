@@ -31,11 +31,11 @@ kernel_settings_transparent_hugepages_defrag:
 #     value: 10001
 
 # this is the expected value of the bootloader cmdline file
-#__kernel_settings_blcmdline_value: "spectre_v2=off nopti panic=10001"
+# __kernel_settings_blcmdline_value: "spectre_v2=off nopti panic=10001"
 
 # set true if the change should cause the role to set the reboot flag
 # should not need to check reboot if not testing bootloader settings
-#__kernel_settings_check_reboot: true
+# __kernel_settings_check_reboot: true
 
 # this is the expected contents of the kernel_settings profile after
 # after applying the settings above
