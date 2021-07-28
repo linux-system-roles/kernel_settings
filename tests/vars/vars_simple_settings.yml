@@ -20,20 +20,22 @@ kernel_settings_transparent_hugepages: madvise
 kernel_settings_transparent_hugepages_defrag:
   state: absent
 
-kernel_settings_bootloader_cmdline:
-  - name: spectre_v2
-    value: "off"
-  - name: nopti
-  - name: notfound
-    state: absent
-  - name: panic
-    value: 10001
+# disable bootloader testing - needs work on el9
+# kernel_settings_bootloader_cmdline:
+#   - name: spectre_v2
+#     value: "off"
+#   - name: nopti
+#   - name: notfound
+#     state: absent
+#   - name: panic
+#     value: 10001
 
 # this is the expected value of the bootloader cmdline file
-__kernel_settings_blcmdline_value: "spectre_v2=off nopti panic=10001"
+#__kernel_settings_blcmdline_value: "spectre_v2=off nopti panic=10001"
 
 # set true if the change should cause the role to set the reboot flag
-__kernel_settings_check_reboot: true
+# should not need to check reboot if not testing bootloader settings
+#__kernel_settings_check_reboot: true
 
 # this is the expected contents of the kernel_settings profile after
 # after applying the settings above
