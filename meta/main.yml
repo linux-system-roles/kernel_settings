@@ -4,7 +4,7 @@ galaxy_info:
   description: Kernel settings role, implemented with tuned
   company: Red Hat, Inc.
   license: GPLv2+,MIT
-  min_ansible_version: 2.7
+  min_ansible_version: 2.9
   platforms:
     - name: Fedora
       versions:
