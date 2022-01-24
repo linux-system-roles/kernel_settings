@@ -83,6 +83,13 @@ options:
               the given settings to be the current and only settings
         type: bool
         default: false
+    ansible_managed:
+        description:
+            - Ansible ansible_managed string to put in header of file
+            - should be in the format of {{ ansible_managed | comment }}
+            - as rendered by the template module
+        type: str
+        required: true
 
 author:
     - Rich Megginson (@richm)
@@ -486,13 +493,17 @@ def apply_params_to_profile(params, current_profile, purge):
     return changestatus, reboot_required
 
 
-def write_profile(current_profile):
+def write_profile(current_profile, ansible_managed):
     """write the profile to the profile file"""
     # convert profile to configobj to write ini-style file
     # profile.options go into [main] section
     # profile.units go into [unitname] section
     cfg = configobj.ConfigObj(indent_type="")
-    cfg.initial_comment = ["File managed by Ansible - DO NOT EDIT"]
+    # ansible_managed should be in the format of
+    # ansible_managed passed through the comment filter
+    # as rendered by the ansible "template" module - strip the
+    # trailing newline, if any
+    cfg.initial_comment = ansible_managed.strip().split("\n")
     cfg["main"] = current_profile.options
     for unitname, unit in current_profile.units.items():
         cfg[unitname] = unit.options
@@ -794,6 +805,10 @@ def run_module():
         # use raw here - type can be dict or list - perform validation
         # below
         module_args[plugin_name] = dict(type="raw", required=False)
+    module_args["ansible_managed"] = dict(
+        type="str",
+        required=True,
+    )
 
     result = dict(changed=False, message="")
 
@@ -808,6 +823,7 @@ def run_module():
     # remove any non-tuned fields from params and save them locally
     # state = params.pop("state")
     purge = params.pop("purge", False)
+    ansible_managed = params.pop("ansible_managed")
     # also remove any empty or None
     # pylint: disable=blacklisted-name
     _ = remove_if_empty(params)
@@ -853,7 +869,7 @@ def run_module():
             result["msg"] = "Updated active profile and/or mode."
     if changestatus > NOCHANGES:
         try:
-            write_profile(current_profile)
+            write_profile(current_profile, ansible_managed)
             # notify tuned to reload/reapply profile
         except TunedException as tex:
             module.debug("caught TunedException [{0}]".format(tex))

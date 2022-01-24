@@ -76,6 +76,7 @@
         value: "{{ kernel_settings_bootloader_cmdline |
                    d([]) }}"
     purge: "{{ kernel_settings_purge }}"
+    ansible_managed: "{{ lookup('template', 'get_ansible_managed.j2') }}"
   notify: __kernel_settings_handler_modified
   register: __kernel_settings_register_module
   when:
