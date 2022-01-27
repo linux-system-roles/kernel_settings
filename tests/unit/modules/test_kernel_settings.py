@@ -484,12 +484,17 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         )
         self.assertEqual(kernel_settings.CHANGES, changestatus)
         self.assertTrue(reboot_required)
-        kernel_settings.write_profile(current_profile)
+        kernel_settings.write_profile(
+            current_profile,
+            "# one\n# two\n# three\n",
+        )
         fname = os.path.join(
             tuned.consts.LOAD_DIRECTORIES[-1], "kernel_settings", "tuned.conf"
         )
         expected_lines = [
-            "# File managed by Ansible - DO NOT EDIT",
+            "# one",
+            "# two",
+            "# three",
             "[main]",
             "summary = kernel settings",
             "[sysctl]",

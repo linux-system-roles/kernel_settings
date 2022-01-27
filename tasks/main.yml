@@ -39,6 +39,12 @@
     force: no
     mode: 0644
 
+- name: Get current config
+  slurp:
+    src: "{{ __kernel_settings_profile_filename }}"
+  register: __kernel_settings_profile_contents_b64
+  changed_when: false
+
 - name: Apply kernel settings
   kernel_settings:
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
@@ -76,6 +82,8 @@
         value: "{{ kernel_settings_bootloader_cmdline |
                    d([]) }}"
     purge: "{{ kernel_settings_purge }}"
+    ansible_managed_new: "{{ __kernel_settings_new_header }}"
+    ansible_managed_current: "{{ __kernel_settings_cur_header }}"
   notify: __kernel_settings_handler_modified
   register: __kernel_settings_register_module
   when:
@@ -85,6 +93,13 @@
       or kernel_settings_transparent_hugepages_defrag
       or kernel_settings_bootloader_cmdline | d({})
       or kernel_settings_purge
+      or __kernel_settings_cur_header != __kernel_settings_new_header
+  vars:
+    __kernel_settings_cur_header: "{{
+      __kernel_settings_profile_contents_b64.content | b64decode |
+      regex_replace('(?sm)^\\[.*$', '') }}"
+    __kernel_settings_new_header: "{{
+      lookup('template', 'get_ansible_managed.j2') }}"
 
 - name: tuned apply settings
   command: >

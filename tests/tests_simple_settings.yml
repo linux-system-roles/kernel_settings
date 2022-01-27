@@ -44,3 +44,7 @@
       when:
         - kernel_settings_reboot_required | d(false)
         - not kernel_settings_test_reboot_ok | d(false)
+
+    - name: show contents of tuned.conf
+      command: cat /etc/tuned/kernel_settings/tuned.conf
+      changed_when: false
