@@ -1,8 +1,9 @@
 - hosts: all
   tasks:
+    # procps-ng for sysctl cmd
     - name: Ensure required packages are installed
       package:
-        name: tuned
+        name: [tuned, procps-ng]
         state: present
 
     - name: Ensure kernel settings profile directory exists
