@@ -6,3 +6,10 @@ __kernel_settings_profile_filename: >-
   {{ __kernel_settings_profile_dir }}/tuned.conf
 __kernel_settings_state_absent:
   state: absent
+
+# ansible_facts required by the role
+__kernel_settings_required_facts:
+  - distribution
+  - distribution_major_version
+  - distribution_version
+  - os_family

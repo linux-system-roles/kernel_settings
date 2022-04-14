@@ -1,0 +1,12 @@
+- hosts: all
+  tasks:
+    - name: Set platform/version specific variables
+      include_role:
+        name: linux-system-roles.kernel_settings
+        tasks_from: set_vars.yml
+        public: true
+
+    - name: Install test packages
+      package:
+        name: "{{ __kernel_settings_packages }}"
+        state: present
