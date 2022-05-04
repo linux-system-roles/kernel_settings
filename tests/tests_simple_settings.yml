@@ -1,6 +1,8 @@
 ---
 - name: test simple kernel settings
   hosts: all
+  tags:
+    - tests::reboot
   tasks:
     - name: set platform independent vars used by this test
       include_vars:

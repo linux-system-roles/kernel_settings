@@ -1,4 +1,6 @@
 - hosts: all
+  tags:
+    - tests::reboot
   tasks:
     # procps-ng for sysctl cmd
     - name: Ensure required packages are installed
