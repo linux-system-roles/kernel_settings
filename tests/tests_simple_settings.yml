@@ -1,6 +1,7 @@
 ---
 - name: test simple kernel settings
   hosts: all
+  gather_facts: true
   tags:
     - tests::reboot
   tasks:
