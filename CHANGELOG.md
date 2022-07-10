@@ -1,6 +1,30 @@
 Changelog
 =========
 
+[1.1.9] - 2022-07-10
+--------------------
+
+### New Features
+
+- none
+
+### Bug Fixes
+
+- none
+
+### Other Changes
+
+- make all tests work with gather_facts: false (#82)
+
+Ensure tests work when using ANSIBLE_GATHERING=explicit
+
+- make min_ansible_version a string in meta/main.yml (#83)
+
+The Ansible developers say that `min_ansible_version` in meta/main.yml
+must be a `string` value like `"2.9"`, not a `float` value like `2.9`.
+
+- Add CHANGELOG.md (#84)
+
 [1.1.8] - 2022-05-06
 --------------------
 
