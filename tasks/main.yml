@@ -112,4 +112,3 @@
     kernel_settings_reboot_required: true
   when:
     - __kernel_settings_register_module.reboot_required | d(false)
-    - not kernel_settings_reboot_ok | d(false)
