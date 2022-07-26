@@ -39,6 +39,10 @@
           - name: /sys/class/net/lo/mtu
             value: 65000
 
+    - name: ensure kernel_settings_reboot_required is unset or undefined
+      assert:
+        that: not kernel_settings_reboot_required | d(false)
+
     - name: check sysfs after role runs
       command: grep -x 65000 /sys/class/net/lo/mtu
       changed_when: false
@@ -87,15 +91,19 @@
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
+        kernel_settings_reboot_ok: true
         kernel_settings_sysctl:
           - name: fs.file-max
             state: absent
           - name: kernel.threads-max
             state: absent
 
-    - name: reboot the machine - see if settings persist after reboot
-      reboot:
-        test_command: tuned-adm active
+    - name: force handlers
+      meta: flush_handlers
+
+    - name: ensure kernel_settings_reboot_required is not set or is false
+      assert:
+        that: not kernel_settings_reboot_required | d(false)
 
     - name: check sysctl after reboot
       shell: |-
@@ -107,12 +115,20 @@
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
+        kernel_settings_reboot_ok: true
         kernel_settings_sysctl:
           - name: fs.file-max
             value: 400001
         kernel_settings_sysfs:
           - name: /sys/class/net/lo/mtu
             value: 60666
+
+    - name: force handlers
+      meta: flush_handlers
+
+    - name: ensure kernel_settings_reboot_required is not set or is false
+      assert:
+        that: not kernel_settings_reboot_required | d(false)
 
     - name: check sysctl
       shell: |-
@@ -128,10 +144,18 @@
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
+        kernel_settings_reboot_ok: true
         kernel_settings_sysctl:
           state: empty
         kernel_settings_sysfs:
           state: empty
+
+    - name: force handlers
+      meta: flush_handlers
+
+    - name: ensure kernel_settings_reboot_required is not set or is false
+      assert:
+        that: not kernel_settings_reboot_required | d(false)
 
     - name: check sysctl
       shell: |-
