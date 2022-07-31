@@ -7,7 +7,7 @@
     __kernel_settings_required_facts
 
 - name: Set platform/version specific variables
-  include_vars: "{{ lookup('first_found', ffparams) }}"
+  include_vars: "{{ lookup('ansible.builtin.first_found', ffparams) }}"
   vars:
     ffparams:
       files:
