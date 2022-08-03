@@ -1,6 +1,40 @@
 Changelog
 =========
 
+[1.1.10] - 2022-08-03
+--------------------
+
+### New Features
+
+- none
+
+### Bug Fixes
+
+- Set the kernel_settings_reboot_required when reboot needed (#93)
+
+Previously the role would only set `kernel_settings_reboot_required`
+if the user did not specify `kernel_settings_reboot_ok: true`.
+The role will now set `kernel_settings_reboot_required` whenever
+the system needs a reboot, and rely on the handler to clear the flag
+if the user has set `kernel_settings_reboot_ok: true`.
+
+### Other Changes
+
+- Add "Publish role to Galaxy" to github action changelog_to_tag.yml (#91)
+
+Fix a bash bug in changelog_to_tag.yml, which unexpectedly expanded "*".
+
+- changelog_to_tag action - support other than "master" for the main branch name, as well (#92)
+
+- Use GITHUB_REF_NAME as name of push branch; fix error in branch detection [citest skip] (#94)
+
+We need to get the name of the branch to which CHANGELOG.md was pushed.
+For now, it looks as though `GITHUB_REF_NAME` is that name.  But don't
+trust it - first, check that it is `main` or `master`.  If not, then use
+a couple of other methods to determine what is the push branch.
+
+Signed-off-by: Rich Megginson <rmeggins@redhat.com>
+
 [1.1.9] - 2022-07-10
 --------------------
 
