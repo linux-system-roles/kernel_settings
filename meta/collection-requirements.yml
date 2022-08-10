@@ -1,0 +1,4 @@
+collections:
+  - fedora.linux_system_roles
+  - community.general
+  - ansible.posix

@@ -7,6 +7,14 @@
     name: "{{ __kernel_settings_packages }}"
     state: present
 
+- name: Use firewall role
+  include_role:
+    name: fedora.linux_system_roles.firewall
+  vars:
+    firewall:
+      - port: '443/tcp'
+        state: enabled
+
 - name: Ensure required services are enabled and started
   service:
     name: "{{ item }}"
