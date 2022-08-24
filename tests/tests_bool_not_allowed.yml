@@ -3,7 +3,9 @@
   hosts: all
   tasks:
     - debug:
-        msg: my_secret_var {{ my_secret_var }}
+        msg: my_secret_var {{ lookup("vars", item, default="") | length }}
+      loop:
+        - my_secret_var
 
     - name: validate no boolean values for bootloader cmdline
       block:
