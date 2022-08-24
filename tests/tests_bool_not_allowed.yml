@@ -2,6 +2,9 @@
 - name: test boolean values not allowed
   hosts: all
   tasks:
+    - debug:
+        msg: my_secret_var {{ my_secret_var }}
+
     - name: validate no boolean values for bootloader cmdline
       block:
         - name: try to pass a boolean value for bootloader cmdline
