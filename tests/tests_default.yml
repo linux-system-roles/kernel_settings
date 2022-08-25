@@ -4,3 +4,7 @@
   gather_facts: false
   roles:
     - linux-system-roles.kernel_settings
+  pre_tasks:
+    - fail:
+        msg: var is defined
+      when: my_secret_var is defined
