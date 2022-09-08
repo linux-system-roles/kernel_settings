@@ -22,7 +22,8 @@ jobs:
       - name: Checkout tools repo
         uses: actions/checkout@v2
         with:
-          repository: linux-system-roles/auto-maintenance
+          repository: richm/auto-maintenance
+          ref: generate_fmf_tmt_tests
           path: .tools
 
       - name: Generate fmf/tmt tests
