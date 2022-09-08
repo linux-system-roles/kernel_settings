@@ -1,0 +1,7 @@
+jobs:
+- job: tests
+  skip_build: true
+  trigger: pull_request
+  targets:
+  - fedora-latest-stable
+  - epel-8
