@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate fmf/tmt tests
         run: |
-          ./.tools/generate_fmt_tmt_tests.sh
+          ./.tools/generate_fmf_tmt_tests.sh
           rm -rf .tools
 
       - name: Schedule test on Testing Farm
