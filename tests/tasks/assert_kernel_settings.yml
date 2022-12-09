@@ -16,7 +16,7 @@
 
 - name: Check tuned-adm verify
   command: tuned-adm verify -i
-  changed_when: no
+  changed_when: false
   register: __kernel_settings_register_verify
   ignore_errors: true  # noqa ignore-errors
   when: __kernel_settings_test_verify
