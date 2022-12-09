@@ -32,7 +32,7 @@ jobs:
           fi
           for file in .sanity-ansible-ignore-*.txt; do
             if [ -f "$file" ]; then
-              cp "$file" "$coll_dir/${file//*.sanity-ansible-}"
+              cp "$file" "$ignore_dir/${file//*.sanity-ansible-}"
             fi
           done
       - name: Run ansible-test
