@@ -20,7 +20,7 @@ jobs:
               sed "/galaxy_info:/a\  namespace: $LSR_NAMESPACE" -i "$mm"
           fi
           if ! grep -q '^  *role_name:' "$mm"; then
-              sed "/galaxy_info:/a\  role_name: $role" -i "$mm"
+              sed "/galaxy_info:/a\  role_name: $role_name" -i "$mm"
           fi
       - name: Run ansible-lint
         uses: ansible-community/ansible-lint-action@v6
