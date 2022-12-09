@@ -24,13 +24,11 @@ jobs:
           fi
       - name: Run ansible-lint for main role
         uses: ansible-community/ansible-lint-action@v6
-        with:
-          path: "."
-      - name: Run ansible-lint for tests
-        uses: ansible-community/ansible-lint-action@v6
-        with:
-          path: "tests/"
-      - name: Run ansible-lint for examples
-        uses: ansible-community/ansible-lint-action@v6
-        with:
-          path: "examples/"
+      # - name: Run ansible-lint for tests
+      #   uses: ansible-community/ansible-lint-action@v6
+      #   with:
+      #     path: "tests/"
+      # - name: Run ansible-lint for examples
+      #   uses: ansible-community/ansible-lint-action@v6
+      #   with:
+      #     path: "examples/"

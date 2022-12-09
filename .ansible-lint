@@ -15,6 +15,3 @@ kinds:
   - tasks: "**/tests/tasks/*.yml"
   - vars: "**/tests/vars/*.yml"
   - playbook: "**/examples/playbook/*.yml"
-extra_vars:
-  varfiles: []
-  ansible_facts: []
