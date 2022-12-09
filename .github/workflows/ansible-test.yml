@@ -1,0 +1,30 @@
+name: Ansible Test
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+env:
+  TOX_LSR: "git+https://github.com/linux-system-roles/tox-lsr@2.13.1"
+  LSR_ROLE2COLL_NAMESPACE: fedora
+  LSR_ROLE2COLL_NAME: linux_system_roles
+jobs:
+  ansible_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install tox, tox-lsr
+        run: |
+          set -euxo pipefail
+          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y git
+          pip install "$TOX_LSR"
+      - name: Convert role to collection format
+        run: |
+          TOXENV=collection lsr_ci_runtox
+      - name: Run ansible-test
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          testing-type: sanity
+          collection-src-directory: .tox/ansible_collections/${{ env.LSR_ROLE2COLL_NAMESPACE }}/${{ env.LSR_ROLE2COLL_NAME }}
