@@ -22,7 +22,15 @@ jobs:
           if ! grep -q '^  *role_name:' "$mm"; then
               sed "/galaxy_info:/a\  role_name: $role_name" -i "$mm"
           fi
-      - name: Run ansible-lint
+      - name: Run ansible-lint for main role
         uses: ansible-community/ansible-lint-action@v6
         with:
           path: "."
+      - name: Run ansible-lint for tests
+        uses: ansible-community/ansible-lint-action@v6
+        with:
+          path: "tests/"
+      - name: Run ansible-lint for examples
+        uses: ansible-community/ansible-lint-action@v6
+        with:
+          path: "examples/"
