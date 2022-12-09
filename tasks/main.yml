@@ -11,7 +11,7 @@
   service:
     name: "{{ item }}"
     state: started
-    enabled: yes
+    enabled: true
   loop: "{{ __kernel_settings_services }}"
 
 - name: Ensure kernel settings profile directory exists
@@ -24,7 +24,7 @@
   template:
     src: "{{ __kernel_settings_profile_src }}.j2"
     dest: "{{ __kernel_settings_profile_filename }}"
-    force: no
+    force: false
     mode: 0644
 
 - name: Get current config
@@ -34,7 +34,7 @@
   changed_when: false
 
 - name: Apply kernel settings
-  kernel_settings:
+  kernel_settings:  # noqa fqcn
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
     sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
     systemd:
@@ -89,16 +89,16 @@
     __kernel_settings_new_header: "{{
       lookup('template', 'get_ansible_managed.j2') }}"
 
-- name: tuned apply settings
+- name: Tuned apply settings
   command: >
     tuned-adm profile '{{ __kernel_settings_register_module.active_profile }}'
   when: __kernel_settings_register_module is changed  # noqa no-handler
 
-- name: verify settings
-  include_tasks: verify_settings.yml
+- name: Verify settings
+  include_tasks: verify_settings.yml  # noqa no-handler
   when: __kernel_settings_register_module is changed
 
-- name: notify user that reboot is needed to apply changes
+- name: Notify user that reboot is needed to apply changes
   debug:
     msg: >
       kernel_settings have been modified.
@@ -107,7 +107,7 @@
     - __kernel_settings_register_module.reboot_required | d(false)
     - not kernel_settings_reboot_ok | d(false)
 
-- name: set the flag that reboot is needed to apply changes
+- name: Set the flag that reboot is needed to apply changes
   set_fact:
     kernel_settings_reboot_required: true
   when:

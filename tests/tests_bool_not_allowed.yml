@@ -10,7 +10,7 @@
           vars:
             kernel_settings_bootloader_cmdline:
               - name: somevalue
-                value: yes
+                value: yes  # noqa yaml[truthy]
 
         - name: unreachable task
           fail:
@@ -29,7 +29,7 @@
           vars:
             kernel_settings_sysctl:
               - name: somevalue
-                value: yes
+                value: yes  # noqa yaml[truthy]
 
         - name: unreachable task
           fail:

@@ -1,22 +1,22 @@
 ---
-- name: create temporary file for expected config
+- name: Create temporary file for expected config
   tempfile:
     state: file
     suffix: .kernel_settings
   register: __kernel_settings_register_profile_conf_tempfile
 
-- name: put expected contents into temporary file
+- name: Put expected contents into temporary file
   copy:
     dest: "{{ __kernel_settings_register_profile_conf_tempfile.path }}"
     content: "{{ __kernel_settings_profile_file }}"
     mode: "0600"
 
-- name: ensure python command exists for tests below
+- name: Ensure python command exists for tests below
   package:
     name: "{{ __kernel_settings_test_python_pkgs }}"
     state: present
 
-- name: diff expected vs actual content
+- name: Diff expected vs actual content
   shell: |
     {{ __kernel_settings_test_python_cmd }} -c 'import sys
     from configobj import ConfigObj
@@ -29,59 +29,57 @@
   changed_when: false
   ignore_errors: true
 
-- name: verify expected content
+- name: Verify expected content
   set_fact:
     __kernel_settings_success: false
   when: __kernel_settings_register_profile_conf_result is failed
 
-- name: show diff - may not reflect actual ConfigObj differences
+- name: Show diff - may not reflect actual ConfigObj differences
   command: >-
     diff -U 4 {{ __kernel_settings_register_profile_conf_tempfile.path }}
     {{ __kernel_settings_profile_filename }}
   ignore_errors: true  # noqa ignore-errors
   when: __kernel_settings_register_profile_conf_result is failed
 
-- name: get active_profile file
+- name: Get active_profile file
   slurp:
     src: /etc/tuned/active_profile
   register: __kernel_settings_register_profile_conf_active_profile
 
 # that is, the value must be exactly 'kernel_settings'
 # or 'kernel_settings something'
-- name: check that active_profile ends with kernel_settings
+- name: Check that active_profile ends with kernel_settings
   set_fact:
     __kernel_settings_success: false
   when: >-
     __kernel_settings_register_profile_conf_active_profile.content |
     b64decode is not search('(^| )kernel_settings$')
 
-- name: get profile_mode file
+- name: Get profile_mode file
   slurp:
     src: /etc/tuned/profile_mode
   register: __kernel_settings_register_profile_conf_profile_mode
 
 # that is, the value must be exactly 'kernel_settings' or
 # 'kernel_settings something'
-- name: check that profile_mode is manual
+- name: Check that profile_mode is manual
   set_fact:
     __kernel_settings_success: false
   when: >-
     __kernel_settings_register_profile_conf_profile_mode.content |
     b64decode is not match('manual')
 
-# warn - do not warn about the use of sed
-- name: get the bootloader specific config file
+- name: Get the bootloader specific config file
+  # noqa command-instead-of-module
   command: >-
     sed -n '/^TUNED_BOOT_CMDLINE=/{s/^TUNED_BOOT_CMDLINE="\(.*\)"$/\1/;p}'
     /etc/tuned/bootcmdline
-  args:
-    warn: false
-  ignore_errors: true
+  ignore_errors: true  # noqa ignore-errors
   register: __kernel_settings_register_verify_bl_cmdline
   when:
     - __kernel_settings_blcmdline_value | d()
 
-- name: verify bootloader settings value
+- name: Verify bootloader settings value
   set_fact:
     __kernel_settings_success: false
   when:

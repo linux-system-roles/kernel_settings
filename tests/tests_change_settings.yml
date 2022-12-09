@@ -24,7 +24,7 @@
       service:
         name: tuned
         state: restarted
-        enabled: yes
+        enabled: true
 
     - name: apply kernel_settings
       include_role:

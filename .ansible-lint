@@ -1,3 +1,13 @@
 ---
 skip_list:
   - role-name
+  - fqcn[action-core]
+exclude_paths:
+  - tests/roles/
+  - .github/
+kinds:
+  - playbook: tests/tests_*.yml
+  - tasks: tests/*.yml
+  - playbook: tests/playbook/*.yml
+  - tasks: tests/tasks/*.yml
+  - vars: tests/vars/*.yml
