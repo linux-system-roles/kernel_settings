@@ -3,8 +3,11 @@ on:
   - push
   - pull_request
   - workflow_dispatch
+env:
+  # some scripts source tox-lsr scripts - suppress that check
+  SHELLCHECK_OPTS: -e SC1091
 jobs:
-  ansible_lint:
+  shellcheck:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
