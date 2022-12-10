@@ -13,9 +13,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
       - name: Run ShellCheck
-        id: shellcheck_action
+        id: shellcheck_id
         uses: ludeeus/action-shellcheck@master
       - name: Show file paths scanned
         run: |
           echo Files scanned:
-          echo "${{ jobs.shellcheck_action.outputs.files }}"
+          echo "${{ steps.shellcheck_id.outputs.files }}"
