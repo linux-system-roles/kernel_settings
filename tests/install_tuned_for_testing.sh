@@ -7,6 +7,8 @@ set -euo pipefail
 # import from utils.sh
 . "${LSR_SCRIPTDIR}/utils.sh"
 
+this=$LSR_SCRIPTDIR
+
 function ks_lsr_get_site_packages_dir() {
   python -c 'import sys; print([xx for xx in sys.path if xx.endswith("site-packages")][0])'
 }
