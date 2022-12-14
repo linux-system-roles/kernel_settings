@@ -6,7 +6,6 @@ on:  # yamllint disable-line rule:truthy
   - workflow_dispatch
 env:
   TOX_LSR: "git+https://github.com/linux-system-roles/tox-lsr@2.13.1"
-  LSR_EXTRA_PACKAGES: "libdbus-1-dev libgirepository1.0-dev python3-dev libssl-dev libcairo2-dev python2-dev"
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   python:
@@ -44,7 +43,7 @@ jobs:
           # then put them in .github/config/ubuntu-requirements.txt, one
           # package per line.
           if [ -f .github/config/ubuntu-requirements.txt ]; then
-            sudo apt-get install -y < .github/config/ubuntu-requirements.txt
+            sudo apt-get install -y $(cat .github/config/ubuntu-requirements.txt)
           fi
       - name: Run tox tests
         run: |
