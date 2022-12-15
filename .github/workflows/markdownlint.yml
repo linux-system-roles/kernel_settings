@@ -1,0 +1,15 @@
+---
+# yamllint disable rule:line-length
+name: MarkDown Lint
+on:  # yamllint disable-line rule:truthy
+  - pull_request
+  - push
+  - workflow_dispatch
+jobs:
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Run markdownlint
+        uses: actionshub/markdownlint@v2
