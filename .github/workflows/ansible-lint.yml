@@ -1,13 +1,29 @@
 name: Ansible Lint
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+env:
+  LSR_NAMESPACE: linux_system_roles
 jobs:
   ansible_lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Run ansible-lint
+      - name: Fix up role meta/main.yml namespace and name
+        run: |
+          set -euxo pipefail
+          mm=meta/main.yml
+          role_name=$(basename "$(pwd)")
+          if ! grep -q '^  *namespace:' "$mm"; then
+              sed "/galaxy_info:/a\  namespace: $LSR_NAMESPACE" -i "$mm"
+          fi
+          if ! grep -q '^  *role_name:' "$mm"; then
+              sed "/galaxy_info:/a\  role_name: $role_name" -i "$mm"
+          fi
+      - name: Run ansible-lint for main role
         uses: ansible-community/ansible-lint-action@v6
