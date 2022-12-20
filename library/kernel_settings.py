@@ -212,7 +212,7 @@ import ansible.module_utils.six.moves as ansible_six_moves
 
 from ansible.module_utils.basic import AnsibleModule
 
-# see https://github.com/python/cpython/blob/master/Lib/logging/__init__.py
+# see https://github.com/python/cpython/blob/main/Lib/logging/__init__.py
 # for information about logging module internals
 
 
@@ -371,6 +371,7 @@ class BLCmdLine(object):
     @classmethod
     def splititem(cls, item):
         """split item in form key=somevalue into key and somevalue"""
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         key, _, val = item.partition("=")
         return key, val
@@ -825,6 +826,7 @@ def run_module():
 
     if not module.check_mode:
         if os.environ.get("TESTING", "false") == "true":
+            # wokeignore:rule=blacklist
             # pylint: disable=blacklisted-name
             _ = setup_for_testing()
 
@@ -835,6 +837,7 @@ def run_module():
     ansible_managed_new = params.pop("ansible_managed_new")
     ansible_managed_current = params.pop("ansible_managed_current")
     # also remove any empty or None
+    # wokeignore:rule=blacklist
     # pylint: disable=blacklisted-name
     _ = remove_if_empty(params)
     errlist = validate_and_digest(params)

@@ -290,12 +290,14 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         )
         self.assertIsNone(tuned_app)
         self.assertRegex(errmsg, "Error loading tuned profile")
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         tuned_app, _ = kernel_settings.load_current_profile(
             self.tuned_config, "kernel_settings", self.logger
         )
         self.assertEqual("kernel settings", tuned_app.daemon.profile.options["summary"])
         self.assertEqual(0, len(tuned_app.daemon.profile.units))
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         tuned_app, _ = kernel_settings.load_current_profile(
             self.tuned_config, "basic_settings", self.logger
@@ -329,6 +331,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
                 }
             ],
         }
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         tuned_app, _ = kernel_settings.load_current_profile(
             self.tuned_config, "kernel_settings", self.logger
@@ -383,6 +386,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
             ],
         }
         paramsorig = copy.deepcopy(params)
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         tuned_app, _ = kernel_settings.load_current_profile(
             self.tuned_config, "basic_settings", self.logger
@@ -428,6 +432,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
                 }
             ],
         }
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         tuned_app, _ = kernel_settings.load_current_profile(
             self.tuned_config, "basic_settings", self.logger
@@ -474,6 +479,7 @@ class KernelSettingsParamsProfiles(unittest.TestCase):
         }
         errlist = kernel_settings.validate_and_digest(params)
         self.assertEqual(len(errlist), 0)
+        # wokeignore:rule=blacklist
         # pylint: disable=blacklisted-name
         tuned_app, _ = kernel_settings.load_current_profile(
             self.tuned_config, "kernel_settings", self.logger
