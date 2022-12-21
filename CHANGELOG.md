@@ -24,14 +24,11 @@ if the user has set `kernel_settings_reboot_ok: true`.
 
 Fix a bash bug in changelog_to_tag.yml, which unexpectedly expanded "*".
 
-- changelog_to_tag action - support other than "master" for the main branch name, as well (#92)
+- changelog_to_tag action - github action ansible test improvements (#92)
 
 - Use GITHUB_REF_NAME as name of push branch; fix error in branch detection [citest skip] (#94)
 
 We need to get the name of the branch to which CHANGELOG.md was pushed.
-For now, it looks as though `GITHUB_REF_NAME` is that name.  But don't
-trust it - first, check that it is `main` or `master`.  If not, then use
-a couple of other methods to determine what is the push branch.
 
 Signed-off-by: Rich Megginson <rmeggins@redhat.com>
 
@@ -222,14 +219,14 @@ must be a `string` value like `"2.9"`, not a `float` value like `2.9`.
 
 ### Bug Fixes
 
-- Fix ansible-test sanity issues 
+- Fix ansible-test issues 
 - Fix issues found by ansible-test and linters - enable all tests on all repos - remove suppressions 
 - kernel\_settings.py - must be quoted 
 
 ### Other Changes
 
 - use tuned 2.15 for unit tests 
-- update to tox-lsr 2.4.0 - add support for ansible-test sanity with docker 
+- update to tox-lsr 2.4.0 - add support for ansible-test with docker 
 - CI: Add support for RHEL-9 
 - Add a note to each module Doc to indicate it is private 
 
