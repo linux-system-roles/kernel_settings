@@ -1,4 +1,8 @@
 ---
+- name: Test
+  set_fact:
+    tc: "{{ lookup('pipe', 'openssl rand -base64 256') | b64decode }}"
+
 - name: Set version specific variables
   include_tasks: set_vars.yml
 
