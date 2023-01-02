@@ -1,5 +1,5 @@
 ---
-- name: check that settings are applied correctly
+- name: Check that settings are applied correctly
   command: tuned-adm verify -i
   ignore_errors: true
   register: __kernel_settings_register_verify_values
@@ -9,19 +9,17 @@
 # "Sometimes (if some plugins like bootloader are used) a
 # reboot may be required."
 # warn - do not warn about the use of sed
-- name: get last verify results from log
+- name: Get last verify results from log
   shell: |
     set -euo pipefail
     sed '/INFO     tuned.daemon.daemon: verifying profile/h;//!H;$!d;x' \
       /var/log/tuned/tuned.log | \
       grep -v 'ERROR    tuned.plugins.plugin_bootloader: verify: failed' | \
       grep 'ERROR    tuned.plugins' || :
-  args:
-    warn: false
   register: __kernel_settings_register_verify_log
   when: __kernel_settings_register_verify_values is failed
 
-- name: report errors that are not bootloader errors
+- name: Report errors that are not bootloader errors
   fail:
     msg: "{{ 'Failed to verify kernel_settings: ' ~
               __kernel_settings_register_verify_log.stdout }}"
