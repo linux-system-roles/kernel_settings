@@ -1,10 +1,10 @@
 ---
-- name: test boolean values not allowed
+- name: Test boolean values not allowed
   hosts: all
   tasks:
-    - name: validate no boolean values for bootloader cmdline
+    - name: Validate no boolean values for bootloader cmdline
       block:
-        - name: try to pass a boolean value for bootloader cmdline
+        - name: Try to pass a boolean value for bootloader cmdline
           include_role:
             name: linux-system-roles.kernel_settings
           vars:
@@ -12,18 +12,18 @@
               - name: somevalue
                 value: yes  # noqa yaml[truthy]
 
-        - name: unreachable task
+        - name: Unreachable task
           fail:
             msg: UNREACH
 
       rescue:
-        - name: check for bootloader cmdline bool value error
+        - name: Check for bootloader cmdline bool value error
           assert:
             that: ansible_failed_result.msg != 'UNREACH'
 
-    - name: validate no boolean values for sysctl values
+    - name: Validate no boolean values for sysctl values
       block:
-        - name: try to pass a boolean value for sysctl value
+        - name: Try to pass a boolean value for sysctl value
           include_role:
             name: linux-system-roles.kernel_settings
           vars:
@@ -31,11 +31,11 @@
               - name: somevalue
                 value: yes  # noqa yaml[truthy]
 
-        - name: unreachable task
+        - name: Unreachable task
           fail:
             msg: UNREACH
 
       rescue:
-        - name: check for sysctl bool value error
+        - name: Check for sysctl bool value error
           assert:
             that: ansible_failed_result.msg != 'UNREACH'
