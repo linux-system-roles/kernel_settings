@@ -1,15 +1,15 @@
 ---
-- name: test simple kernel settings
+- name: Test simple kernel settings
   hosts: all
   gather_facts: true
   tags:
     - tests::reboot
   tasks:
-    - name: set platform independent vars used by this test
+    - name: Set platform independent vars used by this test
       include_vars:
         file: vars/vars_simple_settings.yml
 
-    - name: disable bootloader cmdline testing on Fedora
+    - name: Disable bootloader cmdline testing on Fedora
       set_fact:
         kernel_settings_bootloader_cmdline: null
         __kernel_settings_blcmdline_value: null
@@ -20,26 +20,26 @@
     # variables will be exported - we use
     # __kernel_settings_profile_filename to verify
     # that the settings were applied correctly
-    - name: apply the settings - call the role
+    - name: Apply the settings - call the role
       include_role:
         name: linux-system-roles.kernel_settings
         public: true
 
-    - name: verify that settings were applied correctly
+    - name: Verify that settings were applied correctly
       include_tasks: tasks/assert_kernel_settings.yml
       vars:
         __kernel_settings_test_verify: false
 
     # reboot if a reboot is needed AND we did not tell the role
     # to reboot the machine if needed
-    - name: reboot the machine - see if settings persist after reboot
+    - name: Reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
       when:
         - kernel_settings_reboot_required | d(false)
         - not kernel_settings_test_reboot_ok | d(false)
 
-    - name: verify that settings were applied correctly after reboot
+    - name: Verify that settings were applied correctly after reboot
       include_tasks: tasks/assert_kernel_settings.yml
       vars:
         __kernel_settings_check_reboot: false
@@ -48,6 +48,6 @@
         - kernel_settings_reboot_required | d(false)
         - not kernel_settings_test_reboot_ok | d(false)
 
-    - name: show contents of tuned.conf
+    - name: Show contents of tuned.conf
       command: cat /etc/tuned/kernel_settings/tuned.conf
       changed_when: false

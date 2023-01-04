@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Test changing settings
+  hosts: all
   tags:
     - tests::reboot
   tasks:
@@ -27,7 +28,7 @@
         state: restarted
         enabled: true
 
-    - name: apply kernel_settings
+    - name: Apply kernel_settings
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
@@ -40,55 +41,55 @@
           - name: /sys/class/net/lo/mtu
             value: 65000
 
-    - name: ensure kernel_settings_reboot_required is unset or undefined
+    - name: Ensure kernel_settings_reboot_required is unset or undefined
       assert:
         that: not kernel_settings_reboot_required | d(false)
 
-    - name: check sysfs after role runs
+    - name: Check sysfs after role runs
       command: grep -x 65000 /sys/class/net/lo/mtu
       changed_when: false
 
-    - name: check sysctl after role runs
+    - name: Check sysctl after role runs
       shell: |-
         set -euo pipefail
         sysctl -n fs.file-max | grep -x 400000
       changed_when: false
 
-    - name: check sysctl after role runs
+    - name: Check sysctl after role runs
       shell: |-
         set -euo pipefail
         sysctl -n kernel.threads-max | grep -Lxvq 29968
       changed_when: false
 
-    - name: reboot the machine - see if settings persist after reboot
+    - name: Reboot the machine - see if settings persist after reboot
       reboot:
         test_command: tuned-adm active
 
-    - name: check sysctl after reboot
+    - name: Check sysctl after reboot
       shell: |-
         set -euo pipefail
         sysctl -n fs.file-max | grep -x 400000
       changed_when: false
 
-    - name: check sysfs after reboot
+    - name: Check sysfs after reboot
       command: grep -x 65000 /sys/class/net/lo/mtu
       changed_when: false
 
-    - name: show cmdline
+    - name: Show cmdline
       command: cat /proc/cmdline
       changed_when: false
 
-    - name: check sysctl after reboot
+    - name: Check sysctl after reboot
       shell: |-
         set -euo pipefail
         sysctl -n kernel.threads-max | grep -Lxvq 29968
       changed_when: false
 
-    - name: check with tuned verify
+    - name: Check with tuned verify
       command: tuned-adm verify -i
       changed_when: false
 
-    - name: apply role again and remove settings
+    - name: Apply role again and remove settings
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
@@ -99,20 +100,20 @@
           - name: kernel.threads-max
             state: absent
 
-    - name: force handlers
+    - name: Force handlers
       meta: flush_handlers
 
-    - name: ensure kernel_settings_reboot_required is not set or is false
+    - name: Ensure kernel_settings_reboot_required is not set or is false
       assert:
         that: not kernel_settings_reboot_required | d(false)
 
-    - name: check sysctl after reboot
+    - name: Check sysctl after reboot
       shell: |-
         set -euo pipefail
         sysctl -n fs.file-max | grep -Lxvq 400000
       changed_when: false
 
-    - name: apply kernel_settings for removing
+    - name: Apply kernel_settings for removing
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
@@ -124,24 +125,24 @@
           - name: /sys/class/net/lo/mtu
             value: 60666
 
-    - name: force handlers
+    - name: Force handlers
       meta: flush_handlers
 
-    - name: ensure kernel_settings_reboot_required is not set or is false
+    - name: Ensure kernel_settings_reboot_required is not set or is false
       assert:
         that: not kernel_settings_reboot_required | d(false)
 
-    - name: check sysctl
+    - name: Check sysctl
       shell: |-
         set -euo pipefail
         sysctl -n fs.file-max | grep -qx 400001
       changed_when: false
 
-    - name: check sysfs after role runs
+    - name: Check sysfs after role runs
       command: grep -x 60666 /sys/class/net/lo/mtu
       changed_when: false
 
-    - name: apply kernel_settings for removing section
+    - name: Apply kernel_settings for removing section
       include_role:
         name: linux-system-roles.kernel_settings
       vars:
@@ -151,19 +152,19 @@
         kernel_settings_sysfs:
           state: empty
 
-    - name: force handlers
+    - name: Force handlers
       meta: flush_handlers
 
-    - name: ensure kernel_settings_reboot_required is not set or is false
+    - name: Ensure kernel_settings_reboot_required is not set or is false
       assert:
         that: not kernel_settings_reboot_required | d(false)
 
-    - name: check sysctl
+    - name: Check sysctl
       shell: |-
         set -euo pipefail
         sysctl -n fs.file-max | grep -Lvxq 400001
       changed_when: false
 
-    - name: check sysfs after role runs
+    - name: Check sysfs after role runs
       command: grep -Lxqv 60666 /sys/class/net/lo/mtu
       changed_when: false
