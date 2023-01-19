@@ -7,8 +7,6 @@ on:  # yamllint disable-line rule:truthy
       - main
       - master
   workflow_dispatch:
-env:
-  LSR_NAMESPACE: linux_system_roles
 jobs:
   ansible_lint:
     runs-on: ubuntu-latest
@@ -19,12 +17,13 @@ jobs:
         run: |
           set -euxo pipefail
           mm=meta/main.yml
-          role_name=$(basename "$(pwd)")
-          if ! grep -q '^  *namespace:' "$mm"; then
-              sed "/galaxy_info:/a\  namespace: $LSR_NAMESPACE" -i "$mm"
-          fi
-          if ! grep -q '^  *role_name:' "$mm"; then
-              sed "/galaxy_info:/a\  role_name: $role_name" -i "$mm"
+          if [ -f "$mm" ]; then
+            if ! grep -q '^  *namespace:' "$mm"; then
+              sed "/galaxy_info:/a\  namespace: linux_system_roles" -i "$mm"
+            fi
+            if ! grep -q '^  *role_name:' "$mm"; then
+              sed "/galaxy_info:/a\  role_name: kernel_settings" -i "$mm"
+            fi
           fi
       - name: Run ansible-lint
         uses: ansible-community/ansible-lint-action@v6
