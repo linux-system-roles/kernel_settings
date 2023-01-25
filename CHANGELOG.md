@@ -17,7 +17,7 @@ Changelog
 
 - Add check for non-inclusive language (#117)
 - add ubuntu requirements for pyunit tests
-- add sanity files for ansible-test 2.13 and 2.14
+- add ignore files for ansible-test 2.13 and 2.14
 
 [1.1.10] - 2022-08-03
 --------------------
