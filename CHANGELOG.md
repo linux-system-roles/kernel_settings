@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[1.1.12] - 2023-01-25
+--------------------
+
+### New Features
+
+- none
+
+### Bug Fixes
+
+- Cleanup non-inclusive words.
+
+### Other Changes
+
+- none
+
 [1.1.11] - 2023-01-20
 --------------------
 
