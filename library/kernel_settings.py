@@ -625,9 +625,6 @@ def setup_for_testing():
     pyudev.monitor.Monitor.set_receive_buffer_size = lambda self, size: None
 
     def test_cleanup():
-        import os
-        import shutil
-
         if "TEST_ROOT_DIR" not in os.environ:
             shutil.rmtree(test_root_dir)
         for cnst, val in orig_consts.items():
