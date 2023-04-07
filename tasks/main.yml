@@ -93,6 +93,7 @@
   command: >
     tuned-adm profile '{{ __kernel_settings_register_module.active_profile }}'
   when: __kernel_settings_register_module is changed  # noqa no-handler
+  changed_when: true
 
 - name: Verify settings
   include_tasks: verify_settings.yml
