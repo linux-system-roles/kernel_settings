@@ -18,6 +18,7 @@
       grep 'ERROR    tuned.plugins' || :
   register: __kernel_settings_register_verify_log
   when: __kernel_settings_register_verify_values is failed
+  changed_when: false
 
 - name: Report errors that are not bootloader errors
   fail:

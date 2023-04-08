@@ -19,18 +19,21 @@
   register: __kernel_settings_register_verify
   ignore_errors: true
   when: __kernel_settings_test_verify
+  changed_when: false
 
 - name: Check for verify errors
   command: tail /var/log/tuned/tuned.log
   when:
     - __kernel_settings_register_verify is defined
     - __kernel_settings_register_verify is failed
+  changed_when: false
 
 - name: Check /proc/cmdline
   command: cat /proc/cmdline
   when:
     - __kernel_settings_register_verify is defined
     - __kernel_settings_register_verify is failed
+  changed_when: false
 
 - name: Set error flag based on verify
   set_fact:

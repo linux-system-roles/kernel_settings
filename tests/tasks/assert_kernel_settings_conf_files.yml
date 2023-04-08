@@ -40,6 +40,7 @@
     {{ __kernel_settings_profile_filename }}
   ignore_errors: true  # noqa ignore-errors
   when: __kernel_settings_register_profile_conf_result is failed
+  changed_when: false
 
 - name: Get active_profile file
   slurp:
@@ -78,6 +79,7 @@
   register: __kernel_settings_register_verify_bl_cmdline
   when:
     - __kernel_settings_blcmdline_value | d()
+  changed_when: false
 
 - name: Verify bootloader settings value
   set_fact:
