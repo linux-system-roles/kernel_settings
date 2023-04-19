@@ -30,6 +30,12 @@
       vars:
         __kernel_settings_test_verify: false
 
+    - name: Check ansible_managed, fingerprint in generated files
+      include_tasks: tasks/check_header.yml
+      vars:
+        __file: "{{ __kernel_settings_profile_filename }}"
+        __fingerprint: "system_role:kernel_settings"
+
     # reboot if a reboot is needed AND we did not tell the role
     # to reboot the machine if needed
     - name: Reboot the machine - see if settings persist after reboot
