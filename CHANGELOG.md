@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[1.1.15] - 2023-04-27
+--------------------
+
+### Other Changes
+
+- test: check generated files for ansible_managed, fingerprint
+- ci: Add commitlint GitHub action to ensure conventional commits with feedback
+
 [1.1.14] - 2023-04-13
 --------------------
 
