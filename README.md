@@ -1,4 +1,5 @@
 # Kernel Settings Role
+
 ![CI Testing](https://github.com/linux-system-roles/kernel_settings/workflows/tox/badge.svg)
 
 This role is used to modify kernel settings.  For example, on Linux, settings
@@ -10,13 +11,13 @@ CentOS) and Fedora.
 
 ## Requirements
 
-This role requires an operating system which has the `tuned` package and
-service (for the default `tuned` provider).
+None
 
 ## Role Variables
 
 The values for some of the various `kernel_settings_GROUP` parameters are a
 `list` of `dict` objects.  Each `dict` has the following keys:
+
 * `name` - Usually Required - The name the setting, or the name of a file
   under `/sys` for the `sysfs` group.  `name` is omitted when using
   `replaced`.
@@ -32,7 +33,9 @@ The values for some of the various `kernel_settings_GROUP` parameters are a
   specify that the previous values in a group should be replaced with the
   given values.
 
-`kernel_settings_sysctl` - A `list` of settings to be applied using `sysctl`.
+### kernel_settings_sysctl
+
+A `list` of settings to be applied using `sysctl`.
 The settings are given in the format described above.  Note that the settings
 are *additive* - by default, each setting is added to the existing settings, or
 replaces the setting of the same name if it already exists. If you want to
@@ -43,7 +46,9 @@ list.  If you want to remove all of the `sysctl` settings, use the `dict` value
 `{"state": "empty"}`, instead of a `list`, as the only value for the parameter.
 See below for examples.
 
-`kernel_settings_sysfs` - A `list` of settings to be applied to `/sys`. The
+### kernel_settings_sysfs
+
+A `list` of settings to be applied to `/sys`. The
 settings are given in the format described above.  Note that the settings are
 *additive* - by default, each setting is added to the existing settings, or
 replaces the setting of the same name if it already exists. If you want to
@@ -54,30 +59,40 @@ list.  If you want to remove all of the `sysfs` settings, use the `dict` value
 `{"state": "empty"}`, instead of a `list`, as the only value for the parameter.
 See below for examples.
 
-`kernel_settings_systemd_cpu_affinity` - To set the value, specify a `string` in
+### kernel_settings_systemd_cpu_affinity
+
+To set the value, specify a `string` in
 the format specified by
 https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=
 If you want to remove the setting, use the `dict` value `{"state": "absent"}`,
 instead of a `string`, as the value for the parameter.
 
-`kernel_settings_transparent_hugepages` - To set the value, specify one of the
+### kernel_settings_transparent_hugepages
+
+To set the value, specify one of the
 following `string` values: `always` `madvise` `never`. This is the memory
 subsystem transparent hugepages value.  If you want to remove the setting, use
 the `dict` value `{"state": "absent"}`, instead of a `string`, as the value for
 the parameter.
 
-`kernel_settings_transparent_hugepages_defrag` - To set the value, specify one
+### kernel_settings_transparent_hugepages_defrag
+
+To set the value, specify one
 of the following `string` values: `always` `defer` `defer+madvise` `madvise`
 `never`. This is the memory subsystem transparent hugepages fragmentation
 handling value.  The actual supported values may be different depending on your
 OS.  If you want to remove the setting, use the `dict` value
 `{"state": "absent"}`, instead of a `string`, as the value for the parameter.
 
-`kernel_settings_purge` - default `false` - If `true`, then the existing
+### kernel_settings_purge
+
+default `false` - If `true`, then the existing
 configuration will be completely wiped out and replaced with your given
 `kernel_settings_GROUP` settings.
 
-`kernel_settings_reboot_ok` - default `false` - If `true`, then if the role
+### kernel_settings_reboot_ok
+
+default `false` - If `true`, then if the role
 detects that something was changed that requires a reboot to take effect, the
 role will reboot the managed host.  If `false`, it is up to you to determine
 when to reboot the managed host.  The role will return the variable
@@ -113,9 +128,11 @@ kernel_settings_systemd_cpu_affinity: "1,3,5,7"
 kernel_settings_transparent_hugepages: madvise
 kernel_settings_transparent_hugepages_defrag: defer
 ```
+
 *NOTE* that the `list` valued settings are **additive**.  That is, they are
 applied **in addition to** any current settings.  For example, if you already
 had
+
 ```yaml
 kernel_settings_sysctl:
   - name: kernel.threads-max
@@ -123,7 +140,9 @@ kernel_settings_sysctl:
   - name: vm.max_map_count
     value: 65530
 ```
+
 then after applying the above, you would have
+
 ```yaml
 kernel_settings_sysctl:
   - name: kernel.threads-max
@@ -135,6 +154,7 @@ kernel_settings_sysctl:
   - name: fs.file-max
     value: 379724
 ```
+
 This allows multiple higher level roles or playbooks to use this role to
 provide the kernel settings specific to that component.  For example, if you
 are installing a web server and a database server on the same machine, and
@@ -148,6 +168,7 @@ If you want to replace *all* of the settings in a section with your supplied
 values, use `previous: replaced` as a single, preferably first element in the
 list of settings.  This indicates that the `previous` settings in the system
 should be `replaced` with the given settings.  For example:
+
 ```yaml
 kernel_settings_sysctl:
   - previous: replaced
@@ -156,10 +177,12 @@ kernel_settings_sysctl:
   - name: vm.max_map_count
     value: 50000
 ```
+
 This will have the effect of removing all of the existing settings for
 `kernel_settings_sysctl`, and adding the specified settings.
 If you want to remove a single setting, specify `state: absent` in the
 individual setting, instead of a `value`:
+
 ```yaml
 kernel_settings_sysctl:
   - name: kernel.threads-max
@@ -167,13 +190,16 @@ kernel_settings_sysctl:
   - name: vm.max_map_count
     state: absent
 ```
+
 This will remove the `vm.max_map_count` setting from the
 `kernel_settings_sysctl` settings. If you want to remove all of the settings
 from a group, specify `state: empty` as a `dict` instead of a `list`:
+
 ```yaml
 kernel_settings_sysctl:
   state: empty
 ```
+
 This will have the effect of removing all of the `kernel_settings_sysctl`
 settings.
 
@@ -181,6 +207,7 @@ Use `{"state":"absent"}` to remove a scalar valued parameter.  For example, to
 remove all of `kernel_settings_systemd_cpu_affinity`,
 `kernel_settings_transparent_hugepages`, and
 `kernel_settings_transparent_hugepages_defrag` settings, use this:
+
 ```yaml
 kernel_settings_systemd_cpu_affinity:
   state: absent
@@ -190,14 +217,11 @@ kernel_settings_transparent_hugepages_defrag:
   state: absent
 ```
 
-## Dependencies
-
-The `tuned` package is required for the default provider.
-
 ## Example Playbook
 
 ```yaml
-- hosts: all
+- name: Manage kernel settings
+  hosts: all
   vars:
     kernel_settings_sysctl:
       - name: fs.epoll.max_user_watches
@@ -236,6 +260,7 @@ settings.  For example, if you manually run the `sysctl` command, or manually
 edit `/etc/sysctl.d/` files, or if the `sysctl.d` files are installed by some
 system package, they may set the same values you are setting with the
 `kernel_settings` role.  For `sysctl` settings, the precedence goes like this:
+
 * `sysctl` files have highest precedence - `/etc/sysctl.conf` and
   `/etc/sysctl.d/*` will override everything
 * `kernel_settings` role settings have the next highest precedence
