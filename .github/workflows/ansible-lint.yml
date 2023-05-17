@@ -53,7 +53,8 @@ jobs:
               cp "$file" "$ignore_dir/${file//*.sanity-ansible-}"
             fi
           done
-          rm -rf .git
+          rm -rf .git .ansible-lint
+          mkdir "$coll_dir/.git"
 
       - name: Run ansible-lint
         uses: ansible-community/ansible-lint-action@v6
