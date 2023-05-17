@@ -52,8 +52,7 @@ jobs:
               cp "$file" "$ignore_dir/${file//*.sanity-ansible-}"
             fi
           done
-          rm -rf .git .ansible-lint *
-          cp "$coll_dir/.ansible-lint" .ansible-lint
+          rm -rf .git *
           mv .tox/ansible_collections .
           rm -rf .tox
           echo "verbosity: 10" >> .ansible-lint
