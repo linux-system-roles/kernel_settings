@@ -53,10 +53,11 @@ jobs:
               cp "$file" "$ignore_dir/${file//*.sanity-ansible-}"
             fi
           done
-          rm -rf .git .ansible-lint
-          mkdir "$coll_dir/.git"
+          rm -rf .git .ansible-lint *
+          mv .tox/ansible_collections .
+          rm -rf .tox
 
       - name: Run ansible-lint
         uses: ansible-community/ansible-lint-action@v6
         with:
-          path: .tox/ansible_collections/${{ env.LSR_ROLE2COLL_NAMESPACE }}/${{ env.LSR_ROLE2COLL_NAME }}
+          path: ansible_collections/${{ env.LSR_ROLE2COLL_NAMESPACE }}/${{ env.LSR_ROLE2COLL_NAME }}
