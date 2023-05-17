@@ -37,7 +37,6 @@ jobs:
       - name: Convert role to collection format
         run: |
           set -euxo pipefail
-          echo "verbosity: 10" >> .ansible-lint
           TOXENV=collection lsr_ci_runtox
           # copy the ignore files
           coll_dir=".tox/ansible_collections/$LSR_ROLE2COLL_NAMESPACE/$LSR_ROLE2COLL_NAME"
@@ -54,8 +53,10 @@ jobs:
             fi
           done
           rm -rf .git .ansible-lint *
+          cp "$coll_dir/.ansible-lint" .ansible-lint
           mv .tox/ansible_collections .
           rm -rf .tox
+          echo "verbosity: 10" >> .ansible-lint
 
       - name: Run ansible-lint
         uses: ansible-community/ansible-lint-action@v6
