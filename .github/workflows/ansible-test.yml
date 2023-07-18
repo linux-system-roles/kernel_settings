@@ -54,7 +54,7 @@ jobs:
             fi
           done
           # uninstall pyyaml for ansible-test
-          pip3 uninstall PyYAML
+          pip3 uninstall --yes PyYAML
 
       - name: Run ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
