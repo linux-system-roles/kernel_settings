@@ -53,6 +53,8 @@ jobs:
               cp "$file" "$ignore_dir/${file//*.sanity-ansible-}"
             fi
           done
+          # uninstall pyyaml for ansible-test
+          pip3 uninstall PyYAML
 
       - name: Run ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
