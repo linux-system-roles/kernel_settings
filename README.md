@@ -7,7 +7,7 @@ in `/proc/sys` (using `sysctl`), `/sys/fs`, and some other settings.  It uses
 `tuned` for its default provider on Enterprise Linux and derivatives (RHEL and
 CentOS) and Fedora.
 
-* `tuned` homepage - https://github.com/redhat-performance/tuned
+* `tuned` homepage - <https://github.com/redhat-performance/tuned>
 
 ## Requirements
 
@@ -63,7 +63,7 @@ See below for examples.
 
 To set the value, specify a `string` in
 the format specified by
-https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=
+<https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=>
 If you want to remove the setting, use the `dict` value `{"state": "absent"}`,
 instead of a `string`, as the value for the parameter.
 
