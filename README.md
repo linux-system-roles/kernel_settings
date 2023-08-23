@@ -1,6 +1,8 @@
 # Kernel Settings Role
 
-![CI Testing](https://github.com/linux-system-roles/kernel_settings/workflows/tox/badge.svg)
+[![ansible-lint.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/ansible-lint.yml) [![ansible-test.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/ansible-test.yml) [![codeql.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/codeql.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/codeql.yml) [![python-unit-test.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/python-unit-test.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/python-unit-test.yml) [![shellcheck.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/shellcheck.yml) [![markdownlint.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/markdownlint.yml) [![woke.yml](https://github.com/linux-system-roles/kernel_settings/actions/workflows/woke.yml/badge.svg)](https://github.com/linux-system-roles/kernel_settings/actions/workflows/woke.yml)
+
+---
 
 This role is used to modify kernel settings.  For example, on Linux, settings
 in `/proc/sys` (using `sysctl`), `/sys/fs`, and some other settings.  It uses
