@@ -1,8 +1,6 @@
-Contributing to the kernel_settings Linux System Role
-=====================================================
+# Contributing to the kernel_settings Linux System Role
 
-Where to start
---------------
+## Where to start
 
 The first place to go is [Contribute](https://linux-system-roles.github.io/contribute.html).
 This has all of the common information that all role developers need:
@@ -22,7 +20,7 @@ are likely to be suitable for new contributors!
 **Code** is managed on [Github](https://github.com/linux-system-roles/kernel_settings), using
 [Pull Requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests).
 
-### Python Code
+## Python Code
 
 The Python code needs to be **compatible with the Python versions supported by
 the role platform**.
@@ -53,13 +51,12 @@ to use a non-system python on the managed node, so it is a good idea to ensure
 your code has broad python version compatibility, and do not assume your code
 will only ever be run with the default system python.
 
-Testing kernel_settings modules
--------------------------------
+## Testing kernel_settings modules
 
 It is recommended to use `tox` to set up your `virtualenv` for
 development/testing purposes:
 
-```
+```bash
 dnf/yum install python-tox
 tox -e py38
 ```
@@ -67,7 +64,7 @@ tox -e py38
 You can also use the virtualenv created by `tox` just like any
 other virtualenv created by `python-virtualenv`:
 
-```
+```bash
 . .tox/env-py38/bin/activate
 python
 >>> import package.that.only.exists.in.venv
@@ -85,7 +82,7 @@ run and debug unit tests.  However, you may need to create a `.env` file like
 this, in order for code navigation, auto-completion, and test discovery to
 work correctly:
 
-```
+```bash
 PYTHONPATH=/full/path/to/tuned:/full/path/to/linux-system-roles/kernel_settings/library
 ```
 
