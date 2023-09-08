@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<!--
+==============================================================================
+           "GitHub HTML5 Pandoc Template" v2.2 — by Tristano Ajmone
+==============================================================================
+Copyright © Tristano Ajmone, 2017-2020, MIT License (MIT). Project's home:
+
+- https://github.com/tajmone/pandoc-goodies
+
+The CSS in this template reuses source code taken from the following projects:
+
+- GitHub Markdown CSS: Copyright © Sindre Sorhus, MIT License (MIT):
+  https://github.com/sindresorhus/github-markdown-css
+
+- Primer CSS: Copyright © 2016-2017 GitHub Inc., MIT License (MIT):
+  http://primercss.io/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The MIT License
+
+Copyright (c) Tristano Ajmone, 2017-2020 (github.com/tajmone/pandoc-goodies)
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+Copyright (c) 2017 GitHub Inc.
+
+"GitHub Pandoc HTML5 Template" is Copyright (c) Tristano Ajmone, 2017-2020,
+released under the MIT License (MIT); it contains readaptations of substantial
+portions of the following third party softwares:
+
+(1) "GitHub Markdown CSS", Copyright (c) Sindre Sorhus, MIT License (MIT).
+(2) "Primer CSS", Copyright (c) 2016 GitHub Inc., MIT License (MIT).
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+==============================================================================-->
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Kernel Settings Role</title>
+  <style type="text/css">
+@charset "UTF-8";.markdown-body{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#24292e;font-family:-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";font-size:16px;line-height:1.5;word-wrap:break-word;box-sizing:border-box;min-width:200px;margin:0 auto;padding:45px}.markdown-body a{color:#0366d6;background-color:transparent;text-decoration:none;-webkit-text-decoration-skip:objects}.markdown-body a:active,.markdown-body a:hover{outline-width:0}.markdown-body a:hover{text-decoration:underline}.markdown-body a:not([href]){color:inherit;text-decoration:none}.markdown-body strong{font-weight:600}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{margin-top:24px;margin-bottom:16px;font-weight:600;line-height:1.25}.markdown-body h1{font-size:2em;margin:.67em 0;padding-bottom:.3em;border-bottom:1px solid #eaecef}.markdown-body h2{padding-bottom:.3em;font-size:1.5em;border-bottom:1px solid #eaecef}.markdown-body h3{font-size:1.25em}.markdown-body h4{font-size:1em}.markdown-body h5{font-size:.875em}.markdown-body h6{font-size:.85em;color:#6a737d}.markdown-body img{border-style:none}.markdown-body svg:not(:root){overflow:hidden}.markdown-body hr{box-sizing:content-box;height:.25em;margin:24px 0;padding:0;overflow:hidden;background-color:#e1e4e8;border:0}.markdown-body hr::before{display:table;content:""}.markdown-body hr::after{display:table;clear:both;content:""}.markdown-body input{margin:0;overflow:visible;font:inherit;font-family:inherit;font-size:inherit;line-height:inherit}.markdown-body [type=checkbox]{box-sizing:border-box;padding:0}.markdown-body *{box-sizing:border-box}.markdown-body blockquote{margin:0}.markdown-body ol,.markdown-body ul{padding-left:2em}.markdown-body ol ol,.markdown-body ul ol{list-style-type:lower-roman}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-top:0;margin-bottom:0}.markdown-body ol ol ol,.markdown-body ol ul ol,.markdown-body ul ol ol,.markdown-body ul ul ol{list-style-type:lower-alpha}.markdown-body li>p{margin-top:16px}.markdown-body li+li{margin-top:.25em}.markdown-body dd{margin-left:0}.markdown-body dl{padding:0}.markdown-body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:600}.markdown-body dl dd{padding:0 16px;margin-bottom:16px}.markdown-body code{font-family:SFMono-Regular,Consolas,"Liberation Mono",Menlo,Courier,monospace}.markdown-body pre{font:12px SFMono-Regular,Consolas,"Liberation Mono",Menlo,Courier,monospace;word-wrap:normal}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin-top:0;margin-bottom:16px}.markdown-body blockquote{padding:0 1em;color:#6a737d;border-left:.25em solid #dfe2e5}.markdown-body blockquote>:first-child{margin-top:0}.markdown-body blockquote>:last-child{margin-bottom:0}.markdown-body table{display:block;width:100%;overflow:auto;border-spacing:0;border-collapse:collapse}.markdown-body table th{font-weight:600}.markdown-body table td,.markdown-body table th{padding:6px 13px;border:1px solid #dfe2e5}.markdown-body table tr{background-color:#fff;border-top:1px solid #c6cbd1}.markdown-body table tr:nth-child(2n){background-color:#f6f8fa}.markdown-body img{max-width:100%;box-sizing:content-box;background-color:#fff}.markdown-body code{padding:.2em 0;margin:0;font-size:85%;background-color:rgba(27,31,35,.05);border-radius:3px}.markdown-body code::after,.markdown-body code::before{letter-spacing:-.2em;content:" "}.markdown-body pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:0 0;border:0}.markdown-body .highlight{margin-bottom:16px}.markdown-body .highlight pre{margin-bottom:0;word-break:normal}.markdown-body .highlight pre,.markdown-body pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f6f8fa;border-radius:3px}.markdown-body pre code{display:inline;max-width:auto;padding:0;margin:0;overflow:visible;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}.markdown-body pre code::after,.markdown-body pre code::before{content:normal}.markdown-body .full-commit .btn-outline:not(:disabled):hover{color:#005cc5;border-color:#005cc5}.markdown-body kbd{box-shadow:inset 0 -1px 0 #959da5;display:inline-block;padding:3px 5px;font:11px/10px SFMono-Regular,Consolas,"Liberation Mono",Menlo,Courier,monospace;color:#444d56;vertical-align:middle;background-color:#fcfcfc;border:1px solid #c6cbd1;border-bottom-color:#959da5;border-radius:3px;box-shadow:inset 0 -1px 0 #959da5}.markdown-body :checked+.radio-label{position:relative;z-index:1;border-color:#0366d6}.markdown-body .task-list-item{list-style-type:none}.markdown-body .task-list-item+.task-list-item{margin-top:3px}.markdown-body .task-list-item input{margin:0 .2em .25em -1.6em;vertical-align:middle}.markdown-body::before{display:table;content:""}.markdown-body::after{display:table;clear:both;content:""}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.Alert,.Error,.Note,.Success,.Warning{padding:11px;margin-bottom:24px;border-style:solid;border-width:1px;border-radius:4px}.Alert p,.Error p,.Note p,.Success p,.Warning p{margin-top:0}.Alert p:last-child,.Error p:last-child,.Note p:last-child,.Success p:last-child,.Warning p:last-child{margin-bottom:0}.Alert{color:#246;background-color:#e2eef9;border-color:#bac6d3}.Warning{color:#4c4a42;background-color:#fff9ea;border-color:#dfd8c2}.Error{color:#911;background-color:#fcdede;border-color:#d2b2b2}.Success{color:#22662c;background-color:#e2f9e5;border-color:#bad3be}.Note{color:#2f363d;background-color:#f6f8fa;border-color:#d5d8da}.Alert h1,.Alert h2,.Alert h3,.Alert h4,.Alert h5,.Alert h6{color:#246;margin-bottom:0}.Warning h1,.Warning h2,.Warning h3,.Warning h4,.Warning h5,.Warning h6{color:#4c4a42;margin-bottom:0}.Error h1,.Error h2,.Error h3,.Error h4,.Error h5,.Error h6{color:#911;margin-bottom:0}.Success h1,.Success h2,.Success h3,.Success h4,.Success h5,.Success h6{color:#22662c;margin-bottom:0}.Note h1,.Note h2,.Note h3,.Note h4,.Note h5,.Note h6{color:#2f363d;margin-bottom:0}.Alert h1:first-child,.Alert h2:first-child,.Alert h3:first-child,.Alert h4:first-child,.Alert h5:first-child,.Alert h6:first-child,.Error h1:first-child,.Error h2:first-child,.Error h3:first-child,.Error h4:first-child,.Error h5:first-child,.Error h6:first-child,.Note h1:first-child,.Note h2:first-child,.Note h3:first-child,.Note h4:first-child,.Note h5:first-child,.Note h6:first-child,.Success h1:first-child,.Success h2:first-child,.Success h3:first-child,.Success h4:first-child,.Success h5:first-child,.Success h6:first-child,.Warning h1:first-child,.Warning h2:first-child,.Warning h3:first-child,.Warning h4:first-child,.Warning h5:first-child,.Warning h6:first-child{margin-top:0}h1.title,p.subtitle{text-align:center}h1.title.followed-by-subtitle{margin-bottom:0}p.subtitle{font-size:1.5em;font-weight:600;line-height:1.25;margin-top:0;margin-bottom:16px;padding-bottom:.3em}div.line-block{white-space:pre-line}
+  </style>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article class="markdown-body">
+<header>
+<h1 class="title">Kernel Settings Role</h1>
+</header>
+<hr>
+<nav id="TOC">
+<h1 class="toc-title">Contents</h1>
+<ul>
+<li><a href="#requirements" id="toc-requirements">Requirements</a></li>
+<li><a href="#role-variables" id="toc-role-variables">Role Variables</a>
+<ul>
+<li><a href="#kernel_settings_sysctl"
+id="toc-kernel_settings_sysctl">kernel_settings_sysctl</a></li>
+<li><a href="#kernel_settings_sysfs"
+id="toc-kernel_settings_sysfs">kernel_settings_sysfs</a></li>
+<li><a href="#kernel_settings_systemd_cpu_affinity"
+id="toc-kernel_settings_systemd_cpu_affinity">kernel_settings_systemd_cpu_affinity</a></li>
+<li><a href="#kernel_settings_transparent_hugepages"
+id="toc-kernel_settings_transparent_hugepages">kernel_settings_transparent_hugepages</a></li>
+<li><a href="#kernel_settings_transparent_hugepages_defrag"
+id="toc-kernel_settings_transparent_hugepages_defrag">kernel_settings_transparent_hugepages_defrag</a></li>
+<li><a href="#kernel_settings_purge"
+id="toc-kernel_settings_purge">kernel_settings_purge</a></li>
+<li><a href="#kernel_settings_reboot_ok"
+id="toc-kernel_settings_reboot_ok">kernel_settings_reboot_ok</a></li>
+<li><a href="#variables-exported-by-the-role"
+id="toc-variables-exported-by-the-role">Variables Exported by the
+Role</a></li>
+<li><a href="#examples-of-settings-usage"
+id="toc-examples-of-settings-usage">Examples of Settings Usage</a></li>
+</ul></li>
+<li><a href="#example-playbook" id="toc-example-playbook">Example
+Playbook</a></li>
+<li><a href="#warnings" id="toc-warnings">Warnings</a></li>
+<li><a href="#license" id="toc-license">License</a></li>
+<li><a href="#author-information" id="toc-author-information">Author
+Information</a></li>
+</ul>
+</nav>
+<hr>
+<p>This role is used to modify kernel settings. For example, on Linux,
+settings in <code>/proc/sys</code> (using <code>sysctl</code>),
+<code>/sys/fs</code>, and some other settings. It uses
+<code>tuned</code> for its default provider on Enterprise Linux and
+derivatives (RHEL and CentOS) and Fedora.</p>
+<ul>
+<li><code>tuned</code> homepage - <a
+href="https://github.com/redhat-performance/tuned">https://github.com/redhat-performance/tuned</a></li>
+</ul>
+<h1 id="requirements">Requirements</h1>
+<p>None</p>
+<h1 id="role-variables">Role Variables</h1>
+<p>The values for some of the various <code>kernel_settings_GROUP</code>
+parameters are a <code>list</code> of <code>dict</code> objects. Each
+<code>dict</code> has the following keys:</p>
+<ul>
+<li><code>name</code> - Usually Required - The name the setting, or the
+name of a file under <code>/sys</code> for the <code>sysfs</code> group.
+<code>name</code> is omitted when using <code>replaced</code>.</li>
+<li><code>value</code> - Usually Required - The value for the setting.
+<code>value</code> is omitted when using <code>state</code> or
+<code>previous</code>. Values must not be <a
+href="https://yaml.org/type/bool.html">YAML bool type</a>. One situation
+where this might be a problem is using <code>value: on</code> or other
+YAML <code>bool</code> typed value. You must quote these values, or
+otherwise pass them as a value of <code>str</code> type e.g.
+<code>value: "on"</code>.</li>
+<li><code>state</code> - Optional - the value <code>absent</code> means
+to remove a setting with name <code>name</code> from a group -
+<code>name</code> must be provided</li>
+<li><code>previous</code> - Optional - the only value is
+<code>replaced</code> - this is used to specify that the previous values
+in a group should be replaced with the given values.</li>
+</ul>
+<h2 id="kernel_settings_sysctl">kernel_settings_sysctl</h2>
+<p>A <code>list</code> of settings to be applied using
+<code>sysctl</code>. The settings are given in the format described
+above. Note that the settings are <em>additive</em> - by default, each
+setting is added to the existing settings, or replaces the setting of
+the same name if it already exists. If you want to remove a specific
+setting, use <code>state: absent</code> instead of giving a
+<code>value</code>. If you want to remove all of the existing
+<code>sysctl</code> settings and replace them with the given settings,
+specify <code>previous: replaced</code> as one of the values in the
+list. If you want to remove all of the <code>sysctl</code> settings, use
+the <code>dict</code> value <code>{"state": "empty"}</code>, instead of
+a <code>list</code>, as the only value for the parameter. See below for
+examples.</p>
+<h2 id="kernel_settings_sysfs">kernel_settings_sysfs</h2>
+<p>A <code>list</code> of settings to be applied to <code>/sys</code>.
+The settings are given in the format described above. Note that the
+settings are <em>additive</em> - by default, each setting is added to
+the existing settings, or replaces the setting of the same name if it
+already exists. If you want to remove a specific setting, use
+<code>state: absent</code> instead of giving a <code>value</code>. If
+you want to remove all of the existing <code>sysfs</code> settings and
+replace them with the given settings, specify
+<code>previous: replaced</code> as one of the values in the list. If you
+want to remove all of the <code>sysfs</code> settings, use the
+<code>dict</code> value <code>{"state": "empty"}</code>, instead of a
+<code>list</code>, as the only value for the parameter. See below for
+examples.</p>
+<h2
+id="kernel_settings_systemd_cpu_affinity">kernel_settings_systemd_cpu_affinity</h2>
+<p>To set the value, specify a <code>string</code> in the format
+specified by <a
+href="https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=">https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#CPUAffinity=</a>
+If you want to remove the setting, use the <code>dict</code> value
+<code>{"state": "absent"}</code>, instead of a <code>string</code>, as
+the value for the parameter.</p>
+<h2
+id="kernel_settings_transparent_hugepages">kernel_settings_transparent_hugepages</h2>
+<p>To set the value, specify one of the following <code>string</code>
+values: <code>always</code> <code>madvise</code> <code>never</code>.
+This is the memory subsystem transparent hugepages value. If you want to
+remove the setting, use the <code>dict</code> value
+<code>{"state": "absent"}</code>, instead of a <code>string</code>, as
+the value for the parameter.</p>
+<h2
+id="kernel_settings_transparent_hugepages_defrag">kernel_settings_transparent_hugepages_defrag</h2>
+<p>To set the value, specify one of the following <code>string</code>
+values: <code>always</code> <code>defer</code>
+<code>defer+madvise</code> <code>madvise</code> <code>never</code>. This
+is the memory subsystem transparent hugepages fragmentation handling
+value. The actual supported values may be different depending on your
+OS. If you want to remove the setting, use the <code>dict</code> value
+<code>{"state": "absent"}</code>, instead of a <code>string</code>, as
+the value for the parameter.</p>
+<h2 id="kernel_settings_purge">kernel_settings_purge</h2>
+<p>default <code>false</code> - If <code>true</code>, then the existing
+configuration will be completely wiped out and replaced with your given
+<code>kernel_settings_GROUP</code> settings.</p>
+<h2 id="kernel_settings_reboot_ok">kernel_settings_reboot_ok</h2>
+<p>default <code>false</code> - If <code>true</code>, then if the role
+detects that something was changed that requires a reboot to take
+effect, the role will reboot the managed host. If <code>false</code>, it
+is up to you to determine when to reboot the managed host. The role will
+return the variable <code>kernel_settings_reboot_required</code> (see
+below) with a value of <code>true</code> to indicate that some change
+has occurred which needs a reboot to take effect.</p>
+<h2 id="variables-exported-by-the-role">Variables Exported by the
+Role</h2>
+<p>The role will export the following variables:</p>
+<p><code>kernel_settings_reboot_required</code> - default
+<code>false</code> - if <code>true</code>, this means a change has
+occurred which will require rebooting the managed host in order to take
+effect. If you want the role to reboot the managed host, set
+<code>kernel_settings_reboot_ok: true</code>, otherwise, you will need
+to handle rebooting the machine.</p>
+<h2 id="examples-of-settings-usage">Examples of Settings Usage</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> fs.epoll.max_user_watches</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">785592</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> fs.file-max</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">379724</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysfs</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> /sys/kernel/debug/x86/pti_enabled</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> /sys/kernel/debug/x86/retp_enabled</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> /sys/kernel/debug/x86/ibrs_enabled</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_systemd_cpu_affinity</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;1,3,5,7&quot;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_transparent_hugepages</span><span class="kw">:</span><span class="at"> madvise</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_transparent_hugepages_defrag</span><span class="kw">:</span><span class="at"> defer</span></span></code></pre></div>
+<p><em>NOTE</em> that the <code>list</code> valued settings are
+<strong>additive</strong>. That is, they are applied <strong>in addition
+to</strong> any current settings. For example, if you already had</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> kernel.threads-max</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">29968</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> vm.max_map_count</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">65530</span></span></code></pre></div>
+<p>then after applying the above, you would have</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> kernel.threads-max</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">29968</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> vm.max_map_count</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">65530</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> fs.epoll.max_user_watches</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">785592</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> fs.file-max</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">379724</span></span></code></pre></div>
+<p>This allows multiple higher level roles or playbooks to use this role
+to provide the kernel settings specific to that component. For example,
+if you are installing a web server and a database server on the same
+machine, and they both require setting kernel parameters, the
+<code>kernel_settings</code> role allows you to set them both.</p>
+<p>If you specify multiple settings with the same name in a section, the
+last one will be used.</p>
+<p>If you want to replace <em>all</em> of the settings in a section with
+your supplied values, use <code>previous: replaced</code> as a single,
+preferably first element in the list of settings. This indicates that
+the <code>previous</code> settings in the system should be
+<code>replaced</code> with the given settings. For example:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">previous</span><span class="kw">:</span><span class="at"> replaced</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> kernel.threads-max</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">30000</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> vm.max_map_count</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">50000</span></span></code></pre></div>
+<p>This will have the effect of removing all of the existing settings
+for <code>kernel_settings_sysctl</code>, and adding the specified
+settings. If you want to remove a single setting, specify
+<code>state: absent</code> in the individual setting, instead of a
+<code>value</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> kernel.threads-max</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">30000</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> vm.max_map_count</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">state</span><span class="kw">:</span><span class="at"> absent</span></span></code></pre></div>
+<p>This will remove the <code>vm.max_map_count</code> setting from the
+<code>kernel_settings_sysctl</code> settings. If you want to remove all
+of the settings from a group, specify <code>state: empty</code> as a
+<code>dict</code> instead of a <code>list</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">state</span><span class="kw">:</span><span class="at"> empty</span></span></code></pre></div>
+<p>This will have the effect of removing all of the
+<code>kernel_settings_sysctl</code> settings.</p>
+<p>Use <code>{"state":"absent"}</code> to remove a scalar valued
+parameter. For example, to remove all of
+<code>kernel_settings_systemd_cpu_affinity</code>,
+<code>kernel_settings_transparent_hugepages</code>, and
+<code>kernel_settings_transparent_hugepages_defrag</code> settings, use
+this:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_systemd_cpu_affinity</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">state</span><span class="kw">:</span><span class="at"> absent</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_transparent_hugepages</span><span class="kw">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">state</span><span class="kw">:</span><span class="at"> absent</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_settings_transparent_hugepages_defrag</span><span class="kw">:</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">state</span><span class="kw">:</span><span class="at"> absent</span></span></code></pre></div>
+<h1 id="example-playbook">Example Playbook</h1>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Manage kernel settings</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">hosts</span><span class="kw">:</span><span class="at"> all</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">vars</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">kernel_settings_sysctl</span><span class="kw">:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> fs.epoll.max_user_watches</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">785592</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> fs.file-max</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">379724</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> kernel.threads-max</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">state</span><span class="kw">:</span><span class="at"> absent</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">kernel_settings_sysfs</span><span class="kw">:</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> /sys/kernel/debug/x86/pti_enabled</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> /sys/kernel/debug/x86/retp_enabled</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> /sys/kernel/debug/x86/ibrs_enabled</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">kernel_settings_systemd_cpu_affinity</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;1,3,5,7&quot;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">kernel_settings_transparent_hugepages</span><span class="kw">:</span><span class="at"> madvise</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">kernel_settings_transparent_hugepages_defrag</span><span class="kw">:</span><span class="at"> defer</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">roles</span><span class="kw">:</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> linux-system-roles.kernel_settings</span></span></code></pre></div>
+<h1 id="warnings">Warnings</h1>
+<p>The <code>kernel_settings</code> role will cause other
+<code>sysctl</code> settings to be applied when using the
+<code>tuned</code> implementation, which is the default. This can happen
+when you manually edit <code>/etc/sysctl.d/</code> files, or if the
+<code>sysctl.d</code> files are installed by some system package. For
+example, on Fedora, installing the <code>libreswan</code> package
+provides <code>/etc/sysctl.d/50-libreswan.conf</code>. Using the
+<code>kernel_settings</code> role will cause this file to be reloaded
+and reapplied. If this behavior is not desired, you will need to edit
+the <code>tuned</code> configuration on the managed hosts in
+<code>/etc/tuned/tuned-main.conf</code> and set
+<code>reapply_sysctl=0</code>.</p>
+<p>The settings you apply with the <code>kernel_settings</code> role may
+conflict with other settings. For example, if you manually run the
+<code>sysctl</code> command, or manually edit
+<code>/etc/sysctl.d/</code> files, or if the <code>sysctl.d</code> files
+are installed by some system package, they may set the same values you
+are setting with the <code>kernel_settings</code> role. For
+<code>sysctl</code> settings, the precedence goes like this:</p>
+<ul>
+<li><code>sysctl</code> files have highest precedence -
+<code>/etc/sysctl.conf</code> and <code>/etc/sysctl.d/*</code> will
+override everything</li>
+<li><code>kernel_settings</code> role settings have the next highest
+precedence</li>
+<li>settings set manually using the <code>sysctl</code> command have the
+lowest precedence</li>
+</ul>
+<p>For all other settings such as <code>sysfs</code>, the settings from
+<code>kernel_settings</code> role have the highest precedence.</p>
+<h1 id="license">License</h1>
+<p>Some parts related to <code>tuned</code> are <code>GPLv2+</code>.
+These are noted in the headers of the files. Everything else is
+<code>MIT</code>, except where noted. See the file <code>LICENSE</code>
+for more information.</p>
+<h1 id="author-information">Author Information</h1>
+<p>Rich Megginson (richm on github, rmeggins at my company)</p>
+</article>
+</body>
+</html>
