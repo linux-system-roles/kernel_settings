@@ -18,14 +18,14 @@
   file:
     path: "{{ __kernel_settings_profile_dir }}"
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: Generate a configuration for kernel settings
   template:
     src: "{{ __kernel_settings_profile_src }}.j2"
     dest: "{{ __kernel_settings_profile_filename }}"
     force: false
-    mode: 0644
+    mode: "0644"
 
 - name: Get current config
   slurp:
