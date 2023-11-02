@@ -319,6 +319,13 @@ def get_supported_tuned_plugin_names():
         "sysfs",
         "systemd",
         "vm",
+        "cpu",
+        "disk",
+        "net",
+        "audio",
+        "scsi_host",
+        "video",
+        "usb",
     ]
 
 

@@ -40,6 +40,55 @@
         kernel_settings_sysfs:
           - name: /sys/class/net/lo/mtu
             value: 65000
+        kernel_settings_cpu:
+          devices:
+          settings:
+            - name: governor
+              value: "conservative|powersave"
+            - name: min_perf_pct
+              value: 20
+            - name: max_perf_pct
+              value: 99
+            - name: sampling_down_factor
+              value: 98
+            - name: no_turbo
+              value: 1
+        kernel_settings_disk:
+          devices:
+          settings:
+            - name: elevator
+              value: bfq
+            - name: read_ahead_kb
+              value: 256
+            - name: scheduler_quantum
+              value: 64
+        kernel_settings_net:
+          devices:
+          settings:
+            - name: nf_conntrack_hashsize
+              value: 1048576
+        kernel_settings_audio:
+          devices:
+          settings:
+            - name: timeout
+              value: 10
+            - name: reset_controller
+              value: 1
+        kernel_settings_scsi_host:
+          devices:
+          settings:
+            - name: alpm
+              value: "min_power"
+        kernel_settings_video:
+          devices:
+          settings:
+            - name: radeon_powersave
+              value: "auto"
+        kernel_settings_usb:
+          devices:
+          settings:
+            - name: autosuspend
+              value: 1
 
     - name: Ensure kernel_settings_reboot_required is unset or undefined
       assert:

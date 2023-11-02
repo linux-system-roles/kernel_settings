@@ -35,6 +35,47 @@
 
 - name: Apply kernel settings
   kernel_settings:
+    cpu: "{{ kernel_settings_cpu is defined |
+             ternary(kernel_settings_cpu.settings | d([]) |
+             union([{'name': 'devices', 'value': kernel_settings_cpu.devices |
+             d('*', true)}]) | d({}), omit) }}"
+    disk: "{{ kernel_settings_disk is defined |
+              ternary(kernel_settings_disk.settings | d([]) |
+              union([{'name': 'devices', \
+              'value': kernel_settings_disk.devices |
+              d('*', true)}]) | d({}), omit) }}"
+    net: "{{ kernel_settings_net is defined |
+             ternary(kernel_settings_net.settings | d([]) |
+             union([{'name': 'devices', 'value': kernel_settings_net.devices |
+             d('*', true)}]) | d({}), omit) }}"
+    audio: "{{ kernel_settings_audio is defined |
+               ternary(kernel_settings_audio.settings | d([]) |
+               union([{'name': 'devices', \
+               'value': kernel_settings_audio.devices |
+               d('*', true)}]) | d({}), omit) }}"
+    scsi_host: "{{ kernel_settings_scsi_host is defined |
+                   ternary(kernel_settings_scsi_host.settings | d([]) |
+                   union([{'name': 'devices', \
+                   'value': kernel_settings_scsi_host.devices |
+                   d('*', true)}]) | d({}), omit) }}"
+    video: "{{ kernel_settings_video is defined |
+               ternary(kernel_settings_video.settings | d([]) |
+               union([{'name': 'devices', \
+               'value': kernel_settings_video.devices |
+               d('*', true)}]) | d({}), omit) }}"
+    usb: "{{ kernel_settings_usb is defined |
+             ternary(kernel_settings_usb.settings | d([]) |
+             union([{'name': 'devices', 'value': kernel_settings_usb.devices |
+             d('*', true)}]) | d({}), omit) }}"
+    selinux: "{{ kernel_settings_selinux is defined |
+                 ternary(kernel_settings_selinux.settings | d([]) |
+                 union([{'name': 'devices', \
+                 'value': kernel_settings_selinux.devices |
+                 d('*', true)}]) | d({}), omit) }}"
+    vm: "{{ kernel_settings_vm is defined |
+            ternary(kernel_settings_vm.settings | d([]) |
+            union([{'name': 'devices', 'value': kernel_settings_vm.devices |
+            d('*', true)}]) | d({}), omit) }}"
     sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
     sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
     systemd:
@@ -45,23 +86,6 @@
                    __kernel_settings_state_absent
                    else none }}"
         state: "{{ 'absent' if kernel_settings_systemd_cpu_affinity ==
-                   __kernel_settings_state_absent else none }}"
-    vm:
-      - name: "{{ 'transparent_hugepages'
-                  if kernel_settings_transparent_hugepages
-                  else none }}"
-        value: "{{ kernel_settings_transparent_hugepages
-                   if kernel_settings_transparent_hugepages !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_transparent_hugepages ==
-                   __kernel_settings_state_absent else none }}"
-      - name: "{{ 'transparent_hugepage.defrag'
-                  if kernel_settings_transparent_hugepages_defrag
-                  else none }}"
-        value: "{{ kernel_settings_transparent_hugepages_defrag
-                   if kernel_settings_transparent_hugepages_defrag !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_transparent_hugepages_defrag ==
                    __kernel_settings_state_absent else none }}"
     bootloader:
       - name: "{{ 'cmdline'

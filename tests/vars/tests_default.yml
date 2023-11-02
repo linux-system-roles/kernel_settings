@@ -1,3 +1,17 @@
 ---
 __kernel_settings_test_python_pkgs: ['python', 'python-configobj']
 __kernel_settings_test_python_cmd: python
+__kernel_settings_test_pyudev_pkg: 'python-pyudev'
+__kernel_settings_test_sysctl:
+  - name: fs.file-max
+    value: '99999'
+  - name: fs.aio-max-nr
+    value: '70000'
+  - name: kernel.sched_migration_cost_ns
+    value: '5000000'
+  - name: kernel.sched_wakeup_granularity_ns
+    value: '900000'
+  - name: vm.dirty_expire_centisecs
+    value: '2000'
+  - name: kernel.panic_on_oops
+    value: '1'

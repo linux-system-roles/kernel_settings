@@ -1,0 +1,116 @@
+- hosts: all
+
+  roles:
+    - role: linux-system-roles.kernel_settings
+      when: false
+
+  vars:
+    names:
+      - "template"
+      - "target"
+
+  tasks:
+    - name: Set version specific variables
+      include_vars: "{{ lookup('first_found', ffparams) }}"
+      vars:
+        ffparams:
+          files:
+            - "tests_{{ ansible_distribution }}_\
+              {{ ansible_distribution_major_version }}.yml"
+            - "tests_default.yml"
+          paths:
+            - vars
+
+    - name: designate each host as either template or target
+      set_fact:
+        host_role: "{{ names[my_idx] }}"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['all'] }}"
+      loop_control:
+        index_var: my_idx
+      run_once: true
+
+    - name: Ensure pyudev package is installed on template machine
+      package:
+        name: "{{ __kernel_settings_test_pyudev_pkg }}"
+        state: present
+      when: host_role == 'template'
+
+    - name: update sysctl values on the template machine
+      become: true
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop: "{{ __kernel_settings_test_sysctl }}"
+      when: host_role == "template"
+
+    - name: get and store config values from template machine
+      kernel_report:
+      register: template_settings
+      when: host_role == 'template'
+
+    - name: create file with device specific settings
+      template:
+        src: "/home/mprovenc/linux-system-roles/kernel_settings/\
+              templates/kernel_report_device_specific.j2"
+        dest: "./device_specific_settings.txt"
+      delegate_to: localhost
+      when: host_role == 'template'
+      run_once: true
+
+    - name: set template_hostname fact
+      set_fact:
+        template_hostname: "{{ inventory_hostname }}"
+      loop: "{{ groups['all'] }}"
+      when: host_role == 'template'
+      loop_control:
+        index_var: my_idx
+      run_once: true
+
+    - name: apply kernel_settings to target machine(s)
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_cpu: "{{ (hostvars[template_hostname].\
+                                 template_settings.ansible_facts.\
+                                 kernel_settings_other.kernel_settings_cpu)
+                                 if 'kernel_settings_cpu' in
+                                 hostvars[template_hostname].\
+                                 template_settings.\
+                                 ansible_facts.kernel_settings_other
+                                 else omit }}"
+        kernel_settings_net: "{{ (hostvars[template_hostname].\
+                                 template_settings.ansible_facts.\
+                                 kernel_settings_other.kernel_settings_net)
+                                 if 'kernel_settings_net' in
+                                 hostvars[template_hostname].\
+                                 template_settings.\
+                                 ansible_facts.kernel_settings_other
+                                 else omit }}"
+        kernel_settings_selinux: "{{ (hostvars[template_hostname].\
+                                      template_settings.ansible_facts.\
+                                      kernel_settings_other.\
+                                      kernel_settings_selinux)
+                                      if 'kernel_settings_selinux' in
+                                      hostvars[template_hostname].\
+                                      template_settings.\
+                                      ansible_facts.kernel_settings_other
+                                      else omit }}"
+        kernel_settings_vm: "{{ (hostvars[template_hostname].\
+                                template_settings.ansible_facts.\
+                                kernel_settings_other.kernel_settings_vm)
+                                if 'kernel_settings_vm' in
+                                hostvars[template_hostname].\
+                                template_settings.\
+                                ansible_facts.kernel_settings_other
+                                else omit }}"
+        kernel_settings_sysfs: "{{ hostvars[template_hostname].\
+                                   template_settings.ansible_facts.\
+                                   kernel_settings_sysfs }}"
+        kernel_settings_sysctl: "{{ hostvars[template_hostname].\
+                                    template_settings.ansible_facts.\
+                                    kernel_settings_sysctl }}"
+      when: host_role == 'target'
