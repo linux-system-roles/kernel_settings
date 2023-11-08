@@ -11,7 +11,17 @@ CentOS) and Fedora.
 
 ## Requirements
 
-None
+See below
+
+### Collection requirements
+
+If you want to manage `rpm-ostree` systems with this role, you will need to
+install additional collections.  Please run the following command line to
+install the collection.
+
+```bash
+ansible-galaxy collection install -vv -r meta/collection-requirements.yml
+```
 
 ## Role Variables
 
@@ -268,6 +278,10 @@ system package, they may set the same values you are setting with the
 
 For all other settings such as `sysfs`, the settings from `kernel_settings` role
 have the highest precedence.
+
+## rpm-ostree
+
+See README-ostree.md
 
 ## License
 
