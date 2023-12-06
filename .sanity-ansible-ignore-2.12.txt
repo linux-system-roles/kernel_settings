@@ -5,4 +5,3 @@ plugins/modules/kernel_settings.py validate-modules:missing-gplv3-license
 plugins/modules/kernel_settings.py validate-modules:parameter-type-not-in-doc
 plugins/modules/kernel_settings.py validate-modules:undocumented-parameter
 plugins/modules/kernel_settings.py validate-modules:module-invalid-version-added
-roles/kernel_settings/.ostree/get_ostree_data.sh shebang!skip
