@@ -4,4 +4,3 @@ tests/kernel_settings/run_ansible_for_testing.sh shebang!skip
 plugins/modules/kernel_settings.py validate-modules:missing-gplv3-license
 plugins/modules/kernel_settings.py validate-modules:parameter-type-not-in-doc
 plugins/modules/kernel_settings.py validate-modules:undocumented-parameter
-roles/kernel_settings/.ostree/get_ostree_data.sh shebang!skip
