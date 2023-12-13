@@ -22,7 +22,7 @@ module: kernel_settings
 
 short_description: Manage kernel settings using tuned via a wrapper
 
-version_added: "2.8"
+version_added: "2.13.0"
 
 description:
     - "WARNING: Do not use this module directly! It is only for role internal use."
@@ -61,10 +61,32 @@ options:
               like the C(sysctl) module except that C(/etc/sysctl.conf) and files
               under C(/etc/sysctl.d) are not used.
         required: false
+        type: raw
     sysfs:
         description:
             - key/value pairs of sysfs settings to apply
         required: false
+        type: raw
+    modules:
+        description:
+            - key/value pairs of module settings to apply
+        required: false
+        type: raw
+    selinux:
+        description:
+            - key/value pairs of selinux settings to apply
+        required: false
+        type: raw
+    systemd:
+        description:
+            - key/value pairs of systemd settings to apply
+        required: false
+        type: raw
+    vm:
+        description:
+            - key/value pairs of vm settings to apply
+        required: false
+        type: raw
     bootloader:
         description:
             - the C(cmdline) option can be used to set, add, or delete
@@ -154,7 +176,7 @@ EXAMPLES = """
       - name: cmdline
         value:
           - name: spectre_v2
-            value: off
+            value: "off"
           - name: nopti
           - name: panic
             state: absent

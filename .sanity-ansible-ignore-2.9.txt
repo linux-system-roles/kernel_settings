@@ -1,6 +1,1 @@
-tests/kernel_settings/install_ansible_for_testing.sh shebang!skip
-tests/kernel_settings/install_tuned_for_testing.sh shebang!skip
-tests/kernel_settings/run_ansible_for_testing.sh shebang!skip
 plugins/modules/kernel_settings.py validate-modules:missing-gplv3-license
-plugins/modules/kernel_settings.py validate-modules:parameter-type-not-in-doc
-plugins/modules/kernel_settings.py validate-modules:undocumented-parameter

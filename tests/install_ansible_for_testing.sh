@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # this is used to install ansible into a venv or tox env
 # for testing purposes
 

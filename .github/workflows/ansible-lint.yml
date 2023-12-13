@@ -11,6 +11,9 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - main
   workflow_dispatch:
+env:
+  LSR_ROLE2COLL_NAMESPACE: fedora
+  LSR_ROLE2COLL_NAME: linux_system_roles
 permissions:
   contents: read
 jobs:
@@ -26,18 +29,46 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fix up role meta/main.yml namespace and name
+      - name: Install tox, tox-lsr
         run: |
           set -euxo pipefail
-          mm=meta/main.yml
-          if [ -f "$mm" ]; then
-            if ! grep -q '^  *namespace:' "$mm"; then
-              sed "/galaxy_info:/a\  namespace: linux_system_roles" -i "$mm"
-            fi
-            if ! grep -q '^  *role_name:' "$mm"; then
-              sed "/galaxy_info:/a\  role_name: kernel_settings" -i "$mm"
-            fi
+          pip3 install "git+https://github.com/richm/tox-lsr@collection-debugging"
+
+      - name: Convert role to collection format
+        run: |
+          set -euxo pipefail
+          LSR_ROLE2COLL_DEBUG=true TOXENV=collection lsr_ci_runtox
+          # copy the ignore files
+          coll_dir=".tox/ansible_collections/$LSR_ROLE2COLL_NAMESPACE/$LSR_ROLE2COLL_NAME"
+          # wokeignore:rule=sanity
+          ignore_dir="$coll_dir/tests/sanity"
+          if [ ! -d "$ignore_dir" ]; then
+            mkdir -p "$ignore_dir"
           fi
+          # wokeignore:rule=sanity
+          for file in .sanity-ansible-ignore-*.txt; do
+            if [ -f "$file" ]; then
+              # wokeignore:rule=sanity
+              cp "$file" "$ignore_dir/${file//*.sanity-ansible-}"
+            fi
+          done
+          # ansible-lint action requires a .git directory???
+          # https://github.com/ansible/ansible-lint/blob/main/action.yml#L45
+          mkdir -p "$coll_dir/.git"
+          # need .ansible-lint at the collection root directory
+          for file in "$coll_dir"/roles/*/.ansible-lint; do
+            if [ -f "$file" ]; then
+              cp "$file" "$coll_dir"
+              break
+            fi
+          done
+          # doesn't like mock_roles
+          sed -e '/^mock_roles:/d' -e '/- linux-system-roles[.]/d' \
+            -i "$coll_dir/.ansible-lint"
+          echo DEBUG
+          cat "$coll_dir/tests/kernel_settings/tests_default.yml"
 
       - name: Run ansible-lint
-        uses: ansible-community/ansible-lint-action@v6
+        uses: ansible/ansible-lint@v6
+        with:
+          working_directory: .tox/ansible_collections/${{ env.LSR_ROLE2COLL_NAMESPACE }}/${{ env.LSR_ROLE2COLL_NAME }}
