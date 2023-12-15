@@ -42,13 +42,13 @@ jobs:
           # ansible-lint action requires a .git directory???
           # https://github.com/ansible/ansible-lint/blob/main/action.yml#L45
           mkdir -p "$coll_dir/.git"
-          # # need .ansible-lint at the collection root directory
-          # for file in "$coll_dir"/roles/*/.ansible-lint; do
-          #   if [ -f "$file" ] && [ ! -f "$coll_dir/.ansible-lint" ]; then
-          #     cp "$file" "$coll_dir"
-          #     break
-          #   fi
-          # done
+          # need .ansible-lint at the collection root directory
+          for file in "$coll_dir"/roles/*/.ansible-lint; do
+            if [ -f "$file" ] && [ ! -f "$coll_dir/.ansible-lint" ]; then
+              cp "$file" "$coll_dir"
+              break
+            fi
+          done
 
       - name: Run ansible-lint
         uses: ansible/ansible-lint@v6
