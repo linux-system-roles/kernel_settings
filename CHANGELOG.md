@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.2.2] - 2024-01-16
+--------------------
+
+### Other Changes
+
+- ci: new ansible lint collection (#187)
+- ci: Add ALP-Dolomite var file (#188)
+- ci: Bump actions/setup-python from 4 to 5 (#189)
+- ci: Bump github/codeql-action from 2 to 3 (#190)
+- ci: Use supported ansible-lint action; run ansible-lint against the collection (#191)
+
 [1.2.1] - 2023-12-08
 --------------------
 
