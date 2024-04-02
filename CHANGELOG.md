@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[1.2.3] - 2024-04-02
+--------------------
+
+### Other Changes
+
+- ci: Bump codecov/codecov-action from 3 to 4 (#193)
+- ci: fix python unit test - copy pytest config to tests/unit (#194)
+- ci: Bump ansible/ansible-lint from 6 to 24 (#195)
+- ci: Bump mathieudutour/github-tag-action from 6.1 to 6.2 (#196)
+
 [1.2.2] - 2024-01-16
 --------------------
 
