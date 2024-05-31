@@ -58,7 +58,14 @@ jobs:
         run: |
           set -euxo pipefail
           python -m pip install --upgrade pip
-          pip install "git+https://github.com/linux-system-roles/tox-lsr@3.3.0"
+          if [ "${{ matrix.pyver_os.ver }}" = 2.7 ]; then
+            tox='tox<4.15'
+            virtualenv='virtualenv<20.22.0'
+          else
+            tox=tox
+            virtualenv=virtualenv
+          fi
+          pip install "$tox" "$virtualenv" "git+https://github.com/linux-system-roles/tox-lsr@3.3.0"
           # If you have additional OS dependency packages e.g. libcairo2-dev
           # then put them in .github/config/ubuntu-requirements.txt, one
           # package per line.
