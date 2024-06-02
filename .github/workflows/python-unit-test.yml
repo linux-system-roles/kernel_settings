@@ -84,7 +84,7 @@ jobs:
           # We really should either do those checks using the latest
           # version of python, or in every version of python
           case "$toxpyver" in
-          39) toxenvs="${toxenvs},coveralls,flake8,pylint,black" ;;
+          310) toxenvs="${toxenvs},coveralls,flake8,pylint,black" ;;
           *) toxenvs="${toxenvs},coveralls" ;;
           esac
           TOXENV="$toxenvs" lsr_ci_runtox
