@@ -29,13 +29,13 @@
       file:
         path: /etc/tuned/kernel_settings
         state: directory
-        mode: 0755
+        mode: "0755"
 
     - name: Generate a configuration for kernel settings
       copy:
         src: tuned/etc/tuned/change_settings/tuned.conf
         dest: /etc/tuned/kernel_settings/tuned.conf
-        mode: 0644
+        mode: "0644"
 
     - name: Ensure required services are enabled and started
       service:
