@@ -8,7 +8,7 @@ galaxy_info:
   platforms:
     - name: Fedora
       versions:
-        - all
+        - "39"
     - name: EL
       versions:
         - "7"
@@ -16,10 +16,11 @@ galaxy_info:
         - "9"
   galaxy_tags:
     - centos
-    - fedora
+    - fedora-40
     - kernel
     - tuned
     - redhat
     - rhel
     - system
     - test
+    - EL-10
