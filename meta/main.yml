@@ -8,7 +8,7 @@ galaxy_info:
   platforms:
     - name: Fedora
       versions:
-        - "39"
+        - all
     - name: EL
       versions:
         - "7"
@@ -23,4 +23,7 @@ galaxy_info:
     - rhel
     - system
     - test
+    - EL-7
+    - el-8
+    - el-9
     - EL-10
