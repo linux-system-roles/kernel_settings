@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.2.4] - 2024-06-11
+--------------------
+
+### Other Changes
+
+- ci: use tox-lsr 3.3.0 which uses ansible-test 2.17 (#198)
+- ci: tox-lsr 3.4.0 - fix py27 tests; move other checks to py310 (#201)
+- ci: Add supported_ansible_also to .ansible-lint (#203)
+
 [1.2.3] - 2024-04-02
 --------------------
 
@@ -80,7 +89,6 @@ Changelog
   - Remove badges from README.md prior to converting to HTML
   
   Signed-off-by: Sergei Petrosian <spetrosi@redhat.com>
-
 
 [1.1.17] - 2023-07-19
 --------------------
