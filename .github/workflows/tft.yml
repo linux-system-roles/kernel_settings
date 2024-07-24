@@ -20,7 +20,8 @@ jobs:
     if: |
       github.event.issue.pull_request
       && (contains(github.event.comment.body, '[citest]') || contains(github.event.comment.body, '[citest-all]'))
-      && (contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) || contains('systemroller', github.event.comment.user.login))
+      && (contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.comment.author_association)
+      || contains('systemroller', github.event.comment.user.login))
     runs-on: ubuntu-latest
     outputs:
       supported_platforms: ${{ steps.supported_platforms.outputs.supported_platforms }}
@@ -51,7 +52,9 @@ jobs:
       - name: Get memory
         id: memory
         run: |
-          memory=$(grep -rPo '    m: \K(.*)' tests/provision.fmf)
+          if [ -d tests/provision.fmf ]; then
+            memory=$(grep -rPo '    m: \K(.*)' tests/provision.fmf)
+          fi
           if [ -n "$memory" ]; then
             echo "memory=$memory" >> $GITHUB_OUTPUT
           else
