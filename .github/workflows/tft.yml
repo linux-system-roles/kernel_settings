@@ -122,8 +122,9 @@ jobs:
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
           status: pending
-          context: ${{ matrix.platform }}/ansible-${{ matrix.ansible_version }}
+          context: ${{ matrix.platform }}|ansible-${{ matrix.ansible_version }}
           description: Test started
+          targetUrl: ""
 
       - name: Set commit status as success with a description that platform is skipped
         if: "!contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)"
@@ -131,7 +132,7 @@ jobs:
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
           status: success
-          context: ${{ matrix.platform }}/ansible-${{ matrix.ansible_version }}
+          context: ${{ matrix.platform }}|ansible-${{ matrix.ansible_version }}
           description: The role does not support this platform. Skipping.
           targetUrl: ""
 
@@ -172,4 +173,4 @@ jobs:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
           status: ${{ job.status }}
           targetUrl: ${{ env.ARTIFACTS_URL }}
-          context: ${{ matrix.platform }}/ansible-${{ matrix.ansible_version }}
+          context: ${{ matrix.platform }}|ansible-${{ matrix.ansible_version }}
