@@ -172,5 +172,6 @@ jobs:
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
           status: ${{ job.status }}
-          targetUrl: ${{ env.ARTIFACTS_URL }}
           context: ${{ matrix.platform }}|ansible-${{ matrix.ansible_version }}
+          description: Test finished
+          targetUrl: ${{ env.ARTIFACTS_URL }}
