@@ -1,4 +1,4 @@
-name: Testing Farm
+name: Run integration tests in Testing Farm
 on:
   issue_comment:
     types:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   prepare_vars:
-    name: Get supported platforms from meta/main.yml
+    name: Get info from role and PR to determine if and how to test
     # Let's schedule tests only on user request. NOT automatically.
     # Only repository owner or member can schedule tests
     if: |
@@ -136,7 +136,8 @@ jobs:
           description: The role does not support this platform. Skipping.
           targetUrl: ""
 
-      - uses: sclorg/testing-farm-as-github-action@v2
+      - name: Run test in testing farm
+        uses: sclorg/testing-farm-as-github-action@v2
         if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
         env:
           ARTIFACTS_DIR: ${{ env.ARTIFACT_TARGET_DIR }}/${{ env.ARTIFACTS_DIR_NAME }}
