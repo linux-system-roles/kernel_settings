@@ -156,6 +156,8 @@ id="toc-kernel_settings_transparent_hugepages_defrag">kernel_settings_transparen
 id="toc-kernel_settings_purge">kernel_settings_purge</a></li>
 <li><a href="#kernel_settings_reboot_ok"
 id="toc-kernel_settings_reboot_ok">kernel_settings_reboot_ok</a></li>
+<li><a href="#kernel_settings_transactional_update_reboot_ok"
+id="toc-kernel_settings_transactional_update_reboot_ok">kernel_settings_transactional_update_reboot_ok</a></li>
 <li><a href="#variables-exported-by-the-role"
 id="toc-variables-exported-by-the-role">Variables Exported by the
 Role</a></li>
@@ -278,6 +280,16 @@ is up to you to determine when to reboot the managed host. The role will
 return the variable <code>kernel_settings_reboot_required</code> (see
 below) with a value of <code>true</code> to indicate that some change
 has occurred which needs a reboot to take effect.</p>
+<h2
+id="kernel_settings_transactional_update_reboot_ok">kernel_settings_transactional_update_reboot_ok</h2>
+<p>This variable is used to handle reboots required by transactional
+updates. If a transactional update requires a reboot, the role will
+proceed with the reboot if
+<code>kernel_settings_transactional_update_reboot_ok</code> is set to
+<code>true</code>. If set to <code>false</code>, the role will notify
+the user that a reboot is required, allowing for custom handling of the
+reboot requirement. If this variable is not set, the role will fail to
+ensure the reboot requirement is not overlooked.</p>
 <h2 id="variables-exported-by-the-role">Variables Exported by the
 Role</h2>
 <p>The role will export the following variables:</p>
