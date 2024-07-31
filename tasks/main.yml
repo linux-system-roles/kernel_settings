@@ -8,6 +8,30 @@
     state: present
     use: "{{ (__kernel_settings_is_ostree | d(false)) |
              ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
+  register: kernel_settings_package_result
+
+- name: Handle reboot for transactional update systems
+  when:
+    - __kernel_settings_is_transactional | d(false)
+    - kernel_settings_package_result is changed
+  block:
+    - name: Notify user that reboot is needed to apply changes
+      debug:
+        msg: >
+          Reboot required to apply changes due to transactional updates.
+
+    - name: Reboot transactional update systems
+      reboot:
+        msg: Rebooting the system to apply transactional update changes.
+      when: kernel_settings_transactional_update_reboot_ok | bool
+
+    - name: Fail if reboot is needed and not set
+      fail:
+        msg: >
+          Reboot is required but not allowed. Please set
+          'kernel_settings_transactional_update_reboot_ok' to proceed.
+      when:
+        - kernel_settings_transactional_update_reboot_ok is none
 
 - name: Ensure required services are enabled and started
   service:
