@@ -109,6 +109,15 @@ when to reboot the managed host.  The role will return the variable
 `kernel_settings_reboot_required` (see below) with a value of `true` to indicate
 that some change has occurred which needs a reboot to take effect.
 
+### kernel_settings_transactional_update_reboot_ok
+
+This variable is used to handle reboots required by transactional updates.
+If a transactional update requires a reboot, the role will proceed with the
+reboot if `kernel_settings_transactional_update_reboot_ok` is set to `true`. If set
+to `false`, the role will notify the user that a reboot is required, allowing
+for custom handling of the reboot requirement. If this variable is not set,
+the role will fail to ensure the reboot requirement is not overlooked.
+
 ### Variables Exported by the Role
 
 The role will export the following variables:
