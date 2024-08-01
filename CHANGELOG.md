@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[1.3.0] - 2024-08-01
+--------------------
+
+### New Features
+
+- Handle reboot for transactional update systems (#215)
+
+### Other Changes
+
+- ci: Add tft plan and workflow (#209)
+- ci: Fix tft workflow (#210)
+- ci: Replace / with | in status to distinguish with BaseOS CI tests (#211)
+- ci: Improve tft plan and workflow (#213)
+- ci: Update fmf plan to add a separate job to prepare managed nodes (#214)
+
 [1.2.5] - 2024-07-02
 --------------------
 
