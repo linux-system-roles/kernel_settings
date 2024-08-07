@@ -1,1 +1,1 @@
-plugins/modules/kernel_settings.py validate-modules:missing-gplv3-license
+plugins/modules/kernel_settings_get_config.py validate-modules:missing-gplv3-license
