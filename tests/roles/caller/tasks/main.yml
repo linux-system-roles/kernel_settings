@@ -4,6 +4,7 @@
 - name: Include test role
   include_role:
     name: "{{ roletoinclude }}"
+    public: true
 
 - name: Assert variable not overridden
   assert:

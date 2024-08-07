@@ -1,11 +1,23 @@
 ---
 __kernel_settings_tuned_profile: kernel_settings
-__kernel_settings_profile_src: kernel_settings
-__kernel_settings_profile_dir: "/etc/tuned/kernel_settings"
+__kernel_settings_profile_src: "{{ __kernel_settings_tuned_profile }}"
+__kernel_settings_tuned_dir: /etc/tuned
+__kernel_settings_tuned_main_conf_file: >-
+  {{ __kernel_settings_tuned_dir }}/tuned-main.conf
+__kernel_settings_profile_dir: >-
+  {{ __kernel_settings_profile_parent }}/{{ __kernel_settings_tuned_profile }}
 __kernel_settings_profile_filename: >-
   {{ __kernel_settings_profile_dir }}/tuned.conf
+__kernel_settings_tuned_profile_mode: >-
+  {{ __kernel_settings_tuned_dir }}/profile_mode
+__kernel_settings_tuned_active_profile: >-
+  {{ __kernel_settings_tuned_dir }}/active_profile
 __kernel_settings_state_absent:
   state: absent
+__kernel_settings_state_empty:
+  state: empty
+__kernel_settings_previous_replaced:
+  previous: replaced
 
 # ansible_facts required by the role
 __kernel_settings_required_facts:

@@ -2,5 +2,16 @@
 - name: Ensure that the role runs with default parameters
   hosts: all
   gather_facts: false
-  roles:
-    - linux-system-roles.kernel_settings
+  tasks:
+    - name: Run test
+      block:
+        - name: Run role with no settings
+          include_role:
+            name: linux-system-roles.kernel_settings
+            public: true
+
+      always:
+        - name: Cleanup
+          tags:
+            - tests::cleanup
+          include_tasks: tasks/cleanup.yml

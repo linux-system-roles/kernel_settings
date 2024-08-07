@@ -1,0 +1,72 @@
+---
+- name: Show current tuned profile settings
+  command: cat {{ __kernel_settings_profile_filename }}
+  changed_when: false
+  ignore_errors: true  # noqa ignore-errors
+
+- name: Use role purge to remove settings
+  block:
+    - name: Run role with purge to remove everything
+      include_role:
+        name: linux-system-roles.kernel_settings
+      vars:
+        kernel_settings_purge: true
+        kernel_settings_sysctl: []
+        kernel_settings_sysfs: []
+        kernel_settings_systemd_cpu_affinity: null
+        kernel_settings_transparent_hugepages: null
+        kernel_settings_transparent_hugepages_defrag: null
+
+    - name: Verify no settings
+      shell: |
+        set -euxo pipefail
+        exec 1>&2
+        rc=0
+        conf={{ __kernel_settings_profile_filename }}
+        for section in sysctl sysfs systemd vm; do
+          if grep ^\\["$section"\\] "$conf"; then
+            echo ERROR: "$section" settings present
+            rc=1
+          fi
+        done
+        exit "$rc"
+      changed_when: false
+
+  always:
+    - name: Remove kernel_settings tuned profile
+      file:
+        path: "{{ __kernel_settings_profile_dir }}"
+        state: absent
+
+    - name: Get active_profile
+      slurp:
+        path: "{{ __kernel_settings_tuned_active_profile }}"
+      register: __kernel_settings_tuned_current_profile
+
+    - name: Ensure kernel_settings is not in active_profile
+      copy:
+        content: >
+          {{ __active_profile }}
+        dest: "{{ __kernel_settings_tuned_active_profile }}"
+        mode: preserve
+      vars:
+        __cur_profile: "{{ __kernel_settings_tuned_current_profile.content |
+          b64decode | trim }}"
+        # noqa jinja[spacing]
+        __active_profile: "{{
+          __cur_profile.replace(' kernel_settings ', ' ').
+          replace('kernel_settings ', '').replace(' kernel_settings', '') }}"
+
+    - name: Set profile_mode to auto
+      copy:
+        content: >
+          auto
+        dest: "{{ __kernel_settings_tuned_profile_mode }}"
+        mode: preserve
+
+    - name: Restart tuned
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop: "{{ __kernel_settings_services }}"

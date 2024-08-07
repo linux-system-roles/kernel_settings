@@ -1,4 +1,14 @@
 ---
+- name: Check sysctl settings for boolean values
+  fail:
+    msg: Boolean values are not allowed for sysctl settings
+  when:
+    - kernel_settings_sysctl != __kernel_settings_state_empty
+    - (kernel_settings_sysctl | selectattr("value", "defined") |
+      selectattr("value", "sameas", true) | list | length > 0) or
+      (kernel_settings_sysctl | selectattr("value", "defined") |
+      selectattr("value", "sameas", false) | list | length > 0)
+
 - name: Set version specific variables
   include_tasks: set_vars.yml
 
@@ -33,6 +43,32 @@
       when:
         - kernel_settings_transactional_update_reboot_ok is none
 
+- name: Get package_facts for tuned info
+  package_facts:
+
+- name: Set tuned version
+  set_fact:
+    __kernel_settings_tuned_version: "{{
+      ansible_facts.packages['tuned'][0]['version'] }}"
+
+- name: Read tuned main config
+  kernel_settings_get_config:
+    path: "{{ __kernel_settings_tuned_main_conf_file }}"
+  register: __kernel_settings_register_tuned_main
+
+# this is the parent directory for the profile sub-directories
+- name: Set tuned profile parent dir
+  set_fact:
+    __kernel_settings_profile_parent: "{{ __prof_from_conf
+      if __prof_from_conf | length > 0 else
+      __kernel_settings_tuned_dir ~ __prof_subdir }}"
+  vars:
+    __data: "{{ __kernel_settings_register_tuned_main.data }}"
+    __prof_from_conf: "{{ __data.get('profile_dirs', '').split(',')[-1] }}"
+    __prof_subdir: "{{ '/profiles'
+      if __kernel_settings_tuned_version is version('2.23.0', '>=')
+      else '' }}"
+
 - name: Ensure required services are enabled and started
   service:
     name: "{{ item }}"
@@ -46,96 +82,139 @@
     state: directory
     mode: "0755"
 
-- name: Generate a configuration for kernel settings
+- name: Get active_profile
+  slurp:
+    path: "{{ __kernel_settings_tuned_active_profile }}"
+  register: __kernel_settings_tuned_current_profile
+
+- name: Set active_profile
+  set_fact:
+    __kernel_settings_active_profile: "{{ __active_profile }}"
+  vars:
+    __cur_profile: "{{ __kernel_settings_tuned_current_profile.content |
+      b64decode | trim }}"
+    __active_profile: "{{ __cur_profile
+      if __kernel_settings_tuned_profile in __cur_profile
+      else __cur_profile ~ ' ' ~ __kernel_settings_tuned_profile }}"
+
+- name: Ensure kernel_settings is in active_profile
+  copy:
+    content: >
+      {{ __kernel_settings_active_profile }}
+    dest: "{{ __kernel_settings_tuned_active_profile }}"
+    mode: preserve
+  register: __kernel_settings_register_profile
+
+- name: Set profile_mode to manual
+  copy:
+    content: >
+      manual
+    dest: "{{ __kernel_settings_tuned_profile_mode }}"
+    mode: preserve
+  register: __kernel_settings_register_mode
+
+- name: Get current config
+  kernel_settings_get_config:
+    path: "{{ __kernel_settings_profile_filename }}"
+  register: __kernel_settings_profile_contents
+
+- name: Apply kernel settings
   template:
     src: "{{ __kernel_settings_profile_src }}.j2"
     dest: "{{ __kernel_settings_profile_filename }}"
-    force: false
     mode: "0644"
-
-- name: Get current config
-  slurp:
-    src: "{{ __kernel_settings_profile_filename }}"
-  register: __kernel_settings_profile_contents_b64
-  changed_when: false
-
-- name: Apply kernel settings
-  kernel_settings:
-    sysctl: "{{ kernel_settings_sysctl if kernel_settings_sysctl else omit }}"
-    sysfs: "{{ kernel_settings_sysfs if kernel_settings_sysfs else omit }}"
-    systemd:
-      - name: "{{ 'cpu_affinity' if kernel_settings_systemd_cpu_affinity
-                  else none }}"
-        value: "{{ kernel_settings_systemd_cpu_affinity
-                   if kernel_settings_systemd_cpu_affinity !=
-                   __kernel_settings_state_absent
-                   else none }}"
-        state: "{{ 'absent' if kernel_settings_systemd_cpu_affinity ==
-                   __kernel_settings_state_absent else none }}"
-    vm:
-      - name: "{{ 'transparent_hugepages'
-                  if kernel_settings_transparent_hugepages
-                  else none }}"
-        value: "{{ kernel_settings_transparent_hugepages
-                   if kernel_settings_transparent_hugepages !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_transparent_hugepages ==
-                   __kernel_settings_state_absent else none }}"
-      - name: "{{ 'transparent_hugepage.defrag'
-                  if kernel_settings_transparent_hugepages_defrag
-                  else none }}"
-        value: "{{ kernel_settings_transparent_hugepages_defrag
-                   if kernel_settings_transparent_hugepages_defrag !=
-                   __kernel_settings_state_absent else none }}"
-        state: "{{ 'absent' if kernel_settings_transparent_hugepages_defrag ==
-                   __kernel_settings_state_absent else none }}"
-    bootloader:
-      - name: "{{ 'cmdline'
-                  if kernel_settings_bootloader_cmdline | d({})
-                  else none }}"
-        value: "{{ kernel_settings_bootloader_cmdline |
-                   d([]) }}"
-    purge: "{{ kernel_settings_purge }}"
-    ansible_managed_new: "{{ __kernel_settings_new_header }}"
-    ansible_managed_current: "{{ __kernel_settings_cur_header }}"
-  notify: __kernel_settings_handler_modified
-  register: __kernel_settings_register_module
-  when:
-    - kernel_settings_sysctl or kernel_settings_sysfs
-      or kernel_settings_systemd_cpu_affinity
-      or kernel_settings_transparent_hugepages
-      or kernel_settings_transparent_hugepages_defrag
-      or kernel_settings_bootloader_cmdline | d({})
-      or kernel_settings_purge
-      or __kernel_settings_cur_header != __kernel_settings_new_header
   vars:
-    __kernel_settings_cur_header: "{{
-      __kernel_settings_profile_contents_b64.content | b64decode |
-      regex_replace('(?sm)^\\[.*$', '') }}"
-    __kernel_settings_new_header: "{{
-      lookup('template', 'get_ansible_managed.j2') }}"
+    __sysctl_old: "{{ __kernel_settings_profile_contents.data.get('sysctl', {})
+      if not kernel_settings_purge
+      and kernel_settings_sysctl != __kernel_settings_state_empty
+      and not __kernel_settings_previous_replaced in kernel_settings_sysctl
+      else {} }}"
+    __sysfs_old: "{{ __kernel_settings_profile_contents.data.get('sysfs', {})
+      if not kernel_settings_purge
+      and kernel_settings_sysfs != __kernel_settings_state_empty
+      and not __kernel_settings_previous_replaced in kernel_settings_sysfs
+      else {} }}"
+    __systemd_old: "{{
+      __kernel_settings_profile_contents.data.get('systemd', {}).get('cpu_affinity')
+      if not kernel_settings_purge
+      and kernel_settings_systemd_cpu_affinity != __kernel_settings_state_absent
+      else none }}"
+    __trans_huge_old: "{{
+      __kernel_settings_profile_contents.data.get('vm', {}).get('transparent_hugepages')
+      if not kernel_settings_purge
+      and kernel_settings_transparent_hugepages != __kernel_settings_state_absent
+      else none }}"
+    __trans_defrag_old: "{{
+      __kernel_settings_profile_contents.data.get('vm', {}).get('transparent_hugepage.defrag')
+      if not kernel_settings_purge
+      and kernel_settings_transparent_hugepages_defrag != __kernel_settings_state_absent
+      else none }}"
+    __sections:
+      - name: sysctl
+        new: "{{ kernel_settings_sysctl | difference([__kernel_settings_previous_replaced]) | list
+          if kernel_settings_sysctl != __kernel_settings_state_empty
+          else [] }}"
+        old: "{{ __sysctl_old }}"
+      - name: sysfs
+        new: "{{ kernel_settings_sysfs | difference([__kernel_settings_previous_replaced]) | list
+          if kernel_settings_sysfs != __kernel_settings_state_empty
+          else [] }}"
+        old: "{{ __sysfs_old }}"
+      - name: systemd
+        new:
+          - name: cpu_affinity
+            value: "{{ kernel_settings_systemd_cpu_affinity }}"
+        old:
+          cpu_affinity: "{{ __systemd_old }}"
+      - name: vm
+        new:
+          - name: transparent_hugepages
+            value: "{{ kernel_settings_transparent_hugepages }}"
+          - name: transparent_hugepage.defrag
+            value: "{{ kernel_settings_transparent_hugepages_defrag }}"
+        old:
+          transparent_hugepages: "{{ __trans_huge_old }}"
+          transparent_hugepage.defrag: "{{ __trans_defrag_old }}"
+  register: __kernel_settings_register_apply
+
+# this will also apply the kernel_settings profile, so we
+# can skip the apply profile step in this case
+- name: Restart tuned to apply active profile, mode changes
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop: "{{ __kernel_settings_services }}"
+  when: __kernel_settings_register_profile is changed or
+    __kernel_settings_register_mode is changed
 
 - name: Tuned apply settings
-  command: >
-    tuned-adm profile '{{ __kernel_settings_register_module.active_profile }}'
-  when: __kernel_settings_register_module is changed  # noqa no-handler
+  command: >-
+    tuned-adm profile {{ __kernel_settings_active_profile | quote }}
+  when:
+    - not __kernel_settings_register_profile is changed
+    - not __kernel_settings_register_mode is changed
+    - __kernel_settings_register_apply is changed  # noqa no-handler
   changed_when: true
 
 - name: Verify settings
   include_tasks: verify_settings.yml
-  when: __kernel_settings_register_module is changed  # noqa no-handler
+  when: __kernel_settings_register_apply is changed  # noqa no-handler
 
-- name: Notify user that reboot is needed to apply changes
-  debug:
-    msg: >
-      kernel_settings have been modified.
-      A reboot is required in order to apply the changes.
-  when:
-    - __kernel_settings_register_module.reboot_required | d(false)
-    - not kernel_settings_reboot_ok | d(false)
-
+# reboot not currently used - was used when the role could set
+# some bootloader settings, but that was never supported, and
+# we now have a dedicated bootloader role which is much better.
+# The sysctl, sysfs, etc. settings are applied immediately,
+# there is no need to reboot to apply those changes.
+# so, keep this here since it is part of the public API, and
+# in case we need it in the future
 - name: Set the flag that reboot is needed to apply changes
   set_fact:
-    kernel_settings_reboot_required: true
-  when:
-    - __kernel_settings_register_module.reboot_required | d(false)
+    kernel_settings_reboot_required: false
+
+- name: Set flag to indicate changed for testing
+  set_fact:
+    __kernel_settings_changed: "{{
+      __kernel_settings_register_profile is changed
+      or __kernel_settings_register_mode is changed
+      or __kernel_settings_register_apply is changed }}"
