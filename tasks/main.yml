@@ -46,11 +46,6 @@
 - name: Get package_facts for tuned info
   package_facts:
 
-- name: Set tuned version
-  set_fact:
-    __kernel_settings_tuned_version: "{{
-      ansible_facts.packages['tuned'][0]['version'] }}"
-
 - name: Read tuned main config
   kernel_settings_get_config:
     path: "{{ __kernel_settings_tuned_main_conf_file }}"
@@ -63,10 +58,10 @@
       if __prof_from_conf | length > 0 else
       __kernel_settings_tuned_dir ~ __prof_subdir }}"
   vars:
+    __tuned_ver: "{{ ansible_facts.packages['tuned'][0]['version'] }}"
     __data: "{{ __kernel_settings_register_tuned_main.data }}"
     __prof_from_conf: "{{ __data.get('profile_dirs', '').split(',')[-1] }}"
-    __prof_subdir: "{{ '/profiles'
-      if __kernel_settings_tuned_version is version('2.23.0', '>=')
+    __prof_subdir: "{{ '/profiles' if __tuned_ver is version('2.23.0', '>=')
       else '' }}"
 
 - name: Ensure required services are enabled and started
@@ -89,13 +84,12 @@
 
 - name: Set active_profile
   set_fact:
-    __kernel_settings_active_profile: "{{ __active_profile }}"
+    __kernel_settings_active_profile: "{{ __cur_profile
+      if __kernel_settings_tuned_profile in __cur_profile
+      else __cur_profile ~ ' ' ~ __kernel_settings_tuned_profile }}"
   vars:
     __cur_profile: "{{ __kernel_settings_tuned_current_profile.content |
       b64decode | trim }}"
-    __active_profile: "{{ __cur_profile
-      if __kernel_settings_tuned_profile in __cur_profile
-      else __cur_profile ~ ' ' ~ __kernel_settings_tuned_profile }}"
 
 - name: Ensure kernel_settings is in active_profile
   copy:
