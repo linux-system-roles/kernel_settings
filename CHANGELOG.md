@@ -1,6 +1,19 @@
 Changelog
 =========
 
+[1.3.1] - 2024-08-09
+--------------------
+
+### Bug Fixes
+
+- fix: Use tuned files instead of using it as a module (#220)
+
+### Other Changes
+
+- ci: Bump sclorg/testing-farm-as-github-action from 2 to 3 (#217)
+- ci: Add workflow for ci_test bad, use remote fmf plan (#218)
+- ci: Fix missing slash in ARTIFACTS_URL (#219)
+
 [1.3.0] - 2024-08-01
 --------------------
 
