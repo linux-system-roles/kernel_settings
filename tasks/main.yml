@@ -43,26 +43,34 @@
       when:
         - kernel_settings_transactional_update_reboot_ok is none
 
-- name: Get package_facts for tuned info
-  package_facts:
-
 - name: Read tuned main config
   kernel_settings_get_config:
     path: "{{ __kernel_settings_tuned_main_conf_file }}"
   register: __kernel_settings_register_tuned_main
 
 # this is the parent directory for the profile sub-directories
-- name: Set tuned profile parent dir
-  set_fact:
-    __kernel_settings_profile_parent: "{{ __prof_from_conf
-      if __prof_from_conf | length > 0 else
-      __kernel_settings_tuned_dir ~ __prof_subdir }}"
+# if the dir is set in the config and that directory exists, use
+# it - otherwise, use /etc/tuned/profiles, otherwise, use /etc/tuned
+- name: Find tuned profile parent directory
+  stat:
+    path: "{{ item }}"
+  when: item | length > 0
+  loop:
+    - "{{ __prof_from_conf }}"
+    - "{{ __kernel_settings_tuned_dir ~ '/profiles' }}"
+    - "{{ __kernel_settings_tuned_dir }}"
   vars:
-    __tuned_ver: "{{ ansible_facts.packages['tuned'][0]['version'] }}"
     __data: "{{ __kernel_settings_register_tuned_main.data }}"
     __prof_from_conf: "{{ __data.get('profile_dirs', '').split(',')[-1] }}"
-    __prof_subdir: "{{ '/profiles' if __tuned_ver is version('2.23.0', '>=')
-      else '' }}"
+  register: __kernel_settings_find_profile_dirs
+
+- name: Set tuned profile parent dir
+  set_fact:
+    __kernel_settings_profile_parent: "{{
+      (__kernel_settings_find_profile_dirs.results |
+      selectattr('stat', 'defined') | selectattr('stat.exists', 'defined') |
+      selectattr('stat.exists') | selectattr('stat.path', 'defined') |
+      map(attribute='stat.path') | list)[0] }}"
 
 - name: Ensure required services are enabled and started
   service:
