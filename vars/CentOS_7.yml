@@ -1,3 +1,1 @@
----
-__kernel_settings_packages: ["tuned", "python-configobj"]
-__kernel_settings_services: ["tuned"]
+RedHat_7.yml
