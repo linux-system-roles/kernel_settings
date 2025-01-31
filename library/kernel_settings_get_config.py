@@ -4,7 +4,7 @@
 # Copyright: (c) 2020, Rich Megginson <rmeggins@redhat.com>
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-""" Parse ini or properties file """
+"""Parse ini or properties file"""
 
 from __future__ import absolute_import, division, print_function
 
