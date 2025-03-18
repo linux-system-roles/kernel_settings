@@ -173,8 +173,7 @@ jobs:
         uses: sclorg/testing-farm-as-github-action@v3
         if: steps.set_vars.outputs.platform_is_supported == 'true'
         with:
-          git_url: https://github.com/richm/linux-system-roles-tft-tests
-          git_ref: image-mode
+          git_ref: main
           pipeline_settings: '{ "type": "tmt-multihost" }'
           environment_settings: '{ "provisioning": { "tags": { "BusinessUnit": "system_roles" } } }'
           # Keeping ARTIFACTS_URL at the bottom makes the link in logs clickable
