@@ -68,27 +68,8 @@ jobs:
       - name: Get supported platforms
         id: supported_platforms
         run: |
-          supported_platforms=""
           meta_main=meta/main.yml
-          # All Fedora are supported, add latest Fedora versions to supported_platforms
-          if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qi fedora$; then
-            supported_platforms+=" Fedora-40"
-            supported_platforms+=" Fedora-41"
-          fi
-          # Specific Fedora versions supported
-          if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qiP 'fedora\d+$'; then
-            for fedora_ver in $(yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -iPo 'fedora\K(\d+$)'); do
-              supported_platforms+=" Fedora-$fedora_ver"
-            done
-          fi
-          if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qi el7; then
-            supported_platforms+=" CentOS-7-latest"
-          fi
-          for ver in 8 9 10; do
-            if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qi el"$ver"; then
-              supported_platforms+=" CentOS-Stream-$ver"
-            fi
-          done
+          supported_platforms="$(yq '.galaxy_info.galaxy_tags[] | select(test("^el") or test("^fedora"))' "$meta_main" | xargs)"
           echo "supported_platforms=$supported_platforms" >> $GITHUB_OUTPUT
 
   testing-farm:
@@ -138,9 +119,38 @@ jobs:
           echo "DATETIME=$DATETIME" >> $GITHUB_OUTPUT
           echo "ARTIFACTS_DIR=$ARTIFACTS_DIR" >> $GITHUB_OUTPUT
           echo "ARTIFACTS_URL=$ARTIFACTS_URL" >> $GITHUB_OUTPUT
+          # convert matrix.platform to meta/main format and check if supported
+          if [[ "${{ matrix.platform }}" =~ ^([a-zA-Z_-]+)-([0-9]+) ]]; then
+            distro="${BASH_REMATCH[1]@L}"
+            case "$distro" in
+              centos*|rhel) distro=el ;;
+            esac
+            distro_ver="${distro}${BASH_REMATCH[2]}"
+            platform_is_supported=false
+            # first, look for exact platform version match
+            for sv in ${{ needs.prepare_vars.outputs.supported_platforms }}; do
+              if [ "$sv" = "$distro_ver" ]; then
+                platform_is_supported=true
+                break
+              fi
+            done
+            # if no exact platform version match, look for platform only match
+            if [ "$platform_is_supported" = false ]; then
+              for sv in ${{ needs.prepare_vars.outputs.supported_platforms }}; do
+                if [ "$sv" = "$distro" ]; then
+                  platform_is_supported=true
+                  break
+                fi
+              done
+            fi
+            echo platform_is_supported="$platform_is_supported" >> $GITHUB_OUTPUT
+          else
+            echo ERROR: The platform "${{ matrix.platform }}" could not be matched
+            exit 1
+          fi
 
       - name: Set commit status as pending
-        if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
+        if: steps.set_vars.outputs.platform_is_supported == 'true'
         uses: myrotvorets/set-commit-status-action@master
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
@@ -150,7 +160,7 @@ jobs:
           targetUrl: ""
 
       - name: Set commit status as success with a description that platform is skipped
-        if: "!contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)"
+        if: steps.set_vars.outputs.platform_is_supported == 'false'
         uses: myrotvorets/set-commit-status-action@master
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
@@ -161,7 +171,7 @@ jobs:
 
       - name: Run test in testing farm
         uses: sclorg/testing-farm-as-github-action@v3
-        if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
+        if: steps.set_vars.outputs.platform_is_supported == 'true'
         with:
           git_url: https://github.com/richm/linux-system-roles-tft-tests
           git_ref: image-mode
@@ -190,7 +200,7 @@ jobs:
 
       - name: Set final commit status
         uses: myrotvorets/set-commit-status-action@master
-        if: always() && contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
+        if: always() && steps.set_vars.outputs.platform_is_supported == 'true'
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
           status: ${{ job.status }}
