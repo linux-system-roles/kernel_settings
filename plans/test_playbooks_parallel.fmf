@@ -48,13 +48,13 @@ discover:
     how: fmf
     where: managed_node
     filter: tag:prep_managed_node
-    url: https://github.com/linux-system-roles-tft-tests
+    url: https://github.com/richm/linux-system-roles-tft-tests
     ref: image-mode
   - name: Run test playbooks from control_node
     how: fmf
     where: control_node
     filter: tag:test_playbooks
-    url: https://github.com/linux-system-roles-tft-tests
+    url: https://github.com/richm/linux-system-roles-tft-tests
     ref: image-mode
   # Uncomment this step for troubleshooting
   # This is required because currently testing-farm cli doesn't support running multi-node plans
