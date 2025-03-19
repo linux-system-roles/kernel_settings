@@ -68,8 +68,27 @@ jobs:
       - name: Get supported platforms
         id: supported_platforms
         run: |
+          supported_platforms=""
           meta_main=meta/main.yml
-          supported_platforms="$(yq '.galaxy_info.galaxy_tags[] | select(test("^el") or test("^fedora"))' "$meta_main" | xargs)"
+          # All Fedora are supported, add latest Fedora versions to supported_platforms
+          if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qi fedora$; then
+            supported_platforms+=" Fedora-40"
+            supported_platforms+=" Fedora-41"
+          fi
+          # Specific Fedora versions supported
+          if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qiP 'fedora\d+$'; then
+            for fedora_ver in $(yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -iPo 'fedora\K(\d+$)'); do
+              supported_platforms+=" Fedora-$fedora_ver"
+            done
+          fi
+          if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qi el7; then
+            supported_platforms+=" CentOS-7-latest"
+          fi
+          for ver in 8 9 10; do
+            if yq '.galaxy_info.galaxy_tags[]' "$meta_main" | grep -qi el"$ver"; then
+              supported_platforms+=" CentOS-Stream-$ver"
+            fi
+          done
           echo "supported_platforms=$supported_platforms" >> $GITHUB_OUTPUT
 
   testing-farm:
@@ -94,18 +113,12 @@ jobs:
             ansible_version: 2.17
           - platform: CentOS-Stream-10
             ansible_version: 2.17
-          - platform: CentOS-Stream-9-image-mode
-            ansible_version: 2.17
-          - platform: CentOS-Stream-10-image-mode
-            ansible_version: 2.17
-          - platform: RHEL-10.0-image-mode
-            ansible_version: 2.17
     runs-on: ubuntu-latest
     env:
       ARTIFACTS_DIR_NAME: "tf_${{ github.event.repository.name }}-${{ github.event.issue.number }}_\
         ${{ matrix.platform }}-${{ matrix.ansible_version }}_\
         ${{ needs.prepare_vars.outputs.datetime }}/artifacts"
-      ARTIFACT_TARGET_DIR: /srv/pub/alt/${{ vars.LINUXSYSTEMROLES_USER }}/logs
+      ARTIFACT_TARGET_DIR: /srv/pub/alt/${{ vars.SR_LSR_USER }}/logs
     steps:
       - name: Set variables with DATETIME and artifact location
         id: set_vars
@@ -113,44 +126,15 @@ jobs:
           printf -v DATETIME '%(%Y%m%d-%H%M%S)T' -1
           ARTIFACTS_DIR_NAME="tf_${{ github.event.repository.name }}-${{ github.event.issue.number }}_\
           ${{ matrix.platform }}-${{ matrix.ansible_version }}_$DATETIME/artifacts"
-          ARTIFACTS_TARGET_DIR=/srv/pub/alt/${{ vars.LINUXSYSTEMROLES_USER }}/logs
+          ARTIFACTS_TARGET_DIR=/srv/pub/alt/${{ vars.SR_LSR_USER }}/logs
           ARTIFACTS_DIR=$ARTIFACTS_TARGET_DIR/$ARTIFACTS_DIR_NAME
-          ARTIFACTS_URL=https://dl.fedoraproject.org/pub/alt/${{ vars.LINUXSYSTEMROLES_USER }}/logs/$ARTIFACTS_DIR_NAME
+          ARTIFACTS_URL=https://dl.fedoraproject.org/pub/alt/${{ vars.SR_LSR_USER }}/logs/$ARTIFACTS_DIR_NAME
           echo "DATETIME=$DATETIME" >> $GITHUB_OUTPUT
-          echo "ARTIFACTS_DIR=$ARTIFACTS_DIR" >> $GITHUB_OUTPUT
-          echo "ARTIFACTS_URL=$ARTIFACTS_URL" >> $GITHUB_OUTPUT
-          # convert matrix.platform to meta/main format and check if supported
-          if [[ "${{ matrix.platform }}" =~ ^([a-zA-Z_-]+)-([0-9]+) ]]; then
-            distro="${BASH_REMATCH[1]@L}"
-            case "$distro" in
-              centos*|rhel) distro=el ;;
-            esac
-            distro_ver="${distro}${BASH_REMATCH[2]}"
-            platform_is_supported=false
-            # first, look for exact platform version match
-            for sv in ${{ needs.prepare_vars.outputs.supported_platforms }}; do
-              if [ "$sv" = "$distro_ver" ]; then
-                platform_is_supported=true
-                break
-              fi
-            done
-            # if no exact platform version match, look for platform only match
-            if [ "$platform_is_supported" = false ]; then
-              for sv in ${{ needs.prepare_vars.outputs.supported_platforms }}; do
-                if [ "$sv" = "$distro" ]; then
-                  platform_is_supported=true
-                  break
-                fi
-              done
-            fi
-            echo platform_is_supported="$platform_is_supported" >> $GITHUB_OUTPUT
-          else
-            echo ERROR: The platform "${{ matrix.platform }}" could not be matched
-            exit 1
-          fi
+          echo "SR_ARTIFACTS_DIR=$SR_ARTIFACTS_DIR" >> $GITHUB_OUTPUT
+          echo "SR_ARTIFACTS_URL=$SR_ARTIFACTS_URL" >> $GITHUB_OUTPUT
 
       - name: Set commit status as pending
-        if: steps.set_vars.outputs.platform_is_supported == 'true'
+        if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
         uses: myrotvorets/set-commit-status-action@master
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
@@ -160,7 +144,7 @@ jobs:
           targetUrl: ""
 
       - name: Set commit status as success with a description that platform is skipped
-        if: steps.set_vars.outputs.platform_is_supported == 'false'
+        if: "!contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)"
         uses: myrotvorets/set-commit-status-action@master
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
@@ -171,23 +155,23 @@ jobs:
 
       - name: Run test in testing farm
         uses: sclorg/testing-farm-as-github-action@v3
-        if: steps.set_vars.outputs.platform_is_supported == 'true'
+        if: contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
         with:
           git_ref: main
           pipeline_settings: '{ "type": "tmt-multihost" }'
           environment_settings: '{ "provisioning": { "tags": { "BusinessUnit": "system_roles" } } }'
-          # Keeping ARTIFACTS_URL at the bottom makes the link in logs clickable
-          variables: "ANSIBLE_VER=${{ matrix.ansible_version }};\
-            REPO_NAME=${{ github.event.repository.name }};\
-            GITHUB_ORG=${{ github.repository_owner }};\
-            PR_NUM=${{ github.event.issue.number }};\
-            ARTIFACTS_DIR=${{ steps.set_vars.outputs.ARTIFACTS_DIR }};\
-            TEST_LOCAL_CHANGES=false;\
-            LINUXSYSTEMROLES_USER=${{ vars.LINUXSYSTEMROLES_USER }};\
-            ARTIFACTS_URL=${{ steps.set_vars.outputs.ARTIFACTS_URL }}"
+          # Keeping SR_ARTIFACTS_URL at the bottom makes the link in logs clickable
+          variables: "SR_ANSIBLE_VER=${{ matrix.ansible_version }};\
+            SR_REPO_NAME=${{ github.event.repository.name }};\
+            SR_GITHUB_ORG=${{ github.repository_owner }};\
+            SR_PR_NUM=${{ github.event.issue.number }};\
+            SR_ARTIFACTS_DIR=${{ steps.set_vars.outputs.SR_ARTIFACTS_DIR }};\
+            SR_TEST_LOCAL_CHANGES=false;\
+            SR_LSR_USER=${{ vars.SR_LSR_USER }};\
+            SR_ARTIFACTS_URL=${{ steps.set_vars.outputs.SR_ARTIFACTS_URL }}"
           # Note that LINUXSYSTEMROLES_SSH_KEY must be single-line, TF doesn't read multi-line variables fine.
-          secrets: "LINUXSYSTEMROLES_DOMAIN=${{ secrets.LINUXSYSTEMROLES_DOMAIN }};\
-            LINUXSYSTEMROLES_SSH_KEY=${{ secrets.LINUXSYSTEMROLES_SSH_KEY }}"
+          secrets: "SR_LSR_DOMAIN=${{ secrets.SR_LSR_DOMAIN }};\
+            SR_LSR_SSH_KEY=${{ secrets.SR_LSR_SSH_KEY }}"
           compose: ${{ matrix.platform }}
           # There are two blockers for using public ranch:
           # 1. multihost is not supported in public https://github.com/teemtee/tmt/issues/2620
@@ -199,10 +183,10 @@ jobs:
 
       - name: Set final commit status
         uses: myrotvorets/set-commit-status-action@master
-        if: always() && steps.set_vars.outputs.platform_is_supported == 'true'
+        if: always() && contains(needs.prepare_vars.outputs.supported_platforms, matrix.platform)
         with:
           sha: ${{ needs.prepare_vars.outputs.head_sha }}
           status: ${{ job.status }}
           context: ${{ matrix.platform }}|ansible-${{ matrix.ansible_version }}
           description: Test finished
-          targetUrl: ${{ steps.set_vars.outputs.ARTIFACTS_URL }}
+          targetUrl: ${{ steps.set_vars.outputs.SR_ARTIFACTS_URL }}
