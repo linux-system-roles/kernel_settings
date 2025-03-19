@@ -12,19 +12,22 @@ provision:
   - name: managed-node1
     role: managed_node
     connection: system
+  - name: managed-node2
+    role: managed_node
+    connection: system
 environment:
-  ANSIBLE_VER: 2.17
-  REPO_NAME: kernel_settings
-  PYTHON_VERSION: 3.12
-  SYSTEM_ROLES_ONLY_TESTS: ""  # tests_default.yml
-  TEST_LOCAL_CHANGES: true
-  PR_NUM: ""
-  LINUXSYSTEMROLES_USER: ""
-  LINUXSYSTEMROLES_DOMAIN: ""
-  LINUXSYSTEMROLES_SSH_KEY: ""
-  ARTIFACTS_DIR: ""
-  ARTIFACTS_URL: ""
-  LSR_TFT_DEBUG: false
+  SR_ANSIBLE_VER: 2.17
+  SR_REPO_NAME: kernel_settings
+  SR_PYTHON_VERSION: 3.12
+  SR_ONLY_TESTS: ""  # tests_default.yml
+  SR_TEST_LOCAL_CHANGES: true
+  SR_PR_NUM: ""
+  SR_LSR_USER: ""
+  SR_LSR_DOMAIN: ""
+  SR_LSR_SSH_KEY: ""
+  SR_ARTIFACTS_DIR: ""
+  SR_ARTIFACTS_URL: ""
+  SR_TFT_DEBUG: false
 prepare:
   - name: Use vault.centos.org repos (CS 7, 8 EOL workaround)
     script: |
@@ -48,14 +51,14 @@ discover:
     how: fmf
     where: managed_node
     filter: tag:prep_managed_node
-    url: https://github.com/richm/linux-system-roles-tft-tests
-    ref: image-mode
+    url: https://github.com/linux-system-roles/tft-tests
+    ref: main
   - name: Run test playbooks from control_node
     how: fmf
     where: control_node
     filter: tag:test_playbooks
-    url: https://github.com/richm/linux-system-roles-tft-tests
-    ref: image-mode
+    url: https://github.com/linux-system-roles/tft-tests
+    ref: main
   # Uncomment this step for troubleshooting
   # This is required because currently testing-farm cli doesn't support running multi-node plans
   # You can set ID_RSA_PUB in the environment section above to your public key to distribute it to nodes
