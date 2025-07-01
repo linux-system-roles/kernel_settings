@@ -120,63 +120,87 @@
     path: "{{ __kernel_settings_profile_filename }}"
   register: __kernel_settings_profile_contents
 
+- name: Initialize new sysctl
+  set_fact:
+    __kernel_settings_new_sysctl: "{{
+      __kernel_settings_profile_contents.data.get('sysctl', {})
+      if not kernel_settings_purge
+      and kernel_settings_sysctl != __kernel_settings_state_empty
+      and not __kernel_settings_previous_replaced in kernel_settings_sysctl
+      else {} }}"
+
+- name: Set new sysctl
+  set_fact:
+    __kernel_settings_new_sysctl: "{{ __kernel_settings_new_sysctl | combine(__new_item) }}"
+  loop: "{{ [] if kernel_settings_sysctl == __kernel_settings_state_empty
+    else kernel_settings_sysctl | rejectattr('previous', 'defined') | list }}"
+  vars:
+    __new_item: "{{ {item.name: __new_value} }}"
+    __new_value: "{{ __kernel_settings_state_absent
+      if item.state | d('present') == 'absent'
+      else item.value | d(__kernel_settings_state_absent) }}"
+
+- name: Initialize new sysfs
+  set_fact:
+    __kernel_settings_new_sysfs: "{{
+      __kernel_settings_profile_contents.data.get('sysfs', {})
+      if not kernel_settings_purge
+      and kernel_settings_sysfs != __kernel_settings_state_empty
+      and not __kernel_settings_previous_replaced in kernel_settings_sysfs
+      else {} }}"
+
+- name: Set new sysfs
+  set_fact:
+    __kernel_settings_new_sysfs: "{{ __kernel_settings_new_sysfs | combine(__new_item) }}"
+  loop: "{{ [] if kernel_settings_sysfs == __kernel_settings_state_empty
+    else kernel_settings_sysfs | rejectattr('previous', 'defined') | list }}"
+  vars:
+    __new_item: "{{ {item.name: __new_value} }}"
+    __new_value: "{{ __kernel_settings_state_absent
+      if item.state | d('present') == 'absent'
+      else item.value | d(__kernel_settings_state_absent) }}"
+
 - name: Apply kernel settings
   template:
     src: "{{ __kernel_settings_profile_src }}.j2"
     dest: "{{ __kernel_settings_profile_filename }}"
     mode: "0644"
   vars:
-    __sysctl_old: "{{ __kernel_settings_profile_contents.data.get('sysctl', {})
-      if not kernel_settings_purge
-      and kernel_settings_sysctl != __kernel_settings_state_empty
-      and not __kernel_settings_previous_replaced in kernel_settings_sysctl
-      else {} }}"
-    __sysfs_old: "{{ __kernel_settings_profile_contents.data.get('sysfs', {})
-      if not kernel_settings_purge
-      and kernel_settings_sysfs != __kernel_settings_state_empty
-      and not __kernel_settings_previous_replaced in kernel_settings_sysfs
-      else {} }}"
+    # we don't have a way to compare an item to a dict - eq not available in el7
+    # so assume if the value is a dict, it is the {"state": "absent"} dict
+    # because "real" values should be scalars like strings, int, bool
+    __sysctl_has_values: "{{ __kernel_settings_new_sysctl | dict2items | rejectattr('value', 'mapping') | list | length > 0 }}"
+    __sysfs_has_values: "{{ __kernel_settings_new_sysfs | dict2items | rejectattr('value', 'mapping') | list | length > 0 }}"
     __systemd_old: "{{
-      __kernel_settings_profile_contents.data.get('systemd', {}).get('cpu_affinity')
+      __kernel_settings_profile_contents.data.get('systemd', {}).get('cpu_affinity', '')
       if not kernel_settings_purge
       and kernel_settings_systemd_cpu_affinity != __kernel_settings_state_absent
-      else none }}"
+      else '' }}"
+    __systemd_new: "{{ kernel_settings_systemd_cpu_affinity
+      if kernel_settings_systemd_cpu_affinity is not none and
+      kernel_settings_systemd_cpu_affinity != __kernel_settings_state_absent and
+      kernel_settings_systemd_cpu_affinity | length > 0
+      else __systemd_old }}"
     __trans_huge_old: "{{
-      __kernel_settings_profile_contents.data.get('vm', {}).get('transparent_hugepages')
+      __kernel_settings_profile_contents.data.get('vm', {}).get('transparent_hugepages', '')
       if not kernel_settings_purge
       and kernel_settings_transparent_hugepages != __kernel_settings_state_absent
-      else none }}"
+      else '' }}"
+    __trans_huge_new: "{{ kernel_settings_transparent_hugepages
+      if kernel_settings_transparent_hugepages is not none and
+      kernel_settings_transparent_hugepages != __kernel_settings_state_absent and
+      kernel_settings_transparent_hugepages | length > 0
+      else __trans_huge_old }}"
     __trans_defrag_old: "{{
-      __kernel_settings_profile_contents.data.get('vm', {}).get('transparent_hugepage.defrag')
+      __kernel_settings_profile_contents.data.get('vm', {}).get('transparent_hugepage.defrag', '')
       if not kernel_settings_purge
       and kernel_settings_transparent_hugepages_defrag != __kernel_settings_state_absent
-      else none }}"
-    __sections:
-      - name: sysctl
-        new: "{{ kernel_settings_sysctl | difference([__kernel_settings_previous_replaced]) | list
-          if kernel_settings_sysctl != __kernel_settings_state_empty
-          else [] }}"
-        old: "{{ __sysctl_old }}"
-      - name: sysfs
-        new: "{{ kernel_settings_sysfs | difference([__kernel_settings_previous_replaced]) | list
-          if kernel_settings_sysfs != __kernel_settings_state_empty
-          else [] }}"
-        old: "{{ __sysfs_old }}"
-      - name: systemd
-        new:
-          - name: cpu_affinity
-            value: "{{ kernel_settings_systemd_cpu_affinity }}"
-        old:
-          cpu_affinity: "{{ __systemd_old }}"
-      - name: vm
-        new:
-          - name: transparent_hugepages
-            value: "{{ kernel_settings_transparent_hugepages }}"
-          - name: transparent_hugepage.defrag
-            value: "{{ kernel_settings_transparent_hugepages_defrag }}"
-        old:
-          transparent_hugepages: "{{ __trans_huge_old }}"
-          transparent_hugepage.defrag: "{{ __trans_defrag_old }}"
+      else '' }}"
+    __trans_defrag_new: "{{ kernel_settings_transparent_hugepages_defrag
+      if kernel_settings_transparent_hugepages_defrag is not none and
+      kernel_settings_transparent_hugepages_defrag != __kernel_settings_state_absent and
+      kernel_settings_transparent_hugepages_defrag | length > 0
+      else __trans_defrag_old }}"
   register: __kernel_settings_register_apply
 
 # this will also apply the kernel_settings profile, so we

@@ -53,7 +53,8 @@ __kernel_settings_profile_file: |
   /sys/kernel/debug/x86/ibrs_enabled = 0
   /sys/kernel/debug/x86/pti_enabled = 0
   /sys/kernel/debug/x86/retp_enabled = 0
-  {% if __kernel_settings_blcmdline_value | d() %}
+  {% if __kernel_settings_blcmdline_value | d() is not none and
+     __kernel_settings_blcmdline_value | d("") | length > 0 %}
   [bootloader]
   cmdline = {{ __kernel_settings_blcmdline_value }}
   {% endif %}
