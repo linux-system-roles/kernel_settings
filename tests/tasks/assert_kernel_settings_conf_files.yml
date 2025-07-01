@@ -80,14 +80,16 @@
   ignore_errors: true
   register: __kernel_settings_register_verify_bl_cmdline
   when:
-    - __kernel_settings_blcmdline_value | d()
+    - __kernel_settings_blcmdline_value | d() is not none
+    - __kernel_settings_blcmdline_value | d("") | length > 0
   changed_when: false
 
 - name: Verify bootloader settings value
   set_fact:
     __kernel_settings_success: false
   when:
-    - __kernel_settings_blcmdline_value | d()
+    - __kernel_settings_blcmdline_value | d() is not none
+    - __kernel_settings_blcmdline_value | d("") | length > 0
     - __kernel_settings_register_verify_bl_cmdline is defined
     - __kernel_settings_register_verify_bl_cmdline.stdout is defined
     - __kernel_settings_register_verify_bl_cmdline is failed or

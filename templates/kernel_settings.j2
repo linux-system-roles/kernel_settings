@@ -1,33 +1,31 @@
 {{ ansible_managed | comment }}
 {{ "system_role:kernel_settings" | comment(prefix="", postfix="") }}
+{% macro write_section(section_name, settings) %}
+[{{ section_name }}]
+{%   for key, val in settings.items() %}
+{%     if val != {"state": "absent"} %}
+{{ key }} = {{ val }}
+{%     endif %}
+{%   endfor %}
+{% endmacro %}
 [main]
 summary = kernel settings
-{% set __settings = {} %}
-{% for section in __sections %}
-{%   set section_name = section["name"] %}
-{%   for item in section["new"] %}
-{%     if item.state | d() == "absent" %}
-{%       set _ = __settings.setdefault(section_name, {}).__setitem__(item.name, __kernel_settings_state_absent) %}
-{%     elif item.value != none and item.value != "" %}
-{%       set _ = __settings.setdefault(section_name, {}).__setitem__(item.name, item.value) %}
-{%     endif %}
-{%   endfor %}
-{%   for key, value in section["old"].items() %}
-{%     if not __settings.get(section_name, {}).__contains__(key) and value != none and value != "" %}
-{%       set _ = __settings.setdefault(section_name, {}).__setitem__(key, value) %}
-{%     endif %}
-{%   endfor %}
-{% endfor %}
-{% set seen_sections = {} %}
-{% for section_name in __settings.keys() | sort %}
-{%   set section = __settings[section_name] %}
-{%   for key in section.keys() | sort %}
-{%     if section[key] != __kernel_settings_state_absent %}
-{%       if not seen_sections.__contains__(section_name) %}
-{%         set _ = seen_sections.__setitem__(section_name, true) %}
-[{{ section_name }}]
-{%       endif %}
-{{ key }} = {{ section[key] }}
-{%     endif %}
-{%   endfor %}
-{% endfor %}
+{% if __sysctl_has_values %}
+{{   write_section("sysctl", __kernel_settings_new_sysctl) -}}
+{% endif %}
+{% if __sysfs_has_values %}
+{{   write_section("sysfs", __kernel_settings_new_sysfs) -}}
+{% endif %}
+{% if __systemd_new | length > 0 %}
+[systemd]
+cpu_affinity = {{ __systemd_new }}
+{% endif %}
+{% if __trans_huge_new | length > 0 or __trans_defrag_new | length > 0 %}
+[vm]
+{%   if __trans_huge_new | length > 0 %}
+transparent_hugepages = {{ __trans_huge_new }}
+{%   endif %}
+{%   if __trans_defrag_new | length > 0 %}
+transparent_hugepage.defrag = {{ __trans_defrag_new }}
+{%   endif %}
+{% endif %}
