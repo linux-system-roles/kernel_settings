@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.3.5] - 2025-07-02
+--------------------
+
+### Other Changes
+
+- ci: Add support for bootc end-to-end validation tests (#259)
+- ci: Use ansible 2.19 for fedora 42 testing; support python 3.13 (#260)
+- refactor: support Ansible 2.19 (#261)
+
 [1.3.4] - 2025-05-21
 --------------------
 
