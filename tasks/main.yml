@@ -92,6 +92,8 @@
 
 - name: Set active_profile
   set_fact:
+    # not really invalid - see https://github.com/ansible/ansible-lint/issues/4702
+    # noqa jinja[invalid]
     __kernel_settings_active_profile: "{{ __cur_profile
       if __kernel_settings_tuned_profile in __cur_profile
       else __cur_profile ~ ' ' ~ __kernel_settings_tuned_profile }}"
