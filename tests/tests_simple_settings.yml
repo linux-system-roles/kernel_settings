@@ -16,7 +16,7 @@
             kernel_settings_bootloader_cmdline: null
             __kernel_settings_blcmdline_value: null
             __kernel_settings_check_reboot: false
-          when: ansible_distribution == "Fedora"
+          when: ansible_facts["distribution"] == "Fedora"
 
         # use public: true here so that the private role
         # variables will be exported - we use
