@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[1.3.8] - 2026-01-07
+--------------------
+
+### Other Changes
+
+- ci: bump gha checkout from v5 to v6 (#283)
+- ci: add qemu tests for Fedora 43, drop Fedora 41 (#284)
+- ci: bump actions/upload-artifact from 5 to 6 (#285)
+- refactor: handle INJECT_FACTS_AS_VARS=false by using ansible_facts instead (#286)
+
 [1.3.7] - 2025-11-17
 --------------------
 
