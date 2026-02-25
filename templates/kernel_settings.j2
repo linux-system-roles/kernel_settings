@@ -2,7 +2,8 @@
 {{ "system_role:kernel_settings" | comment(prefix="", postfix="") }}
 {% macro write_section(section_name, settings) %}
 [{{ section_name }}]
-{%   for key, val in settings.items() %}
+{%   for key in settings.keys() | sort %}
+{%     set val = settings[key] %}
 {%     if val != {"state": "absent"} %}
 {{ key }} = {{ val }}
 {%     endif %}
