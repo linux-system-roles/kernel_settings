@@ -7,8 +7,7 @@
 - name: Use role purge to remove settings
   block:
     - name: Run role with purge to remove everything
-      include_role:
-        name: linux-system-roles.kernel_settings
+      include_tasks: tasks/run_role_with_clear_facts.yml
       vars:
         kernel_settings_purge: true
         kernel_settings_sysctl: []

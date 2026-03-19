@@ -58,10 +58,9 @@
             enabled: true
 
         - name: Apply kernel_settings
-          include_role:
-            name: linux-system-roles.kernel_settings
-            public: true
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
+            __sr_public: true
             kernel_settings_sysctl:
               - name: fs.file-max
                 value: 400000
@@ -120,8 +119,7 @@
           changed_when: false
 
         - name: Apply role again and remove settings
-          include_role:
-            name: linux-system-roles.kernel_settings
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
             kernel_settings_reboot_ok: true
             kernel_settings_sysctl:
@@ -148,8 +146,7 @@
           changed_when: false
 
         - name: Apply kernel_settings for removing
-          include_role:
-            name: linux-system-roles.kernel_settings
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
             kernel_settings_reboot_ok: true
             kernel_settings_sysctl:
@@ -181,8 +178,7 @@
           changed_when: false
 
         - name: Apply kernel_settings for removing section
-          include_role:
-            name: linux-system-roles.kernel_settings
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
             kernel_settings_reboot_ok: true
             kernel_settings_sysctl:

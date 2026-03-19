@@ -1,7 +1,6 @@
 ---
 - name: Test simple kernel settings
   hosts: all
-  gather_facts: true
   tags:
     - tests::reboot
   tasks:
@@ -23,9 +22,9 @@
         # __kernel_settings_profile_filename to verify
         # that the settings were applied correctly
         - name: Apply the settings - call the role
-          include_role:
-            name: linux-system-roles.kernel_settings
-            public: true
+          include_tasks: tasks/run_role_with_clear_facts.yml
+          vars:
+            __sr_public: true
 
         - name: Verify that settings were applied correctly
           include_tasks: tasks/assert_kernel_settings.yml
@@ -61,8 +60,7 @@
             - not kernel_settings_test_reboot_ok | d(false)
 
         - name: Apply the settings again to check idempotency
-          include_role:
-            name: linux-system-roles.kernel_settings
+          include_tasks: tasks/run_role_with_clear_facts.yml
 
         - name: Ensure role reported not changed
           assert:
