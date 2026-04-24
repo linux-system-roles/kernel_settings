@@ -246,3 +246,9 @@
       __kernel_settings_register_profile is changed
       or __kernel_settings_register_mode is changed
       or __kernel_settings_register_apply is changed }}"
+
+- name: Record role success fingerprint
+  sr_fingerprint:
+    sr_message: >-
+      success system_role:kernel_settings ansible_version={{ ansible_version.full }}
+      {{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_version'] }}
