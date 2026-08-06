@@ -32,6 +32,8 @@ __kernel_settings_required_facts:
 __kernel_settings_required_facts_subsets: "{{ ['!all', '!min'] +
   __kernel_settings_required_facts }}"
 
+__kernel_settings_write_log_file: false
+
 # BEGIN - DO NOT EDIT THIS BLOCK - rh distros variables
 # Ansible distribution identifiers that the role treats like RHEL
 __kernel_settings_rh_distros:
