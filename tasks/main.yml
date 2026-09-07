@@ -1,4 +1,7 @@
 ---
+- name: Validate role parameters
+  ansible.builtin.include_tasks: assert_role_vars.yml
+
 - name: Check sysctl settings for boolean values
   fail:
     msg: Boolean values are not allowed for sysctl settings

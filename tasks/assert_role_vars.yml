@@ -1,0 +1,152 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Assert kernel_settings_sysctl is a list of dicts or a single dict
+  ansible.builtin.assert:
+    that:
+      - >-
+        kernel_settings_sysctl is mapping
+        or (kernel_settings_sysctl is sequence
+            and kernel_settings_sysctl is not string
+            and kernel_settings_sysctl is not mapping
+            and kernel_settings_sysctl | reject('mapping') | list | length == 0)
+    fail_msg: >-
+      kernel_settings_sysctl must be a list of dictionaries or a single
+      dictionary, got {{ kernel_settings_sysctl | type_debug }}
+
+- name: Assert kernel_settings_sysctl dicts contain only valid keys
+  ansible.builtin.assert:
+    that:
+      - >-
+        item.keys() | list | difference(__kernel_settings_setting_valid_keys)
+        | length == 0
+    fail_msg: >-
+      kernel_settings_sysctl[{{ idx }}] contains invalid keys:
+      {{ item.keys() | list | difference(__kernel_settings_setting_valid_keys) | join(', ') }}
+  vars:
+    __kernel_settings_setting_valid_keys:
+      - name
+      - value
+      - state
+      - previous
+  loop: >-
+    {{ [kernel_settings_sysctl] if kernel_settings_sysctl is mapping
+       else (kernel_settings_sysctl if (kernel_settings_sysctl is sequence
+             and kernel_settings_sysctl is not string
+             and kernel_settings_sysctl is not mapping)
+       else []) }}
+  loop_control:
+    index_var: idx
+    label: "{{ idx }}"
+  when:
+    - kernel_settings_sysctl is not mapping
+      or kernel_settings_sysctl.get('state', '') != 'empty'
+
+- name: Assert kernel_settings_sysfs is a list of dicts or a single dict
+  ansible.builtin.assert:
+    that:
+      - >-
+        kernel_settings_sysfs is mapping
+        or (kernel_settings_sysfs is sequence
+            and kernel_settings_sysfs is not string
+            and kernel_settings_sysfs is not mapping
+            and kernel_settings_sysfs | reject('mapping') | list | length == 0)
+    fail_msg: >-
+      kernel_settings_sysfs must be a list of dictionaries or a single
+      dictionary, got {{ kernel_settings_sysfs | type_debug }}
+
+- name: Assert kernel_settings_sysfs dicts contain only valid keys
+  ansible.builtin.assert:
+    that:
+      - >-
+        item.keys() | list | difference(__kernel_settings_setting_valid_keys)
+        | length == 0
+    fail_msg: >-
+      kernel_settings_sysfs[{{ idx }}] contains invalid keys:
+      {{ item.keys() | list | difference(__kernel_settings_setting_valid_keys) | join(', ') }}
+  vars:
+    __kernel_settings_setting_valid_keys:
+      - name
+      - value
+      - state
+      - previous
+  loop: >-
+    {{ [kernel_settings_sysfs] if kernel_settings_sysfs is mapping
+       else (kernel_settings_sysfs if (kernel_settings_sysfs is sequence
+             and kernel_settings_sysfs is not string
+             and kernel_settings_sysfs is not mapping)
+       else []) }}
+  loop_control:
+    index_var: idx
+    label: "{{ idx }}"
+  when:
+    - kernel_settings_sysfs is not mapping
+      or kernel_settings_sysfs.get('state', '') != 'empty'
+
+- name: Assert kernel_settings_systemd_cpu_affinity is null, a string, or absent dict
+  ansible.builtin.assert:
+    that:
+      - >-
+        (kernel_settings_systemd_cpu_affinity is none)
+        or (kernel_settings_systemd_cpu_affinity is string)
+        or (
+          kernel_settings_systemd_cpu_affinity is mapping
+          and kernel_settings_systemd_cpu_affinity.keys() | list
+          | difference(['state']) | length == 0
+          and kernel_settings_systemd_cpu_affinity.state == 'absent'
+        )
+    fail_msg: >-
+      kernel_settings_systemd_cpu_affinity must be null, a string, or
+      {"state": "absent"}, got {{ kernel_settings_systemd_cpu_affinity | type_debug }}
+
+- name: Assert kernel_settings_transparent_hugepages is null, a valid string, or absent dict
+  ansible.builtin.assert:
+    that:
+      - >-
+        (kernel_settings_transparent_hugepages is none)
+        or (
+          kernel_settings_transparent_hugepages is string
+          and kernel_settings_transparent_hugepages in
+          ['always', 'madvise', 'never']
+        )
+        or (
+          kernel_settings_transparent_hugepages is mapping
+          and kernel_settings_transparent_hugepages.keys() | list
+          | difference(['state']) | length == 0
+          and kernel_settings_transparent_hugepages.state == 'absent'
+        )
+    fail_msg: >-
+      kernel_settings_transparent_hugepages must be null, one of always,
+      madvise, never, or {"state": "absent"},
+      got {{ kernel_settings_transparent_hugepages | type_debug }}
+
+- name: Assert kernel_settings_transparent_hugepages_defrag is null, a valid string, or absent dict
+  ansible.builtin.assert:
+    that:
+      - >-
+        (kernel_settings_transparent_hugepages_defrag is none)
+        or (
+          kernel_settings_transparent_hugepages_defrag is string
+          and kernel_settings_transparent_hugepages_defrag in
+          ['always', 'defer', 'defer+madvise', 'madvise', 'never']
+        )
+        or (
+          kernel_settings_transparent_hugepages_defrag is mapping
+          and kernel_settings_transparent_hugepages_defrag.keys() | list
+          | difference(['state']) | length == 0
+          and kernel_settings_transparent_hugepages_defrag.state == 'absent'
+        )
+    fail_msg: >-
+      kernel_settings_transparent_hugepages_defrag must be null, one of
+      always, defer, defer+madvise, madvise, never, or {"state":
+      "absent"}, got {{ kernel_settings_transparent_hugepages_defrag | type_debug }}
+
+- name: Assert kernel_settings_transactional_update_reboot_ok is null or a boolean
+  ansible.builtin.assert:
+    that:
+      - >-
+        (kernel_settings_transactional_update_reboot_ok is none)
+        or (kernel_settings_transactional_update_reboot_ok is sameas true)
+        or (kernel_settings_transactional_update_reboot_ok is sameas false)
+    fail_msg: >-
+      kernel_settings_transactional_update_reboot_ok must be null or a
+      boolean, got {{ kernel_settings_transactional_update_reboot_ok | type_debug }}
