@@ -1,0 +1,236 @@
+# SPDX-License-Identifier: MIT
+---
+# Verify meta/argument_specs.yml and tasks/assert_role_vars.yml reject bad
+# parameters. Each block runs the role expecting failure; rescue records
+# that outcome.
+- name: Verify invalid parameters are rejected
+  hosts: all
+  tasks:
+    - name: Run invalid input tests
+      block:
+        # ====================================================
+        # Section 1: Verify role works with valid defaults
+        # ====================================================
+        - name: Run role with valid defaults
+          ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+
+        # ====================================================
+        # Section 2: argument_specs validation (Ansible 2.11+)
+        # ====================================================
+        - name: Run argument specs validation tests
+          when: ansible_version.full is version('2.11', '>=')
+          block:
+            - name: Argument specs reject non-boolean kernel_settings_purge
+              block:
+                - name: Run role with non-boolean kernel_settings_purge
+                  ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+                  vars:
+                    kernel_settings_purge: not_a_bool
+              rescue:
+                - name: Mark invalid kernel_settings_purge type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_purge_type_failed: true
+
+            - name: Assert invalid kernel_settings_purge type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_purge_type_failed | default(false)
+                fail_msg: >-
+                  meta/argument_specs should reject kernel_settings_purge
+                  values that are not booleans
+
+            - name: Argument specs reject non-boolean kernel_settings_reboot_ok
+              block:
+                - name: Run role with non-boolean kernel_settings_reboot_ok
+                  ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+                  vars:
+                    kernel_settings_reboot_ok: not_a_bool
+              rescue:
+                - name: Mark invalid kernel_settings_reboot_ok type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_reboot_ok_type_failed: true
+
+            - name: Assert invalid kernel_settings_reboot_ok type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_reboot_ok_type_failed | default(false)
+                fail_msg: >-
+                  meta/argument_specs should reject kernel_settings_reboot_ok
+                  values that are not booleans
+
+        # ====================================================
+        # Section 3: assert_role_vars validation (all versions)
+        # ====================================================
+
+        - name: Assert rejects kernel_settings_sysctl as a string
+          block:
+            - name: Run role with kernel_settings_sysctl as a string
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysctl: not_a_dict_or_list
+          rescue:
+            - name: Mark kernel_settings_sysctl string rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysctl_string_failed: true
+
+        - name: Assert kernel_settings_sysctl as string failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysctl_string_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysctl
+              when it is a string instead of a list of dicts or a single dict
+
+        - name: Assert rejects kernel_settings_sysctl list with invalid key
+          block:
+            - name: Run role with kernel_settings_sysctl containing unknown key
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysctl:
+                  - invalid_key_name: some_value
+          rescue:
+            - name: Mark kernel_settings_sysctl invalid key rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysctl_bad_key_failed: true
+
+        - name: Assert kernel_settings_sysctl invalid key failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysctl_bad_key_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysctl
+              dicts containing keys not in the valid set
+
+        - name: Assert rejects kernel_settings_sysfs as an integer
+          block:
+            - name: Run role with kernel_settings_sysfs as an integer
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysfs: 42
+          rescue:
+            - name: Mark kernel_settings_sysfs integer rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysfs_int_failed: true
+
+        - name: Assert kernel_settings_sysfs as integer failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysfs_int_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysfs
+              when it is an integer instead of a list of dicts or a single dict
+
+        - name: Assert rejects kernel_settings_systemd_cpu_affinity as integer
+          block:
+            - name: Run role with kernel_settings_systemd_cpu_affinity as integer
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_systemd_cpu_affinity: 42
+          rescue:
+            - name: Mark kernel_settings_systemd_cpu_affinity integer rejected
+              ansible.builtin.set_fact:
+                __invalid_input_cpu_affinity_int_failed: true
+
+        - name: Assert kernel_settings_systemd_cpu_affinity as integer failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_cpu_affinity_int_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject
+              kernel_settings_systemd_cpu_affinity when it is an integer
+              instead of null, a string, or {"state": "absent"}
+
+        - name: Assert rejects invalid kernel_settings_transparent_hugepages choice
+          block:
+            - name: Run role with invalid transparent_hugepages value
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_transparent_hugepages: invalid_choice
+          rescue:
+            - name: Mark invalid transparent_hugepages rejected
+              ansible.builtin.set_fact:
+                __invalid_input_trans_huge_choice_failed: true
+
+        - name: Assert invalid transparent_hugepages choice failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_trans_huge_choice_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject
+              kernel_settings_transparent_hugepages values outside the
+              allowed set
+
+        - name: Assert rejects invalid kernel_settings_transparent_hugepages_defrag choice
+          block:
+            - name: Run role with invalid transparent_hugepages_defrag value
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_transparent_hugepages_defrag: invalid_choice
+          rescue:
+            - name: Mark invalid transparent_hugepages_defrag rejected
+              ansible.builtin.set_fact:
+                __invalid_input_trans_defrag_choice_failed: true
+
+        - name: Assert invalid transparent_hugepages_defrag choice failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_trans_defrag_choice_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject
+              kernel_settings_transparent_hugepages_defrag values outside
+              the allowed set
+
+        - name: Assert rejects kernel_settings_transactional_update_reboot_ok as string
+          block:
+            - name: Run role with non-boolean transactional_update_reboot_ok
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_transactional_update_reboot_ok: not_a_bool
+          rescue:
+            - name: Mark invalid transactional_update_reboot_ok rejected
+              ansible.builtin.set_fact:
+                __invalid_input_tu_reboot_type_failed: true
+
+        - name: Assert transactional_update_reboot_ok as string failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_tu_reboot_type_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject
+              kernel_settings_transactional_update_reboot_ok when it is a
+              string instead of null or a boolean
+
+        - name: Assert rejects kernel_settings_transactional_update_reboot_ok as integer
+          block:
+            - name: Run role with integer transactional_update_reboot_ok
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_transactional_update_reboot_ok: 42
+          rescue:
+            - name: Mark integer transactional_update_reboot_ok rejected
+              ansible.builtin.set_fact:
+                __invalid_input_tu_reboot_int_failed: true
+
+        - name: Assert transactional_update_reboot_ok as integer failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_tu_reboot_int_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject
+              kernel_settings_transactional_update_reboot_ok when it is an
+              integer instead of null or a boolean
+
+      always:
+        - name: Clear test facts
+          ansible.builtin.set_fact:
+            __invalid_input_purge_type_failed:
+            __invalid_input_reboot_ok_type_failed:
+            __invalid_input_sysctl_string_failed:
+            __invalid_input_sysctl_bad_key_failed:
+            __invalid_input_sysfs_int_failed:
+            __invalid_input_cpu_affinity_int_failed:
+            __invalid_input_trans_huge_choice_failed:
+            __invalid_input_trans_defrag_choice_failed:
+            __invalid_input_tu_reboot_type_failed:
+            __invalid_input_tu_reboot_int_failed:
+          tags: tests::cleanup

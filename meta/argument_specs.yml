@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: The kernel_settings role.
+    description: >
+      The kernel_settings role allows you to modify kernel settings such as
+      `sysctl` parameters, `/sys` sysfs values, systemd CPU affinity, and
+      transparent hugepage settings. It uses `tuned` as the default provider
+      on Red Hat Enterprise Linux, derivatives, and Fedora.
+
+      Settings are additive by default. Use `previous: replaced` in a settings
+      list to replace all existing values in a group, or `{"state": "empty"}`
+      to remove all settings in a group. Use `state: absent` on individual
+      settings to remove them.
+    options:
+      kernel_settings_sysctl:
+        type: raw
+        default: []
+        description: >
+          List of `sysctl` settings to apply, or the dict `{"state":
+          "empty"}` to remove all `sysctl` settings. Each list item is a
+          dict with keys `name`, `value`, `state`, and `previous`. Use
+          `state: absent` to remove a setting by name. Use `previous:
+          replaced` as one list item to replace all existing settings with
+          the given values. Values must be strings or numbers, not YAML
+          boolean types.
+      kernel_settings_sysfs:
+        type: raw
+        default: []
+        description: >
+          List of `/sys` settings to apply, or the dict `{"state":
+          "empty"}` to remove all `sysfs` settings. Each list item is a
+          dict with keys `name`, `value`, `state`, and `previous`. The
+          `name` is the path under `/sys`. Use `state: absent` to remove a
+          setting by name. Use `previous: replaced` as one list item to
+          replace all existing settings with the given values.
+      kernel_settings_systemd_cpu_affinity:
+        type: raw
+        default: null
+        description: >
+          CPU affinity for systemd as a space-delimited list of CPU
+          numbers, for example `1,3,5,7`, as described in the
+          systemd-system.conf `CPUAffinity` option. Use the dict
+          `{"state": "absent"}` to remove the setting.
+      kernel_settings_transparent_hugepages:
+        type: raw
+        default: null
+        description: >
+          Transparent hugepages setting for the memory subsystem. Set to
+          `always`, `madvise`, or `never`. Use the dict `{"state":
+          "absent"}` to remove the setting.
+      kernel_settings_transparent_hugepages_defrag:
+        type: raw
+        default: null
+        description: >
+          Transparent hugepages defragmentation setting for the memory
+          subsystem. Set to `always`, `defer`, `defer+madvise`, `madvise`,
+          or `never`. The supported values may differ depending on the
+          OS. Use the dict `{"state": "absent"}` to remove the setting.
+      kernel_settings_purge:
+        type: bool
+        default: false
+        description: >
+          Whether to completely wipe out the current kernel settings
+          configuration and replace it with the given settings.
+      kernel_settings_reboot_ok:
+        type: bool
+        default: false
+        description: >
+          Whether the role is allowed to reboot the managed host when a
+          reboot is required to apply changes. When `false`, the role sets
+          `kernel_settings_reboot_required` to `true` instead of
+          rebooting.
+      kernel_settings_transactional_update_reboot_ok:
+        type: raw
+        default: null
+        description: >
+          Whether to permit reboots required by transactional updates. Set
+          to `true` to allow reboots, `false` to disallow reboots, or leave
+          unset so that the role will fail to ensure the reboot requirement
+          is not overlooked. Accepts a boolean value or `null`.
