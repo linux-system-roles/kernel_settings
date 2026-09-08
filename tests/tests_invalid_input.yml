@@ -101,6 +101,88 @@
               tasks/assert_role_vars.yml should reject kernel_settings_sysctl
               dicts containing keys not in the valid set
 
+        - name: Assert rejects kernel_settings_sysctl as a single-setting mapping
+          block:
+            - name: Run role with kernel_settings_sysctl as a single setting dict
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysctl:
+                  name: fs.file-max
+                  value: 379724
+          rescue:
+            - name: Mark kernel_settings_sysctl single-setting mapping rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysctl_single_dict_failed: true
+
+        - name: Assert kernel_settings_sysctl single-setting mapping failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysctl_single_dict_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysctl
+              when given as a single setting dict instead of a list
+
+        - name: Assert rejects kernel_settings_sysctl empty sentinel with extra keys
+          block:
+            - name: Run role with kernel_settings_sysctl empty sentinel plus extra key
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysctl:
+                  state: empty
+                  extra_key: unexpected
+          rescue:
+            - name: Mark kernel_settings_sysctl empty sentinel extra keys rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysctl_empty_extra_failed: true
+
+        - name: Assert kernel_settings_sysctl empty sentinel extra keys failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysctl_empty_extra_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysctl
+              empty sentinel dicts with keys other than state
+
+        - name: Assert rejects kernel_settings_sysctl list item missing name
+          block:
+            - name: Run role with kernel_settings_sysctl list item without name
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysctl:
+                  - value: 379724
+          rescue:
+            - name: Mark kernel_settings_sysctl missing name rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysctl_missing_name_failed: true
+
+        - name: Assert kernel_settings_sysctl missing name failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysctl_missing_name_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysctl
+              list items that omit the required name field
+
+        - name: Assert rejects kernel_settings_sysctl list item with invalid previous
+          block:
+            - name: Run role with kernel_settings_sysctl list item with invalid previous
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kernel_settings_sysctl:
+                  - previous: not_replaced
+          rescue:
+            - name: Mark kernel_settings_sysctl invalid previous rejected
+              ansible.builtin.set_fact:
+                __invalid_input_sysctl_bad_previous_failed: true
+
+        - name: Assert kernel_settings_sysctl invalid previous failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_sysctl_bad_previous_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kernel_settings_sysctl
+              list items with previous values other than replaced
+
         - name: Assert rejects kernel_settings_sysfs as an integer
           block:
             - name: Run role with kernel_settings_sysfs as an integer
@@ -227,6 +309,10 @@
             __invalid_input_reboot_ok_type_failed:
             __invalid_input_sysctl_string_failed:
             __invalid_input_sysctl_bad_key_failed:
+            __invalid_input_sysctl_single_dict_failed:
+            __invalid_input_sysctl_empty_extra_failed:
+            __invalid_input_sysctl_missing_name_failed:
+            __invalid_input_sysctl_bad_previous_failed:
             __invalid_input_sysfs_int_failed:
             __invalid_input_cpu_affinity_int_failed:
             __invalid_input_trans_huge_choice_failed:
