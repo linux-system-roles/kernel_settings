@@ -1,27 +1,39 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Assert kernel_settings_sysctl is a list of dicts or a single dict
+- name: Assert kernel_settings_sysctl is a list of dicts or the empty sentinel
   ansible.builtin.assert:
     that:
       - >-
-        kernel_settings_sysctl is mapping
+        (kernel_settings_sysctl is mapping
+         and kernel_settings_sysctl.keys() | list | difference(['state'])
+         | length == 0
+         and kernel_settings_sysctl.state == 'empty')
         or (kernel_settings_sysctl is sequence
             and kernel_settings_sysctl is not string
             and kernel_settings_sysctl is not mapping
             and kernel_settings_sysctl | reject('mapping') | list | length == 0)
     fail_msg: >-
-      kernel_settings_sysctl must be a list of dictionaries or a single
-      dictionary, got {{ kernel_settings_sysctl | type_debug }}
+      kernel_settings_sysctl must be a list of dictionaries or {"state":
+      "empty"}, got {{ kernel_settings_sysctl | type_debug }}
 
-- name: Assert kernel_settings_sysctl dicts contain only valid keys
+- name: Assert kernel_settings_sysctl list items are valid
   ansible.builtin.assert:
     that:
       - >-
         item.keys() | list | difference(__kernel_settings_setting_valid_keys)
         | length == 0
+      - not ('previous' in item) or item.previous == 'replaced'
+      - not ('state' in item) or item.state == 'absent'
+      - >-
+        (item.keys() | list == ['previous'] and item.previous == 'replaced')
+        or ('name' in item)
+      - >-
+        (item.keys() | list == ['previous'] and item.previous == 'replaced')
+        or ('state' in item and item.state == 'absent')
+        or ('value' in item)
     fail_msg: >-
-      kernel_settings_sysctl[{{ idx }}] contains invalid keys:
-      {{ item.keys() | list | difference(__kernel_settings_setting_valid_keys) | join(', ') }}
+      kernel_settings_sysctl[{{ idx }}] is invalid:
+      {{ item }}
   vars:
     __kernel_settings_setting_valid_keys:
       - name
@@ -29,40 +41,48 @@
       - state
       - previous
   loop: >-
-    {{ [kernel_settings_sysctl] if kernel_settings_sysctl is mapping
-       else (kernel_settings_sysctl if (kernel_settings_sysctl is sequence
-             and kernel_settings_sysctl is not string
-             and kernel_settings_sysctl is not mapping)
-       else []) }}
+    {{ kernel_settings_sysctl if (kernel_settings_sysctl is sequence
+          and kernel_settings_sysctl is not string
+          and kernel_settings_sysctl is not mapping)
+       else [] }}
   loop_control:
     index_var: idx
     label: "{{ idx }}"
-  when:
-    - kernel_settings_sysctl is not mapping
-      or kernel_settings_sysctl.get('state', '') != 'empty'
 
-- name: Assert kernel_settings_sysfs is a list of dicts or a single dict
+- name: Assert kernel_settings_sysfs is a list of dicts or the empty sentinel
   ansible.builtin.assert:
     that:
       - >-
-        kernel_settings_sysfs is mapping
+        (kernel_settings_sysfs is mapping
+         and kernel_settings_sysfs.keys() | list | difference(['state'])
+         | length == 0
+         and kernel_settings_sysfs.state == 'empty')
         or (kernel_settings_sysfs is sequence
             and kernel_settings_sysfs is not string
             and kernel_settings_sysfs is not mapping
             and kernel_settings_sysfs | reject('mapping') | list | length == 0)
     fail_msg: >-
-      kernel_settings_sysfs must be a list of dictionaries or a single
-      dictionary, got {{ kernel_settings_sysfs | type_debug }}
+      kernel_settings_sysfs must be a list of dictionaries or {"state":
+      "empty"}, got {{ kernel_settings_sysfs | type_debug }}
 
-- name: Assert kernel_settings_sysfs dicts contain only valid keys
+- name: Assert kernel_settings_sysfs list items are valid
   ansible.builtin.assert:
     that:
       - >-
         item.keys() | list | difference(__kernel_settings_setting_valid_keys)
         | length == 0
+      - not ('previous' in item) or item.previous == 'replaced'
+      - not ('state' in item) or item.state == 'absent'
+      - >-
+        (item.keys() | list == ['previous'] and item.previous == 'replaced')
+        or ('name' in item)
+      - >-
+        (item.keys() | list == ['previous'] and item.previous == 'replaced')
+        or ('state' in item and item.state == 'absent')
+        or ('value' in item)
     fail_msg: >-
-      kernel_settings_sysfs[{{ idx }}] contains invalid keys:
-      {{ item.keys() | list | difference(__kernel_settings_setting_valid_keys) | join(', ') }}
+      kernel_settings_sysfs[{{ idx }}] is invalid:
+      {{ item }}
   vars:
     __kernel_settings_setting_valid_keys:
       - name
@@ -70,17 +90,13 @@
       - state
       - previous
   loop: >-
-    {{ [kernel_settings_sysfs] if kernel_settings_sysfs is mapping
-       else (kernel_settings_sysfs if (kernel_settings_sysfs is sequence
-             and kernel_settings_sysfs is not string
-             and kernel_settings_sysfs is not mapping)
-       else []) }}
+    {{ kernel_settings_sysfs if (kernel_settings_sysfs is sequence
+          and kernel_settings_sysfs is not string
+          and kernel_settings_sysfs is not mapping)
+       else [] }}
   loop_control:
     index_var: idx
     label: "{{ idx }}"
-  when:
-    - kernel_settings_sysfs is not mapping
-      or kernel_settings_sysfs.get('state', '') != 'empty'
 
 - name: Assert kernel_settings_systemd_cpu_affinity is null, a string, or absent dict
   ansible.builtin.assert:
