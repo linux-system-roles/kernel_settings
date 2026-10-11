@@ -5,7 +5,7 @@
 This role is used to modify kernel settings.  For example, on Linux, settings
 in `/proc/sys` (using `sysctl`), `/sys/fs`, and some other settings.  It uses
 `tuned` for its default provider on Enterprise Linux and derivatives (RHEL and
-CentOS) and Fedora.
+CentOS), Fedora, SLES 16 and openSUSE Leap 16.
 
 * `tuned` homepage - <https://github.com/redhat-performance/tuned>
 
