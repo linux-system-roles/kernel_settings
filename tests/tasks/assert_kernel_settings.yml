@@ -7,6 +7,7 @@
         - "tests_{{ ansible_facts['distribution'] }}_\
           {{ ansible_facts['distribution_major_version'] }}.yml"
         - "tests_{{ ansible_facts['distribution'] }}.yml"
+        - "tests_{{ ansible_facts['os_family'] }}.yml"
         - "tests_default.yml"
       paths:
         - vars

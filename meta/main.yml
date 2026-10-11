@@ -22,7 +22,10 @@ galaxy_info:
     - el10
     - fedora
     - kernel
+    - leap16
     - redhat
     - rhel
+    - sles
+    - sles16
     - system
     - tuned
